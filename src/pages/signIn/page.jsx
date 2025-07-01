@@ -18,7 +18,7 @@ export default function SignInPage() {
             <Img src="/signInbg.svg" />
           </ImgContainer>
           <TextOverlay>
-            <MainText>{"회원 서비스를 위해 \n로그인 해주세요"}</MainText>
+            <MainText>{"회원 서비스를 위해 \n로그인 해주세요."}</MainText>
             <SubText>peopool로 만들어 나가는 세상</SubText>
           </TextOverlay>
         </Content>
@@ -85,7 +85,7 @@ const Wrap = styled.div`
 const Container = styled.div`
   display: flex;
   width: 60%;
-  height: 80%;
+  height: 70%;
   background-color: white;
   border-radius: 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
