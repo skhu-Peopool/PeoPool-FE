@@ -1,12 +1,9 @@
-"use client";
-
-import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { useLocation, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 export default function Header() {
-  const pathname = usePathname();
+  const location = useLocation();
+  const pathname = location.pathname;
   const [isOpen, setIsOpen] = useState(false);
 
   // 전역 마우스 감지
@@ -29,23 +26,21 @@ export default function Header() {
   }
 
   const navItems = [
-    { name: "커뮤니티", href: "/community" },
-    { name: "마이페이지", href: "/mypage" },
+    { name: "커뮤니티", to: "/community" },
+    { name: "마이페이지", to: "/mypage" },
   ];
 
   const authItems = [
-    { name: "로그인", href: "/signIn" },
-    { name: "회원가입", href: "/signup" },
+    { name: "로그인", to: "/signIn" },
+    { name: "회원가입", to: "/signup" },
   ];
 
   return (
     <>
-      {/* 어두운 배경 */}
       {isOpen && (
         <div className="fixed inset-0 z-40 bg-transparent backdrop-brightness-75 transition-all duration-500 ease-in-out" />
       )}
 
-      {/* 슬라이드 헤더 */}
       <aside
         onMouseLeave={handleMouseLeave}
         className={`fixed top-0 left-0 h-full w-64 bg-white shadow-md z-50 transform transition-transform duration-300 ${
@@ -53,14 +48,9 @@ export default function Header() {
         }`}
       >
         <div className="flex flex-col items-start">
-          {/* 위쪽: 로고 + 메뉴 */}
           <div className="mb-10">
-            <Link
-              href="/"
-              onClick={handleMouseLeave}
-              className="block pt-5 pl-1"
-            >
-              <Image
+            <Link to="/" onClick={handleMouseLeave} className="block pt-5 pl-1">
+              <img
                 src="/Logo.svg"
                 alt="로고1"
                 width={130}
@@ -73,11 +63,11 @@ export default function Header() {
             <nav>
               <ul className="flex flex-col gap-4 px-8 font-bold text-lg">
                 {navItems.map((item) => {
-                  const isClick = pathname.startsWith(item.href);
+                  const isClick = pathname.startsWith(item.to);
                   return (
                     <li key={item.name}>
                       <Link
-                        href={item.href}
+                        to={item.to}
                         className={`transition ${
                           isClick ? "text-blue-500" : "text-gray-600"
                         } hover:text-blue-500`}
@@ -98,11 +88,11 @@ export default function Header() {
           <nav>
             <ul className="flex flex-col gap-3 px-8 font-bold text-sm">
               {authItems.map((item) => {
-                const isClick = pathname === item.href;
+                const isClick = pathname === item.to;
                 return (
                   <li key={item.name} className="flex items-center">
                     <Link
-                      href={item.href}
+                      to={item.to}
                       className={`transition ${
                         isClick ? "text-blue-500" : "text-gray-600"
                       } hover:text-blue-500`}
