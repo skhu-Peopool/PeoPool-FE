@@ -1,6 +1,7 @@
 // import './App.css'
 import Landing from './pages/page';
 import Community from './pages/community/page';
+import SignInPage from './pages/signIn/page';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
@@ -9,6 +10,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="community" element={<Community />} />
+        <Route path='signIn' element={<SignInPage />} />
       </Routes>
   );
 }
