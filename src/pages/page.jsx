@@ -1,6 +1,7 @@
 import React, {useState} from "react";
 import styled, { keyframes } from "styled-components";
 import TypingTitle from "../components/TypingTite";
+import { useNavigate } from "react-router-dom";
 
 const fadeInUp = keyframes`
   from {
@@ -17,14 +18,15 @@ const fadeInUp = keyframes`
 
 export default function HomePage() {
   const [step, setStep] = useState(0); 
+  const navigate = useNavigate();
 
   return (
     <Container>
       <HeaderContainer>
         <Logo src="/logo.png" alt="logo" />
         <ButtonGroup>
-          <HeaderButton>Sign Up</HeaderButton>
-          <HeaderButton>Sign In</HeaderButton>
+          <HeaderButton onClick={()=>navigate("/signup")}>Sign Up</HeaderButton>
+          <HeaderButton onClick={()=>navigate("/signIn")}>Sign In</HeaderButton>
         </ButtonGroup>
       </HeaderContainer>
 

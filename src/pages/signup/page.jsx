@@ -1,10 +1,9 @@
 import React, {useState} from "react";
 import styled from "styled-components";
-
+import { useNavigate } from "react-router-dom";
 export default function SignUpPage() {
-
   const [rememberMe, setRememberMe] = useState(false);
-
+  const navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
   };
@@ -57,7 +56,7 @@ export default function SignUpPage() {
                 <SignUpButton type="submit">
                   회원가입
                 </SignUpButton>
-                <CancelButton type="reset">
+                <CancelButton type="reset" onClick={()=>navigate("/")}>
                   취소
                 </CancelButton>
               </ButtonContainer>
