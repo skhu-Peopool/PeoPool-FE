@@ -51,7 +51,7 @@ export default function HomePage() {
         )}
 
         {step === 2 && (
-            <AnimatedHeaderButton>Learn More</AnimatedHeaderButton>
+            <AnimatedHeaderButton onClick={()=>navigate("/community")}>Learn More</AnimatedHeaderButton>
         )}
       </TitleContainer>
 
