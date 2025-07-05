@@ -27,8 +27,8 @@ export default function Header() {
   const handleMouseLeave = () => setIsOpen(false);
 
   const navItems = [
-    { name: "커뮤니티", to: "/community" },
-    { name: "마이페이지", to: "/mypage" },
+    { name: "Community", to: "/community" },
+    { name: "Mypage", to: "/mypage" },
   ];
 
   const authItems = [

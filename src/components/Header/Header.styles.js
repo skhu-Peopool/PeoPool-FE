@@ -1,73 +1,103 @@
 import styled from "styled-components";
-import { Link as RouterLink } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 export const Overlay = styled.div`
   position: fixed;
-  inset: 0;
-  z-index: 40;
-  background-color: rgba(0, 0, 0, 0.25);
-  backdrop-filter: brightness(0.75);
-  transition: all 0.3s ease-in-out;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  z-index: 999;
 `;
 
 export const Sidebar = styled.aside`
   position: fixed;
   top: 0;
   left: 0;
-  height: 100%;
-  width: 260px;
-  background-color: white;
-  box-shadow: 2px 0 6px rgba(0, 0, 0, 0.1);
-  z-index: 50;
-  transform: ${({ isOpen }) =>
-    isOpen ? "translateX(0)" : "translateX(-100%)"};
+  width: 280px;
+  height: 100vh;
+  background-color: #F8FBFF;
+  transform: translateX(${(props) => (props.isOpen ? "0" : "-100%")});
   transition: transform 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  z-index: 1000;
+  padding: 20px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 `;
 
 export const Content = styled.div`
   display: flex;
   flex-direction: column;
-  padding: 2rem 2rem 0 rem;
+  height: 100%;
 `;
 
 export const LogoWrapper = styled.div`
-  margin-top: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 40px;
 `;
 
-export const Logo = styled.img`
-  width: 170px;
-  height: auto;
+export const Logo = styled.div`
+  font-size: 24px;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
   display: block;
+  
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
 `;
 
 export const NavList = styled.ul`
-  display: flex;
-  flex-direction: column;
-  gap: 1.2rem;
-  padding-left: 2rem;
-  font-size: 1.35rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  
+  li {
+    margin-bottom: 8px;
+  }
 `;
 
 export const AuthList = styled.ul`
-  padding: 38rem 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.8rem;
-  align-self: flex-start;
-  font-size: 1.05rem;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  margin-top: auto;
+  
+  li {
+    margin-bottom: 8px;
+  }
 `;
 
-export const StyledLink = styled(RouterLink)`
-  color: ${({ $active }) => ($active ? "#3B82F6" : "#4B5563")};
+export const StyledLink = styled(Link)`
+  display: block;
+  padding: 12px 16px;
+  color: ${(props) => (props.$active ? "#fff" : "#666")};
   text-decoration: none;
-  font-weight: 700;
-  transition: color 0.2s ease-in-out;
-
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  
+  background: ${(props) => {
+    if (props.$highlight) return "linear-gradient(135deg, #9ABEEC, #7BA8E0)";
+    if (props.$active) return "linear-gradient(135deg, #9ABEEC, #7BA8E0)";
+    return "transparent";
+  }};
+  
   &:hover {
-    color: #3b82f6;
+    background: ${(props) => {
+      if (props.$highlight) return "linear-gradient(135deg, #8BB0E8, #6A9ADC)";
+      if (props.$active) return "linear-gradient(135deg, #8BB0E8, #6A9ADC)";
+      return "#e9ecef";
+    }};
+    color: ${(props) => (props.$active || props.$highlight ? "#fff" : "#333")};
   }
+  
+  
+  ${(props) => props.$small && `
+    font-size: 14px;
+    padding: 8px 16px;
+  `}
 `;
