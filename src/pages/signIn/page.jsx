@@ -1,13 +1,24 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import styled from "styled-components";
+import { useAuth } from "../../providers/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function SignInPage() {
-  const [userId, setUserId] = useState('');
-  const [password, setPassword] = useState('');
+  const [id, setId] = useState("");
+  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+  const { login } = useAuth();
+  const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      await login(id, password);
+      alert("로그인에 성공했습니다.");
+      navigate("/");
+    } catch (error) {
+      alert("로그인에 실패했습니다: " + error.message);
+    }
   };
 
   return (
@@ -29,17 +40,17 @@ export default function SignInPage() {
               <Input
                 type="text"
                 placeholder="아이디를 입력하세요"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
+                value={id}
+                onChange={(e) => setId(e.target.value)}
               />
-              
+
               <Input
                 type="password"
                 placeholder="비밀번호를 입력하세요"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-              
+
               <CheckboxContainer>
                 <Checkbox
                   type="checkbox"
@@ -47,29 +58,23 @@ export default function SignInPage() {
                   checked={rememberMe}
                   onChange={(e) => setRememberMe(e.target.checked)}
                 />
-                <CheckboxLabel htmlFor="remember">
-                  아이디 저장
-                </CheckboxLabel>
+                <CheckboxLabel htmlFor="remember">아이디 저장</CheckboxLabel>
               </CheckboxContainer>
-              
-              <LoginButton type="submit">
-                로그인
-              </LoginButton>
+
+              <LoginButton type="submit">로그인</LoginButton>
             </Form>
-            
+
             <LinkContainer>
-              <Link type="button">
+              <Link type="button" onClick={() => navigate("/signup")}>
                 회원가입하기
               </Link>
-              <Link type="button">
-                비밀번호 찾기
-              </Link>
+              <Link type="button">비밀번호 찾기</Link>
             </LinkContainer>
           </FormContainer>
         </Content>
       </Container>
     </Wrap>
-  )
+  );
 }
 
 const Wrap = styled.div`
@@ -78,7 +83,7 @@ const Wrap = styled.div`
   justify-content: center;
   align-items: center;
   width: 100vw;
-  height: 100vh; 
+  height: 100vh;
   color: #444;
 `;
 
@@ -89,13 +94,13 @@ const Container = styled.div`
   background-color: white;
   border-radius: 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
-  overflow: hidden; 
+  overflow: hidden;
 `;
 
 const Content = styled.div`
   flex: 1;
   height: 100%;
-  position: relative; 
+  position: relative;
 
   &:first-child {
     border-right: 1px solid #f6f6f6;
@@ -106,14 +111,14 @@ const ImgContainer = styled.div`
   width: 100%;
   height: 100%;
   overflow: hidden;
-  border-radius: 20px 0 0 20px; 
+  border-radius: 20px 0 0 20px;
 `;
 
 const Img = styled.img`
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block; 
+  display: block;
 `;
 
 const FormContainer = styled.div`
@@ -149,11 +154,11 @@ const Input = styled.input`
   color: #374151;
   transition: all 0.2s;
   box-sizing: border-box;
-  
+
   &::placeholder {
     color: #9ca3af;
   }
-  
+
   &:focus {
     outline: none;
     border-color: #3b82f6;
@@ -190,11 +195,11 @@ const LoginButton = styled.button`
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.2s;
-  
+
   &:hover {
     background-color: #2563eb;
   }
-  
+
   &:focus {
     outline: none;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
@@ -215,7 +220,7 @@ const Link = styled.button`
   color: #6b7280;
   cursor: pointer;
   transition: color 0.2s;
-  
+
   &:hover {
     color: #374151;
   }
@@ -229,7 +234,7 @@ const TextOverlay = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-  align-items: flex-start; 
+  align-items: flex-start;
   color: #444;
   margin-left: 4rem;
   margin-top: 7.5rem;
@@ -240,13 +245,13 @@ const MainText = styled.p`
   margin-bottom: 0.5rem;
   line-height: 1.3;
   text-align: left;
-  white-space: pre-line; 
+  white-space: pre-line;
 `;
 
 const SubText = styled.p`
   font-size: 1.1rem;
   font-weight: 300;
   margin-top: 0.1rem;
-  text-align: left; 
+  text-align: left;
   color: #7d7d7d;
 `;
