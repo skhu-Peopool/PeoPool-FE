@@ -33,7 +33,7 @@ export default function AuthProvider({ children }) {
 
   const register = async (userId, password, nickname, email) => {
     await authService.register(userId, password, nickname, email);
-    await login(id, password); // 자동 로그인
+    // await login(id, password); // 자동 로그인
   };
 
   const logout = () => {

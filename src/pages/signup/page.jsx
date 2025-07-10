@@ -1,13 +1,15 @@
+
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
 
 export default function SignUpPage() {
-  const [nickName, setNickName] = useState("");
+  const [nickname, setNickName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [userId, setUserId] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const { register } = useAuth();
   const navigate = useNavigate();
@@ -21,7 +23,7 @@ export default function SignUpPage() {
     }
 
     try {
-      await register(nickName, email, password);
+      await register(userId, password, nickname, email);
       alert("회원가입이 완료되었습니다.");
       navigate("/");
     } catch (err) {
@@ -47,8 +49,14 @@ export default function SignUpPage() {
             <Form onSubmit={handleSubmit}>
               <Input
                 type="text"
+                placeholder="userId"
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
+              />
+              <Input
+                type="text"
                 placeholder="이름을 입력하세요"
-                value={nickName}
+                value={nickname}
                 onChange={(e) => setNickName(e.target.value)}
               />
               <Input
