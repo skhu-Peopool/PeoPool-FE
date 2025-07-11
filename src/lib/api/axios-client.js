@@ -16,7 +16,7 @@ export const setAccessToken = (token) => {
 
 // axios 인스턴스 생성
 const axiosClient = axios.create({
-  baseURL,
+  baseURL: baseURL,
   withCredentials: true, // 쿠키 전송 필요 시
   headers: {
     "Content-Type": "application/json",
@@ -60,7 +60,8 @@ axiosClient.interceptors.response.use(
 // 공통 fetch 함수 (비인증 요청 가능)
 export const defaultFetch = async (url, options = {}) => {
   const method = options.method || "GET";
-  const data = options.body ? JSON.parse(options.body) : undefined;
+  const data = options.body;
+  // const data = options.body ? JSON.parse(options.body) : undefined;
 
   const config = {
     url,
@@ -71,6 +72,7 @@ export const defaultFetch = async (url, options = {}) => {
   };
 
   const res = await axiosClient(config);
+
   return res.data;
 };
 

@@ -20,7 +20,7 @@ export const authService = {
   register: async (userId, password, nickname, email) => {
     return await defaultFetch("/signup", {
       method: "POST",
-      body: JSON.stringify({ userId, password, nickname, email }),
+      body: { userId, password, nickname, email },
     });
   },
 };
