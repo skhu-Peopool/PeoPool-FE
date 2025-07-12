@@ -75,7 +75,7 @@ export const defaultFetch = async (url, options = {}) => {
   return res.data;
 };
 
-// 인증 요청
+// 인증 요청 함수
 export const tokenFetch = async (url, tokenOverride = null, options = {}) => {
   if (tokenOverride) {
     setAccessToken(tokenOverride);
