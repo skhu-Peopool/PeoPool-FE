@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import styled from "styled-components";
 import { useNavigate } from "react-router-dom";
@@ -49,7 +48,7 @@ export default function SignUpPage() {
             <Form onSubmit={handleSubmit}>
               <Input
                 type="text"
-                placeholder="userId"
+                placeholder="아이디를 입력하세요"
                 value={userId}
                 onChange={(e) => setUserId(e.target.value)}
               />

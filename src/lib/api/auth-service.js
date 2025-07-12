@@ -5,7 +5,7 @@ export const authService = {
   login: async (id, password) => {
     const data = await defaultFetch("/login", {
       method: "POST",
-      body: JSON.stringify({ id, password }),
+      body: { id, password },
     });
 
     if (!data.accessToken) {
@@ -18,9 +18,22 @@ export const authService = {
   },
 
   register: async (userId, password, nickname, email) => {
-    return await defaultFetch("/signup", {
+    const data = await defaultFetch("/signup", {
       method: "POST",
       body: { userId, password, nickname, email },
     });
+
+    // accessToken이 응답에 있다면 여기서 바로 저장
+    if (data.accessToken) setAccessToken(data.accessToken);
+
+    return data;
+  },
+
+  logout: async () => {
+    await defaultFetch("/logout", {
+      method: "POST",
+      withCredentials: true,
+    });
+    setAccessToken(null);
   },
 };

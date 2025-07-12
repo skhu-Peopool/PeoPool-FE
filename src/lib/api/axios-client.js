@@ -61,7 +61,6 @@ axiosClient.interceptors.response.use(
 export const defaultFetch = async (url, options = {}) => {
   const method = options.method || "GET";
   const data = options.body;
-  // const data = options.body ? JSON.parse(options.body) : undefined;
 
   const config = {
     url,
@@ -83,7 +82,8 @@ export const tokenFetch = async (url, tokenOverride = null, options = {}) => {
   }
 
   const method = options.method || "GET";
-  const data = options.body ? JSON.parse(options.body) : undefined;
+  const data = options.body;
+  // const data = options.body ? JSON.parse(options.body) : undefined;
 
   const config = {
     url,
