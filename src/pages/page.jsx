@@ -1,7 +1,8 @@
-import React, {useState} from "react";
+import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import TypingTitle from "../components/TypingTite";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../providers/AuthProvider";
 
 const fadeInUp = keyframes`
   from {
@@ -14,19 +15,35 @@ const fadeInUp = keyframes`
   }
 `;
 
-
-
 export default function HomePage() {
-  const [step, setStep] = useState(0); 
+  const [step, setStep] = useState(0);
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   return (
     <Container>
       <HeaderContainer>
         <Logo src="/logo.png" alt="logo" />
         <ButtonGroup>
-          <HeaderButton onClick={()=>navigate("/signup")}>Sign Up</HeaderButton>
-          <HeaderButton onClick={()=>navigate("/signIn")}>Sign In</HeaderButton>
+          <HeaderButton onClick={() => navigate("/signup")}>
+            Sign Up
+          </HeaderButton>
+          <HeaderButton onClick={() => navigate("/signIn")}>
+            Sign In
+          </HeaderButton>
+          {/* 임시 로그아웃. 추후 삭제 */}
+          <HeaderButton
+            onClick={async () => {
+              try {
+                await logout();
+                navigate("/");
+              } catch (e) {
+                alert("로그아웃에 실패했습니다.");
+              }
+            }}
+          >
+            Log Out
+          </HeaderButton>
         </ButtonGroup>
       </HeaderContainer>
 
@@ -37,7 +54,7 @@ export default function HomePage() {
             delay={90}
             highlightWord="peopool"
             as={Title1}
-            onDone={() => setStep(1)} 
+            onDone={() => setStep(1)}
           />
         )}
 
@@ -51,7 +68,9 @@ export default function HomePage() {
         )}
 
         {step === 2 && (
-            <AnimatedHeaderButton onClick={()=>navigate("/community")}>Learn More</AnimatedHeaderButton>
+          <AnimatedHeaderButton onClick={() => navigate("/community")}>
+            Learn More
+          </AnimatedHeaderButton>
         )}
       </TitleContainer>
 
@@ -59,8 +78,6 @@ export default function HomePage() {
     </Container>
   );
 }
-
-
 
 const Container = styled.div`
   position: relative;
@@ -82,7 +99,7 @@ const LandingImg = styled.img`
   right: -9%;
   height: 140vh;
   z-index: 0;
-`
+`;
 
 const HeaderContainer = styled.header`
   z-index: 1;
@@ -103,7 +120,7 @@ const ButtonGroup = styled.div`
 `;
 
 const HeaderButton = styled.button`
-  padding: 0.5rem 4rem; 
+  padding: 0.5rem 4rem;
   background-color: #5f8cd6;
   color: white;
   border: none;
@@ -139,12 +156,11 @@ const Title2 = styled.p`
   font-weight: 500;
   line-height: 1.2;
   letter-spacing: -0.5px;
-  white-space: pre-line;  
+  white-space: pre-line;
 `;
-
 
 const AnimatedHeaderButton = styled(HeaderButton)`
   animation: ${fadeInUp} 1s ease-out forwards;
-  width: fit-content;  
-  align-self: flex-start; 
+  width: fit-content;
+  align-self: flex-start;
 `;

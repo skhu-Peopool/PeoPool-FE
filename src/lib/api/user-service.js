@@ -8,6 +8,6 @@ export const userService = {
   updateMe: (userData) =>
     tokenFetch("/update", undefined, {
       method: "PATCH",
-      body: JSON.stringify(userData),
+      body: userData,
     }),
 };

@@ -27,18 +27,43 @@ export default function AuthProvider({ children }) {
   const [isLoading, setIsLoading] = useState(true);
 
   const login = async (id, password) => {
-    const { user } = await authService.login(id, password);
-    setUser(user);
+    try {
+      const { user } = await authService.login(id, password);
+      setUser(user);
+    } catch (err) {
+      console.error("로그인 실패:", err);
+      throw err;
+    }
   };
 
   const register = async (userId, password, nickname, email) => {
-    await authService.register(userId, password, nickname, email);
-    // await login(id, password); // 자동 로그인
+    try {
+      const { accessToken } = await authService.register(
+        userId,
+        password,
+        nickname,
+        email
+      );
+
+      if (!accessToken) throw new Error("회원가입 응답에 accessToken 없음");
+
+      setGlobalAccessToken(accessToken); // 전역 토큰 설정
+      await getUser(); // 사용자 정보 가져오기
+    } catch (err) {
+      console.error("회원가입 실패:", err);
+      throw err;
+    }
   };
 
-  const logout = () => {
-    setUser(null);
-    setGlobalAccessToken(null);
+  const logout = async () => {
+    try {
+      await authService.logout(); // 서버에도 logout 요청
+    } catch (err) {
+      console.warn("서버 로그아웃 실패:", err);
+    } finally {
+      setUser(null); // 클라이언트 상태 초기화
+      setGlobalAccessToken(null);
+    }
   };
 
   const getUser = async () => {
