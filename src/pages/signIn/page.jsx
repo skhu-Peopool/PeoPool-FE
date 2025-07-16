@@ -15,7 +15,7 @@ export default function SignInPage() {
     try {
       await login(id, password);
       alert("로그인에 성공했습니다.");
-      navigate("/");
+      navigate("/community");
     } catch (error) {
       alert("로그인에 실패했습니다: " + error.message);
     }
@@ -125,7 +125,7 @@ const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 5rem;
+  margin-top: 7.5rem;
   height: 100%;
   padding: 2rem;
 `;
@@ -186,7 +186,7 @@ const CheckboxLabel = styled.label`
 
 const LoginButton = styled.button`
   width: 100%;
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
   color: white;
   padding: 0.75rem 1rem;
   border: none;
@@ -197,7 +197,7 @@ const LoginButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #2563eb;
+    opacity: 0.9;
   }
 
   &:focus {

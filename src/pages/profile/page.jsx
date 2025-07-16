@@ -3,7 +3,7 @@
 import React from "react";
 import styled from "styled-components";
 
-export default function Mypage() {
+export default function ProfilePage() {
   return <Container>기능보여주기용 임시 페이지</Container>;
 }
 

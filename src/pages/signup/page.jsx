@@ -24,7 +24,7 @@ export default function SignUpPage() {
     try {
       await register(userId, password, nickname, email);
       alert("회원가입이 완료되었습니다.");
-      navigate("/");
+      navigate("/community");
     } catch (err) {
       alert("회원가입 실패: " + err.message);
     }
@@ -150,7 +150,7 @@ const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 5rem;
+  margin-top: 4rem;
   height: 100%;
   padding: 2rem;
 `;
@@ -217,7 +217,7 @@ const ButtonContainer = styled.div`
 
 const SignUpButton = styled.button`
   flex: 1;
-  background-color: #3b82f6;
+  background-color: var(--color-primary);
   color: white;
   padding: 0.75rem 1rem;
   border: none;
@@ -228,7 +228,7 @@ const SignUpButton = styled.button`
   transition: background-color 0.2s;
 
   &:hover {
-    background-color: #2563eb;
+    opacity: 0.9;
   }
 
   &:focus {
