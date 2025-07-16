@@ -16,34 +16,26 @@ const fadeInUp = keyframes`
 `;
 
 export default function HomePage() {
+  const { isLoading } = useAuth();
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
-  const { logout } = useAuth();
 
   return (
     <Container>
       <HeaderContainer>
         <Logo src="/logo.png" alt="logo" />
         <ButtonGroup>
-          <HeaderButton onClick={() => navigate("/signup")}>
-            Sign Up
-          </HeaderButton>
-          <HeaderButton onClick={() => navigate("/signIn")}>
-            Sign In
-          </HeaderButton>
-          {/* 임시 로그아웃. 추후 삭제 */}
-          <HeaderButton
-            onClick={async () => {
-              try {
-                await logout();
-                navigate("/");
-              } catch (e) {
-                alert("로그아웃에 실패했습니다.");
-              }
-            }}
-          >
-            Log Out
-          </HeaderButton>
+          {/* 전체 페이지와 렌더링 속도 맞춤 */}
+          {!isLoading && (
+            <>
+              <HeaderButton onClick={() => navigate("/signup")}>
+                Sign Up
+              </HeaderButton>
+              <HeaderButton onClick={() => navigate("/signIn")}>
+                Sign In
+              </HeaderButton>
+            </>
+          )}
         </ButtonGroup>
       </HeaderContainer>
 
