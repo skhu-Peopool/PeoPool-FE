@@ -1,18 +1,36 @@
 import { Calendar, UserSearch, Users } from "lucide-react";
-import styled from "styled-components";
+import styled, { createGlobalStyle } from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
 import menubar from "../../assets/menubar.svg";
 
+// 전역 스타일로 body의 마진을 조정
+const GlobalStyle = createGlobalStyle`
+  body {
+    margin-left: ${(props) => (props.sidebarOpen ? "17.5rem" : "0")};
+    transition: margin-left 0.3s ease;
+  }
+  
+  @media (max-width: 768px) {
+    body {
+      margin-left: 0;
+    }
+  }
+`;
+
 const Sidebar = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 100vh;
   width: ${(props) => (props.open ? "17.5rem" : "0")};
   background: var(--color-gradient);
   color: white;
   padding: ${(props) => (props.open ? "1.5rem" : "0")};
-  overflow: visible;
+  overflow: hidden;
   transition: width 0.3s ease, padding 0.3s ease;
-  position: relative;
   white-space: nowrap;
+  z-index: 1000;
 `;
 
 const LogoContainer = styled.div`
@@ -69,16 +87,18 @@ const LogOut = styled.span`
   display: flex;
   font-size: 1.25rem;
   font-weight: 500;
-  margin-top: 33rem;
-  margin-left: 0.3rem;
+  position: absolute;
+  bottom: 8rem;
+  left: 1.8rem;
 `;
 
 const LogIn = styled.span`
   display: flex;
   font-size: 1.25rem;
   font-weight: 500;
-  margin-top: 37rem;
-  margin-left: 1.25rem;
+  position: absolute;
+  bottom: 4rem;
+  left: 2.75rem;
 `;
 
 const MenuBadge = styled.span`
@@ -134,9 +154,9 @@ const UserNameProfile = styled.div`
 `;
 
 const BookmarkToggle = styled.button`
-  position: absolute;
+  position: fixed;
   top: 6rem;
-  left: ${(props) => (props.open ? "17.55rem" : "0")};
+  left: ${(props) => (props.open ? "17.5rem" : "0")};
   width: 1.5rem;
   height: 9rem;
   background: var(--color-primary);
@@ -146,7 +166,7 @@ const BookmarkToggle = styled.button`
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
-  z-index: 999;
+  z-index: 1001;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -175,68 +195,76 @@ const HeaderSlide = ({ open, setOpen }) => {
   };
 
   return (
-    <Sidebar open={open}>
-      <BookmarkToggle open={open} onClick={() => setOpen(!open)} />
+    <>
+      <Sidebar open={open}>
+        {open && (
+          <>
+            <LogoContainer>
+              <Logo open={open}>
+                <LogoIcon>
+                  <Users size={18} />
+                </LogoIcon>
+                <a href="/">peopool</a>
+              </Logo>
+            </LogoContainer>
 
-      {open && (
-        <>
-          <LogoContainer>
-            <Logo open={open}>
-              <LogoIcon>
-                <Users size={18} />
-              </LogoIcon>
-              <a href="/">peopool</a>
-            </Logo>
-          </LogoContainer>
-
-          <MenuItem
-            active={currentPath === "/community"}
-            onClick={() => navigate("/community")}
-          >
-            <Users size={18} />
-            <MenuText>Community</MenuText>
-            <MenuBadge>0</MenuBadge>
-          </MenuItem>
-          <MenuItem
-            active={currentPath === "/others"}
-            onClick={() => navigate("/others")}
-          >
-            <UserSearch size={18} />
-            <MenuText>사람찾기</MenuText>
-            <MenuBadge>2</MenuBadge>
-          </MenuItem>
-          <MenuItem
-            active={currentPath === "/calendar"}
-            onClick={() => navigate("/calendar")}
-          >
-            <Calendar size={18} />
-            <MenuText>달력/시간표</MenuText>
-            <MenuBadge>1</MenuBadge>
-          </MenuItem>
-
-          {user ? (
-            <>
-              <LogOut onClick={handleLogout} style={{ cursor: "pointer" }}>
-                로그아웃
-              </LogOut>
-              <UserProfile active onClick={() => navigate("/profile")}>
-                <UserAvatar>JW</UserAvatar>
-                <UserDetails>
-                  <UserNameProfile>John W.</UserNameProfile>
-                </UserDetails>
-              </UserProfile>
-            </>
-          ) : (
-            <LogIn
-              onClick={() => navigate("/signIn")}
-              style={{ cursor: "pointer" }}
+            <MenuItem
+              active={currentPath === "/community"}
+              onClick={() => navigate("/community")}
             >
-              로그인 하기
-            </LogIn>
-          )}
-        </>
-      )}
-    </Sidebar>
+              <Users size={18} />
+              <MenuText>Community</MenuText>
+              <MenuBadge>0</MenuBadge>
+            </MenuItem>
+            <MenuItem
+              active={currentPath === "/others"}
+              onClick={() => navigate("/others")}
+            >
+              <UserSearch size={18} />
+              <MenuText>사람찾기</MenuText>
+              <MenuBadge>2</MenuBadge>
+            </MenuItem>
+            <MenuItem
+              active={currentPath === "/calendar"}
+              onClick={() => navigate("/calendar")}
+            >
+              <Calendar size={18} />
+              <MenuText>달력/시간표</MenuText>
+              <MenuBadge>1</MenuBadge>
+            </MenuItem>
+
+            {user ? (
+              <>
+                <LogOut onClick={handleLogout} style={{ cursor: "pointer" }}>
+                  로그아웃
+                </LogOut>
+                <UserProfile active onClick={() => navigate("/profile")}>
+                  <UserAvatar>JW</UserAvatar>
+                  <UserDetails>
+                    <UserNameProfile>John W.</UserNameProfile>
+                  </UserDetails>
+                </UserProfile>
+              </>
+            ) : (
+              <LogIn
+                onClick={() => navigate("/signIn")}
+                style={{ cursor: "pointer" }}
+              >
+                로그인 하기
+              </LogIn>
+            )}
+          </>
+        )}
+      </Sidebar>
+      
+      <BookmarkToggle open={open} onClick={() => setOpen(!open)} />
+      <div style={{
+        marginLeft: open ? '17.5rem' : '0',
+        transition: 'margin-left 0.3s ease',
+        minHeight: '100vh'
+      }}>
+      </div>
+    </>
   );
 };
 

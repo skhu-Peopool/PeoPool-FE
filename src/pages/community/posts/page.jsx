@@ -9,6 +9,7 @@ const Container = styled.div`
   min-height: 100%;
   background: #f8fafc;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: #444;
 `;
 
 const MainContent = styled.div`
