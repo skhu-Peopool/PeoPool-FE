@@ -2,10 +2,10 @@ import { defaultFetch, setAccessToken } from "./axios-client";
 import { userService } from "./user-service";
 
 export const authService = {
-  login: async (id, password) => {
+  login: async (email, password) => {
     const data = await defaultFetch("/login", {
       method: "POST",
-      body: { id, password },
+      body: { email, password },
     });
 
     if (!data.accessToken) {
@@ -17,10 +17,10 @@ export const authService = {
     return { user };
   },
 
-  register: async (userId, password, nickname, email) => {
+  register: async (password, nickname, email) => {
     const data = await defaultFetch("/signup", {
       method: "POST",
-      body: { userId, password, nickname, email },
+      body: { password, nickname, email },
     });
 
     // accessToken이 응답에 있다면 여기서 바로 저장

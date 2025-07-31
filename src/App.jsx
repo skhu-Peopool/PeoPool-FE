@@ -11,10 +11,11 @@ import SignUpPage from "./pages/signup/page";
 import styled from "styled-components";
 import { useState } from "react";
 import HeaderSlide from "./components/global/HeaderSlide";
-import PostsPage from "./pages/community/posts/page";
 import OthersPage from "./pages/others/page";
 import CalendarPage from "./pages/calendar/page";
 import ProfilePage from "./pages/profile/page";
+import CommunityDetail from "./pages/community/CommunityDetail";
+import PostsPage from "./pages/community/PostsPage";
 
 // 헤더 포함 레이아웃 설정
 function MainLayout({ children }) {
@@ -79,6 +80,14 @@ function AppRoutes() {
         element={
           <MainLayout>
             <ProfilePage />
+          </MainLayout>
+        }
+      />
+      <Route
+        path="/community/:id"
+        element={
+          <MainLayout>
+            <CommunityDetail />
           </MainLayout>
         }
       />

@@ -26,9 +26,9 @@ export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  const login = async (id, password) => {
+  const login = async (email, password) => {
     try {
-      const { user } = await authService.login(id, password);
+      const { user } = await authService.login(email, password);
       setUser(user);
     } catch (err) {
       console.error("로그인 실패:", err);
@@ -36,10 +36,9 @@ export default function AuthProvider({ children }) {
     }
   };
 
-  const register = async (userId, password, nickname, email) => {
+  const register = async (password, nickname, email) => {
     try {
       const { accessToken } = await authService.register(
-        userId,
         password,
         nickname,
         email

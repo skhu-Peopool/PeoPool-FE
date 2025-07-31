@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
 
@@ -8,25 +8,42 @@ export default function SignUpPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [userId, setUserId] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  const validateFields = () => {
+    const newErrors = {};
+    if (!nickname) newErrors.nickname = "이름을 입력하세요";
+    if (!email) newErrors.email = "이메일을 입력하세요";
+    if (!password) newErrors.password = "비밀번호를 입력하세요";
+    if (!confirmPassword) newErrors.confirmPassword = "비밀번호를 재입력하세요";
+    if (password && confirmPassword && password !== confirmPassword) {
+      newErrors.confirmPassword = "비밀번호가 일치하지 않습니다.";
+    }
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    if (password !== confirmPassword) {
-      alert("비밀번호가 일치하지 않습니다.");
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
       return;
     }
 
+    setLoading(true);
     try {
-      await register(userId, password, nickname, email);
-      alert("회원가입이 완료되었습니다.");
+      await register(password, nickname, email);
       navigate("/community");
     } catch (err) {
       alert("회원가입 실패: " + err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -48,34 +65,42 @@ export default function SignUpPage() {
             <Form onSubmit={handleSubmit}>
               <Input
                 type="text"
-                placeholder="아이디를 입력하세요"
-                value={userId}
-                onChange={(e) => setUserId(e.target.value)}
-              />
-              <Input
-                type="text"
-                placeholder="이름을 입력하세요"
+                placeholder="이름"
                 value={nickname}
                 onChange={(e) => setNickName(e.target.value)}
+                $error={errors.nickname}
               />
+              {errors.nickname && <ErrorText>{errors.nickname}</ErrorText>}
+
               <Input
                 type="email"
-                placeholder="이메일을 입력하세요"
+                placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                $error={errors.email}
               />
+              {errors.email && <ErrorText>{errors.email}</ErrorText>}
+
               <Input
                 type="password"
-                placeholder="비밀번호를 입력하세요"
+                placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                $error={errors.password}
               />
+              {errors.password && <ErrorText>{errors.password}</ErrorText>}
+
               <Input
                 type="password"
-                placeholder="비밀번호를 재입력하세요"
+                placeholder="비밀번호 확인"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
+                $error={errors.confirmPassword}
               />
+              {errors.confirmPassword && (
+                <ErrorText>{errors.confirmPassword}</ErrorText>
+              )}
+
               <CheckboxContainer>
                 <Checkbox
                   type="checkbox"
@@ -89,7 +114,15 @@ export default function SignUpPage() {
               </CheckboxContainer>
 
               <ButtonContainer>
-                <SignUpButton type="submit">회원가입</SignUpButton>
+                <SignUpButton type="submit" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader /> 가입 중...
+                    </>
+                  ) : (
+                    "회원가입"
+                  )}
+                </SignUpButton>
                 <CancelButton type="reset" onClick={() => navigate("/")}>
                   취소
                 </CancelButton>
@@ -150,7 +183,7 @@ const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 4rem;
+  margin-top: 2.5rem;
   height: 100%;
   padding: 2rem;
 `;
@@ -173,7 +206,7 @@ const Form = styled.form`
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${({ $error }) => ($error ? "red" : "#e5e7eb")};
   border-radius: 8px;
   font-size: 1rem;
   color: #374151;
@@ -186,8 +219,10 @@ const Input = styled.input`
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: ${({ $error }) => ($error ? "red" : "#3b82f6")};
+    box-shadow: 0 0 0 3px
+      ${({ $error }) =>
+        $error ? "rgba(255, 0, 0, 0.1)" : "rgba(59, 130, 246, 0.1)"};
   }
 `;
 
@@ -217,23 +252,29 @@ const ButtonContainer = styled.div`
 
 const SignUpButton = styled.button`
   flex: 1;
-  background-color: var(--color-primary);
+  background-color: ${({ $loading }) =>
+    $loading ? "#9ca3af" : "var(--color-primary)"};
   color: white;
   padding: 0.75rem 1rem;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
-  cursor: pointer;
+  cursor: ${({ $loading }) => ($loading ? "not-allowed" : "pointer")};
   transition: background-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
   &:hover {
-    opacity: 0.9;
+    opacity: ${({ $loading }) => ($loading ? 1 : 0.9)};
   }
 
   &:focus {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+    box-shadow: 0 0 0 3px
+      ${({ $loading }) =>
+        $loading ? "rgba(156, 163, 175, 0.3)" : "rgba(59, 130, 246, 0.3)"};
   }
 `;
 
@@ -259,25 +300,25 @@ const CancelButton = styled.button`
   }
 `;
 
-const LinkContainer = styled.div`
-  display: flex;
-  justify-content: center;
-  gap: 2rem;
-  margin-top: 1.5rem;
-`;
+// const LinkContainer = styled.div`
+//   display: flex;
+//   justify-content: center;
+//   gap: 2rem;
+//   margin-top: 1.5rem;
+// `;
 
-const Link = styled.button`
-  background: none;
-  border: none;
-  font-size: 0.875rem;
-  color: #6b7280;
-  cursor: pointer;
-  transition: color 0.2s;
+// const Link = styled.button`
+//   background: none;
+//   border: none;
+//   font-size: 0.875rem;
+//   color: #6b7280;
+//   cursor: pointer;
+//   transition: color 0.2s;
 
-  &:hover {
-    color: #374151;
-  }
-`;
+//   &:hover {
+//     color: #374151;
+//   }
+// `;
 
 const TextOverlay = styled.div`
   position: absolute;
@@ -307,4 +348,26 @@ const SubText = styled.p`
   margin-top: 0.1rem;
   text-align: left;
   color: #7d7d7d;
+`;
+
+const ErrorText = styled.div`
+  font-size: 0.875rem;
+  color: red;
+  margin: -0.75rem 0 0.01rem;
+`;
+
+const spin = keyframes`
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+`;
+
+const Loader = styled.span`
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid white;
+  border-top: 2px solid #3b82f6;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+  animation: ${spin} 0.6s linear infinite;
 `;
