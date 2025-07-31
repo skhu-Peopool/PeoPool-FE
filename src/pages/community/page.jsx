@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import styled from "styled-components";
-import { Eye, MoreHorizontal, Users, Edit3 } from "lucide-react";
+import { Edit3 } from "lucide-react";
 import SearchControls from "../../components/SearchControls";
 import PaginationComponent from "../../components/PaginationComponent";
-import FilterTabs from "../../components/FilterTabs";
 import DateFilter from "../../components/DateFilter";
 import { useNavigate } from "react-router-dom";
+import Dropdown from "../../components/Dropdown";
+import mockOrders from "../../lib/ordersData";
 
 const Container = styled.div`
   display: flex;
@@ -80,6 +81,11 @@ const Filters = styled.div`
   margin-bottom: 1.5rem;
 `;
 
+const Dropdowns = styled.div`
+  display: flex;
+  gap: 2rem;
+`;
+
 const TableContainer = styled.div`
   background: white;
   border-radius: 1rem;
@@ -90,6 +96,7 @@ const TableContainer = styled.div`
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  table-layout: fixed;
 `;
 
 const TableHeader = styled.thead`
@@ -114,6 +121,9 @@ const TableCell = styled.td`
   font-size: 0.875rem;
   vertical-align: middle;
   color: #1e293b;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const TableHeaderCell = styled.th`
@@ -121,6 +131,9 @@ const TableHeaderCell = styled.th`
   text-align: center;
   font-weight: 600;
   font-size: 0.875rem;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 `;
 
 const Avatar = styled.div`
@@ -145,6 +158,14 @@ const UserInfo = styled.div`
   font-weight: 500;
 `;
 
+const UserInfo1 = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 500;
+`;
+
 const UserName = styled.span`
   font-weight: 400;
   color: #1e293b;
@@ -159,13 +180,13 @@ const Status = styled.span`
   text-transform: uppercase;
   background: ${(props) => {
     switch (props.status) {
-      case "PENDING":
+      case "모집 중":
         return "#fef3c7";
-      case "PROCESSING":
+      case "검토 중":
         return "#d1fae5";
-      case "COMPLETED":
+      case "모집마감":
         return "#bfdbfe";
-      case "CANCELLED":
+      case "모집예정":
         return "#fed7e2";
       default:
         return "#e5e7eb";
@@ -173,37 +194,19 @@ const Status = styled.span`
   }};
   color: ${(props) => {
     switch (props.status) {
-      case "PENDING":
+      case "모집 중":
         return "#92400e";
-      case "PROCESSING":
+      case "검토 중":
         return "#065f46";
-      case "COMPLETED":
+      case "모집마감":
         return "#1e40af";
-      case "CANCELLED":
+      case "모집예정":
         return "#be185d";
       default:
         return "#374151";
     }
   }};
 `;
-
-// const ActionButton = styled.button`
-//   background: none;
-//   border: none;
-//   color: #475569;
-//   cursor: pointer;
-//   padding: 0.5rem;
-//   border-radius: 0.375rem;
-//   display: flex;
-//   align-items: center;
-//   justify-content: center;
-//   transition: all 0.2s;
-
-//   &:hover {
-//     background: #f1f5f9;
-//     color: #1e293b;
-//   }
-// `;
 
 const ActionButton = styled.button`
   background: var(--color-primary);
@@ -229,86 +232,43 @@ const ActionButton = styled.button`
   }
 `;
 
-const orders = [
-  {
-    id: 9822,
-    name: "Brooklyn Joe",
-    initial: "B",
-    address: "Java 스터디 같이 하실 분 모집합니다",
-    date: "31 Jul 2020",
-    price: "$54.00",
-    status: "PENDING",
-    color: "#667eea",
-  },
-  {
-    id: 9823,
-    name: "John McCormick",
-    initial: "J",
-    address: "해커톤 같이 하실 분 구합니다",
-    date: "01 Aug 2020",
-    price: "$36.00",
-    status: "PROCESSING",
-    color: "#8b5cf6",
-  },
-  {
-    id: 9824,
-    name: "Sandra Pugh",
-    initial: "S",
-    address: "1549 Thorn Street, SALT CITY, GA 31408",
-    date: "02 Aug 2020",
-    price: "$74.00",
-    status: "COMPLETED",
-    color: "#10b981",
-  },
-  {
-    id: 9825,
-    name: "Velma Hart",
-    initial: "V",
-    address: "2896 Oak Drive, OXNARD, CA 93030",
-    date: "02 Aug 2020",
-    price: "$82.00",
-    status: "PENDING",
-    color: "#f59e0b",
-  },
-  {
-    id: 9826,
-    name: "Mark Clark",
-    initial: "M",
-    address: "1658 Augusta Park, MISSION, MO 66202",
-    date: "03 Aug 2020",
-    price: "$35.00",
-    status: "PROCESSING",
-    color: "#3b82f6",
-  },
-  {
-    id: 9827,
-    name: "Rebecca Foster",
-    initial: "R",
-    address: "3419 Eros Boulevard, BOCA, CA 93905",
-    date: "03 Aug 2020",
-    price: "$67.00",
-    status: "CANCELLED",
-    color: "#ef4444",
-  },
-];
+const ITEMS_PER_PAGE = 6;
 
 const Communitypage = () => {
-  const [activeTab, setActiveTab] = useState("All orders");
   const [searchTerm, setSearchTerm] = useState("");
   const [startDate, setStartDate] = useState("2025-07-31");
   const [endDate, setEndDate] = useState("2025-08-03");
   const navigate = useNavigate();
 
-  const tabs = ["All orders", "Pending", "Processing", "Completed"];
+  const statusOptions = ["전체", "모집 중", "검토 중", "모집마감", "모집예정"];
+  const [status, setStatus] = useState(statusOptions[0]);
 
-  const filteredOrders = orders.filter((order) => {
-    const matchesSearch =
-      order.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.address.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesTab =
-      activeTab === "All orders" || order.status === activeTab.toUpperCase();
-    return matchesSearch && matchesTab;
+  const categoryOptions = [
+    "전체",
+    "동아리",
+    "어울림",
+    "경진대회",
+    "공모전",
+    "기타",
+  ];
+  const [category, setCategory] = useState(categoryOptions[0]);
+
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const filteredOrders = mockOrders.filter((order) => {
+    const matchesSearch = order.title
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+    const matchesStatus = status === "전체" || order.status === status;
+    const matchesCategory = category === "전체" || order.category === category;
+    return matchesSearch && matchesStatus && matchesCategory;
   });
+
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const currentOrders = filteredOrders.slice(
+    startIndex,
+    startIndex + ITEMS_PER_PAGE
+  );
 
   const handleWriteClick = () => navigate("/posts");
 
@@ -324,18 +284,12 @@ const Communitypage = () => {
     };
   }, []);
 
-  // const categoryOptions = ["동아리", "어울림", "경진대회", "공모전"];
-  // const statusOptions = ["모집 중지", "모집 중"];
-
-  // const [category, setCategory] = useState(categoryOptions[0]);
-  // const [status, setStatus] = useState(statusOptions[0]);
-
   return (
     <Container>
       <MainContent>
         <Header>
           <Title>Community</Title>
-          <Subtitle>28 orders found</Subtitle>
+          <Subtitle>{filteredOrders.length}개의 모집 공고</Subtitle>
         </Header>
 
         <Controls>
@@ -350,11 +304,20 @@ const Communitypage = () => {
         </Controls>
 
         <Filters>
-          <FilterTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            setActiveTab={setActiveTab}
-          />
+          <Dropdowns>
+            <Dropdown
+              options={categoryOptions}
+              selected={category}
+              setSelected={setCategory}
+            />
+
+            <Dropdown
+              options={statusOptions}
+              selected={status}
+              setSelected={setStatus}
+            />
+          </Dropdowns>
+
           <DateFilter
             startDate={startDate}
             setStartDate={setStartDate}
@@ -363,28 +326,13 @@ const Communitypage = () => {
           />
         </Filters>
 
-        {/* <div style={{ display: "flex", gap: "2rem", padding: "2rem" }}>
-          <Dropdown
-            label="카테고리"
-            options={categoryOptions}
-            selected={category}
-            setSelected={setCategory}
-          />
-          <Dropdown
-            label="모집상태"
-            options={statusOptions}
-            selected={status}
-            setSelected={setStatus}
-          />
-        </div> */}
-
         <TableContainer>
           <Table>
             {/* 열 너비 설정 */}
             <colgroup>
               <col style={{ width: "8%" }} /> {/* 카테고리 */}
-              <col style={{ width: "25%" }} /> {/* 횔동명 */}
-              <col style={{ width: "12%" }} /> {/* 게시자 */}
+              <col style={{ width: "20%" }} /> {/* 횔동명 */}
+              <col style={{ width: "8%" }} /> {/* 게시자 */}
               <col style={{ width: "10%" }} /> {/* 모집 마감일 */}
               <col style={{ width: "10%" }} /> {/* 모집현황 */}
               <col style={{ width: "10%" }} /> {/* 모집상태 */}
@@ -403,30 +351,30 @@ const Communitypage = () => {
               </tr>
             </TableHeader>
             <tbody>
-              {filteredOrders.map((order) => (
-                <TableRow key={order.id}>
-                  <TableCell>#{order.id}</TableCell>
+              {currentOrders.map((order) => (
+                <TableRow
+                  key={order.id}
+                  onClick={() => navigate(`/community/${order.id}`)}
+                  style={{ cursor: "pointer" }}
+                >
+                  <TableCell>{order.category}</TableCell>
                   <TableCell>
-                    <UserInfo>{order.address}</UserInfo>
+                    <UserInfo>{order.title}</UserInfo>
                   </TableCell>
                   <TableCell>
-                    <UserInfo>
+                    <UserInfo1>
                       <Avatar color={order.color}>{order.initial}</Avatar>
                       <UserName>{order.name}</UserName>
-                    </UserInfo>
+                    </UserInfo1>
                   </TableCell>
                   <TableCell>{order.date}</TableCell>
-                  <TableCell>{order.price}</TableCell>
+                  <TableCell>
+                    {order.currentApplicants} / {order.maxApplicants}
+                  </TableCell>
                   <TableCell>
                     <Status status={order.status}>{order.status}</Status>
                   </TableCell>
                   <TableCell>
-                    {/* <ActionButton>
-                        <Eye size={16} />
-                      </ActionButton>
-                      <ActionButton>
-                        <MoreHorizontal size={16} />
-                      </ActionButton> */}
                     <ActionButton>신청</ActionButton>
                   </TableCell>
                 </TableRow>
@@ -435,7 +383,10 @@ const Communitypage = () => {
           </Table>
         </TableContainer>
 
-        <PaginationComponent />
+        <PaginationComponent
+          totalPages={Math.ceil(filteredOrders.length / ITEMS_PER_PAGE)}
+          onPageChange={setCurrentPage}
+        />
       </MainContent>
     </Container>
   );

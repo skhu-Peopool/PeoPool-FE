@@ -57,12 +57,7 @@ const Option = styled.li`
   }
 `;
 
-const Dropdown = ({
-  label = "Options",
-  options = [],
-  selected,
-  setSelected,
-}) => {
+const Dropdown = ({ label, options = [], selected, setSelected }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
