@@ -4,7 +4,7 @@ import { useAuth } from "../../providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
 
 export default function SignInPage() {
-  const [id, setId] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
   const { login } = useAuth();
@@ -13,7 +13,7 @@ export default function SignInPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await login(id, password);
+      await login(email, password);
       alert("로그인에 성공했습니다.");
       navigate("/community");
     } catch (error) {
@@ -38,15 +38,15 @@ export default function SignInPage() {
             <Title>로그인</Title>
             <Form onSubmit={handleSubmit}>
               <Input
-                type="text"
-                placeholder="아이디를 입력하세요"
-                value={id}
-                onChange={(e) => setId(e.target.value)}
+                type="email"
+                placeholder="이메일"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
               />
 
               <Input
                 type="password"
-                placeholder="비밀번호를 입력하세요"
+                placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
