@@ -1,5 +1,5 @@
 import React from "react";
 
 export default function OthersPage() {
-  return <div>OthersPage</div>;
+  return <div className="flex justify-center">OthersPage</div>;
 }
