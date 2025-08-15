@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
+import Button from "../../components/Button";
 
 export default function SignUpPage() {
   const [nickname, setNickName] = useState("");
@@ -39,6 +40,7 @@ export default function SignUpPage() {
     setLoading(true);
     try {
       await register(password, nickname, email);
+      alert("회원가입에 성공했습니다.");
       navigate("/community");
     } catch (err) {
       alert("회원가입 실패: " + err.message);
@@ -61,7 +63,9 @@ export default function SignUpPage() {
         </Content>
         <Content>
           <FormContainer>
-            <Title>회원가입</Title>
+            <div className="mb-7 mr-70">
+              <Img src="/logo.svg" />
+            </div>
             <Form onSubmit={handleSubmit}>
               <Input
                 type="text"
@@ -114,18 +118,18 @@ export default function SignUpPage() {
               </CheckboxContainer>
 
               <ButtonContainer>
-                <SignUpButton type="submit" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader /> 가입 중...
-                    </>
-                  ) : (
-                    "회원가입"
-                  )}
-                </SignUpButton>
-                <CancelButton type="reset" onClick={() => navigate("/")}>
-                  취소
-                </CancelButton>
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  variant="solid"
+                  text={loading ? "가입 중..." : "회원가입"}
+                />
+                {/* <Button
+                  type="reset"
+                  onClick={() => navigate("/")}
+                  variant="light"
+                  text="뒤로"
+                /> */}
               </ButtonContainer>
             </Form>
           </FormContainer>
@@ -183,16 +187,8 @@ const FormContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-top: 2.5rem;
-  height: 100%;
+  margin-top: 5rem;
   padding: 2rem;
-`;
-
-const Title = styled.p`
-  font-size: 1.5rem;
-  color: #1f2937;
-  text-align: center;
-  margin-bottom: 2rem;
 `;
 
 const Form = styled.form`
@@ -206,15 +202,15 @@ const Form = styled.form`
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid ${({ $error }) => ($error ? "red" : "#e5e7eb")};
-  border-radius: 8px;
+  border: 3px solid ${({ $error }) => ($error ? "red" : "#9ABEEC")};
+  border-radius: 5px;
   font-size: 1rem;
   color: #374151;
   transition: all 0.2s;
   box-sizing: border-box;
 
   &::placeholder {
-    color: #9ca3af;
+    color: #9abeec;
   }
 
   &:focus {
@@ -246,79 +242,10 @@ const CheckboxLabel = styled.label`
 
 const ButtonContainer = styled.div`
   display: flex;
+  flex-direction: column;
   gap: 0.75rem;
   width: 100%;
 `;
-
-const SignUpButton = styled.button`
-  flex: 1;
-  background-color: ${({ $loading }) =>
-    $loading ? "#9ca3af" : "var(--color-primary)"};
-  color: white;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: ${({ $loading }) => ($loading ? "not-allowed" : "pointer")};
-  transition: background-color 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  &:hover {
-    opacity: ${({ $loading }) => ($loading ? 1 : 0.9)};
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px
-      ${({ $loading }) =>
-        $loading ? "rgba(156, 163, 175, 0.3)" : "rgba(59, 130, 246, 0.3)"};
-  }
-`;
-
-const CancelButton = styled.button`
-  flex: 1;
-  background-color: #9ca3af;
-  color: white;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    background-color: #6b7280;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(156, 163, 175, 0.3);
-  }
-`;
-
-// const LinkContainer = styled.div`
-//   display: flex;
-//   justify-content: center;
-//   gap: 2rem;
-//   margin-top: 1.5rem;
-// `;
-
-// const Link = styled.button`
-//   background: none;
-//   border: none;
-//   font-size: 0.875rem;
-//   color: #6b7280;
-//   cursor: pointer;
-//   transition: color 0.2s;
-
-//   &:hover {
-//     color: #374151;
-//   }
-// `;
 
 const TextOverlay = styled.div`
   position: absolute;
