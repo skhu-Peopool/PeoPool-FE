@@ -140,7 +140,7 @@ const UserAvatar = styled.div`
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 1rem;
+  font-size: 0.75rem;
 `;
 
 const UserDetails = styled.div`
@@ -239,9 +239,9 @@ const HeaderSlide = ({ open, setOpen }) => {
                   로그아웃
                 </LogOut>
                 <UserProfile active onClick={() => navigate("/profile")}>
-                  <UserAvatar>JW</UserAvatar>
+                  <UserAvatar>profile</UserAvatar>
                   <UserDetails>
-                    <UserNameProfile>John W.</UserNameProfile>
+                    <UserNameProfile>{user.nickname}</UserNameProfile>
                   </UserDetails>
                 </UserProfile>
               </>
@@ -256,14 +256,15 @@ const HeaderSlide = ({ open, setOpen }) => {
           </>
         )}
       </Sidebar>
-      
+
       <BookmarkToggle open={open} onClick={() => setOpen(!open)} />
-      <div style={{
-        marginLeft: open ? '17.5rem' : '0',
-        transition: 'margin-left 0.3s ease',
-        minHeight: '100vh'
-      }}>
-      </div>
+      <div
+        style={{
+          marginLeft: open ? "17.5rem" : "0",
+          transition: "margin-left 0.3s ease",
+          minHeight: "100vh",
+        }}
+      ></div>
     </>
   );
 };

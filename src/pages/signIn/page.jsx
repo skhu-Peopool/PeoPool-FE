@@ -2,22 +2,43 @@ import React, { useState } from "react";
 import styled from "styled-components";
 import { useAuth } from "../../providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import Button from "../../components/Button";
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
+
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
+  const validateFields = () => {
+    const newErrors = {};
+    if (!email) newErrors.email = "이메일을 입력하세요";
+    if (!password) newErrors.password = "비밀번호를 입력하세요";
+    return newErrors;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const validationErrors = validateFields();
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+
+    setLoading(true);
     try {
       await login(email, password);
       alert("로그인에 성공했습니다.");
       navigate("/community");
     } catch (error) {
       alert("로그인에 실패했습니다: " + error.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -35,21 +56,27 @@ export default function SignInPage() {
         </Content>
         <Content>
           <FormContainer>
-            <Title>로그인</Title>
+            <div className="mb-7 mr-70">
+              <Img src="/logo.svg" />
+            </div>
             <Form onSubmit={handleSubmit}>
               <Input
                 type="email"
                 placeholder="이메일"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                $error={errors.email}
               />
+              {errors.email && <ErrorText>{errors.email}</ErrorText>}
 
               <Input
                 type="password"
                 placeholder="비밀번호"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                $error={errors.password}
               />
+              {errors.password && <ErrorText>{errors.password}</ErrorText>}
 
               <CheckboxContainer>
                 <Checkbox
@@ -61,13 +88,19 @@ export default function SignInPage() {
                 <CheckboxLabel htmlFor="remember">아이디 저장</CheckboxLabel>
               </CheckboxContainer>
 
-              <LoginButton type="submit">로그인</LoginButton>
+              <Button
+                type="submit"
+                disabled={loading}
+                variant="solid"
+                text={loading ? "가입 중..." : "로그인"}
+              />
             </Form>
 
             <LinkContainer>
               <Link type="button" onClick={() => navigate("/signup")}>
                 회원가입하기
               </Link>
+              <div className="w-px bg-gray-300 mx-5" />
               <Link type="button">비밀번호 찾기</Link>
             </LinkContainer>
           </FormContainer>
@@ -130,13 +163,6 @@ const FormContainer = styled.div`
   padding: 2rem;
 `;
 
-const Title = styled.p`
-  font-size: 1.5rem;
-  color: #1f2937;
-  text-align: center;
-  margin-bottom: 2rem;
-`;
-
 const Form = styled.form`
   display: flex;
   flex-direction: column;
@@ -148,21 +174,23 @@ const Form = styled.form`
 const Input = styled.input`
   width: 100%;
   padding: 0.75rem 1rem;
-  border: 1px solid #e5e7eb;
-  border-radius: 8px;
+  border: 3px solid ${({ $error }) => ($error ? "red" : "#9ABEEC")};
+  border-radius: 5px;
   font-size: 1rem;
   color: #374151;
   transition: all 0.2s;
   box-sizing: border-box;
 
   &::placeholder {
-    color: #9ca3af;
+    color: #9abeec;
   }
 
   &:focus {
     outline: none;
-    border-color: #3b82f6;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    border-color: ${({ $error }) => ($error ? "red" : "#3b82f6")};
+    box-shadow: 0 0 0 3px
+      ${({ $error }) =>
+        $error ? "rgba(255, 0, 0, 0.1)" : "rgba(59, 130, 246, 0.1)"};
   }
 `;
 
@@ -184,28 +212,6 @@ const CheckboxLabel = styled.label`
   cursor: pointer;
 `;
 
-const LoginButton = styled.button`
-  width: 100%;
-  background-color: var(--color-primary);
-  color: white;
-  padding: 0.75rem 1rem;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 0.2s;
-
-  &:hover {
-    opacity: 0.9;
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
-  }
-`;
-
 const LinkContainer = styled.div`
   display: flex;
   justify-content: center;
@@ -216,7 +222,7 @@ const LinkContainer = styled.div`
 const Link = styled.button`
   background: none;
   border: none;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   color: #6b7280;
   cursor: pointer;
   transition: color 0.2s;
@@ -254,4 +260,10 @@ const SubText = styled.p`
   margin-top: 0.1rem;
   text-align: left;
   color: #7d7d7d;
+`;
+
+const ErrorText = styled.div`
+  font-size: 0.875rem;
+  color: red;
+  margin: -0.75rem 0 0.01rem;
 `;

@@ -28,14 +28,16 @@ export default function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const { user } = await authService.login(email, password);
-      setUser(user);
+      const { accessToken } = await authService.login(email, password);
+      if (!accessToken) throw new Error("로그인 응답에 accessToken 없음");
+
+      setGlobalAccessToken(accessToken);
+      await getUser(); // 사용자 정보 가져오기
     } catch (err) {
       console.error("로그인 실패:", err);
       throw err;
     }
   };
-
   const register = async (password, nickname, email) => {
     try {
       const { accessToken } = await authService.register(
@@ -60,8 +62,8 @@ export default function AuthProvider({ children }) {
     } catch (err) {
       console.warn("서버 로그아웃 실패:", err);
     } finally {
-      setUser(null); // 클라이언트 상태 초기화
       setGlobalAccessToken(null);
+      setUser(null); // 클라이언트 상태 초기화
     }
   };
 
