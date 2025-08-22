@@ -7,6 +7,8 @@ import DateFilter from "../../components/DateFilter";
 import { useNavigate } from "react-router-dom";
 import Dropdown from "../../components/Dropdown";
 import mockOrders from "../../lib/ordersData";
+import ApplyModal from "../../components/modal/ApplyModal";
+import CompleteModal from "../../components/modal/CompleteModal";
 
 const Container = styled.div`
   display: flex;
@@ -213,8 +215,8 @@ const ActionButton = styled.button`
   border: none;
   color: white;
   cursor: pointer;
-  padding: 0.5rem 2rem;
-  border-radius: 0.75rem;
+  padding: 0.5rem 1rem;
+  border-radius: 0.35rem;
   font-size: 0.875rem;
   font-weight: 600;
   display: flex;
@@ -254,6 +256,9 @@ const Communitypage = () => {
   const [category, setCategory] = useState(categoryOptions[0]);
 
   const [currentPage, setCurrentPage] = useState(1);
+
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   const filteredOrders = mockOrders.filter((order) => {
     const matchesSearch = order.title
@@ -375,7 +380,14 @@ const Communitypage = () => {
                     <Status status={order.status}>{order.status}</Status>
                   </TableCell>
                   <TableCell>
-                    <ActionButton>신청</ActionButton>
+                    <ActionButton
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setShowApplyModal(true);
+                      }}
+                    >
+                      지원하기
+                    </ActionButton>
                   </TableCell>
                 </TableRow>
               ))}
@@ -388,6 +400,20 @@ const Communitypage = () => {
           onPageChange={setCurrentPage}
         />
       </MainContent>
+
+      {showApplyModal && (
+        <ApplyModal
+          onClose={() => setShowApplyModal(false)}
+          onComplete={() => {
+            setShowApplyModal(false);
+            setShowCompleteModal(true);
+          }}
+        />
+      )}
+
+      {showCompleteModal && (
+        <CompleteModal onClose={() => setShowCompleteModal(false)} />
+      )}
     </Container>
   );
 };

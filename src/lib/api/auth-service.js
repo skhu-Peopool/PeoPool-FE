@@ -1,4 +1,4 @@
-import { defaultFetch, setAccessToken } from "./axios-client";
+import { defaultFetch, setAccessToken, tokenFetch } from "./axios-client";
 import { userService } from "./user-service";
 
 export const authService = {
@@ -13,8 +13,6 @@ export const authService = {
     }
 
     setAccessToken(data.accessToken);
-    const user = await userService.getMe();
-    return { user };
   },
 
   register: async (password, nickname, email) => {
@@ -23,10 +21,28 @@ export const authService = {
       body: { password, nickname, email },
     });
 
-    // accessToken이 응답에 있다면 여기서 바로 저장
-    if (data.accessToken) setAccessToken(data.accessToken);
+    if (data.accessToken) {
+      setAccessToken(data.accessToken);
+    }
+  },
 
-    return data;
+  // 인증 코드 전송 API
+  sendAuthCode: async (email) => {
+    await defaultFetch("/codesend", {
+      method: "POST",
+      body: { email },
+    });
+  },
+
+  // 인증 코드 검증 API
+  verifyAuthCode: async (email, code) => {
+    await defaultFetch("/mailcodecheck", {
+      method: "POST",
+      body: {
+        email,
+        authCode: code,
+      },
+    });
   },
 
   logout: async () => {

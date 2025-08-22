@@ -28,28 +28,18 @@ export default function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const { accessToken } = await authService.login(email, password);
-      if (!accessToken) throw new Error("로그인 응답에 accessToken 없음");
-
-      setGlobalAccessToken(accessToken);
-      await getUser(); // 사용자 정보 가져오기
+      await authService.login(email, password);
+      await getUser();
     } catch (err) {
       console.error("로그인 실패:", err);
       throw err;
     }
   };
+
   const register = async (password, nickname, email) => {
     try {
-      const { accessToken } = await authService.register(
-        password,
-        nickname,
-        email
-      );
-
-      if (!accessToken) throw new Error("회원가입 응답에 accessToken 없음");
-
-      setGlobalAccessToken(accessToken); // 전역 토큰 설정
-      await getUser(); // 사용자 정보 가져오기
+      await authService.register(password, nickname, email);
+      await getUser();
     } catch (err) {
       console.error("회원가입 실패:", err);
       throw err;
@@ -58,12 +48,12 @@ export default function AuthProvider({ children }) {
 
   const logout = async () => {
     try {
-      await authService.logout(); // 서버에도 logout 요청
+      await authService.logout();
     } catch (err) {
       console.warn("서버 로그아웃 실패:", err);
     } finally {
       setGlobalAccessToken(null);
-      setUser(null); // 클라이언트 상태 초기화
+      setUser(null);
     }
   };
 
@@ -81,10 +71,9 @@ export default function AuthProvider({ children }) {
     try {
       const res = await fetch(`${import.meta.env.VITE_API_URL}/token`, {
         method: "POST",
-        credentials: "include", // 쿠키 전송
+        credentials: "include",
       });
       if (!res.ok) throw new Error("토큰 갱신 실패");
-
       const data = await res.json();
       return data.accessToken;
     } catch (err) {
@@ -94,14 +83,13 @@ export default function AuthProvider({ children }) {
   };
 
   useEffect(() => {
-    // 새로고침 시 accessToken 재발급 시도
     (async () => {
       const newAccessToken = await refreshAccessToken();
       if (newAccessToken) {
         setGlobalAccessToken(newAccessToken);
         await getUser();
       } else {
-        console.warn(" [Auth] No token received from refresh.");
+        console.warn("[Auth] No token received from refresh.");
       }
       setIsLoading(false);
     })();

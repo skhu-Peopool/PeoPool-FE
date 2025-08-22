@@ -65,6 +65,7 @@ const Input = styled.input`
 
   &:focus {
     outline-color: var(--color-primary);
+    background: white;
   }
 `;
 
@@ -82,6 +83,7 @@ const Number = styled.input`
 
   &:focus {
     outline-color: var(--color-primary);
+    background: white;
   }
 `;
 
@@ -97,6 +99,7 @@ const Textarea = styled.textarea`
 
   &:focus {
     outline-color: var(--color-primary);
+    background: white;
   }
 `;
 
@@ -152,6 +155,7 @@ const TagInput = styled.input`
 
   &:focus {
     outline-color: var(--color-primary);
+    background: white;
   }
 `;
 

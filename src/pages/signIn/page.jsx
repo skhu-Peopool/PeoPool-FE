@@ -100,8 +100,8 @@ export default function SignInPage() {
               <Link type="button" onClick={() => navigate("/signup")}>
                 회원가입하기
               </Link>
-              <div className="w-px bg-gray-300 mx-5" />
-              <Link type="button">비밀번호 찾기</Link>
+              <div className="w-px bg-gray-300 mx-6" />
+              <Link type="button">비밀번호 변경</Link>
             </LinkContainer>
           </FormContainer>
         </Content>
@@ -122,7 +122,7 @@ const Wrap = styled.div`
 
 const Container = styled.div`
   display: flex;
-  width: 60%;
+  width: 50%;
   height: 70%;
   background-color: white;
   border-radius: 20px;
@@ -160,13 +160,13 @@ const FormContainer = styled.div`
   align-items: center;
   margin-top: 7.5rem;
   height: 100%;
-  padding: 2rem;
+  padding: 1rem;
 `;
 
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   width: 100%;
   max-width: 400px;
 `;
@@ -198,6 +198,7 @@ const CheckboxContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 0.5rem;
 `;
 
 const Checkbox = styled.input`
@@ -265,5 +266,5 @@ const SubText = styled.p`
 const ErrorText = styled.div`
   font-size: 0.875rem;
   color: red;
-  margin: -0.75rem 0 0.01rem;
+  margin: -0.75rem 0;
 `;
