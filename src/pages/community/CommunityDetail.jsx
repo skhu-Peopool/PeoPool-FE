@@ -2,6 +2,9 @@ import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
 import example from "../../assets/example.svg";
 import mockOrders from "../../lib/ordersData";
+import ApplyModal from "../../components/modal/ApplyModal";
+import CompleteModal from "../../components/modal/CompleteModal";
+import { useState } from "react";
 
 const Container = styled.div`
   display: flex;
@@ -130,7 +133,7 @@ const FileInfo = styled.div`
 `;
 
 const ApplyButton = styled.button`
-  background: #93c5fd;
+  background: #60a5fa;
   color: white;
   border: none;
   padding: 0.75rem 2rem;
@@ -138,14 +141,18 @@ const ApplyButton = styled.button`
   font-weight: 600;
   cursor: pointer;
   float: right;
+  transition: all 0.2s ease;
+
   &:hover {
-    background: #60a5fa;
+    background: #4286daff;
   }
 `;
 
 export default function CommunityDetail() {
   const { id } = useParams();
-  const navigate = useNavigate();
+
+  const [showApplyModal, setShowApplyModal] = useState(false);
+  const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   const order = mockOrders.find((item) => item.id === parseInt(id));
 
@@ -201,10 +208,24 @@ export default function CommunityDetail() {
 
         <FileInfo>첨부파일 1개 - </FileInfo>
 
-        <ApplyButton onClick={() => alert("지원하기 기능은 추후 구현 예정")}>
+        <ApplyButton onClick={() => setShowApplyModal(true)}>
           지원하기
         </ApplyButton>
       </MainContent>
+
+      {showApplyModal && (
+        <ApplyModal
+          onClose={() => setShowApplyModal(false)}
+          onComplete={() => {
+            setShowApplyModal(false);
+            setShowCompleteModal(true);
+          }}
+        />
+      )}
+
+      {showCompleteModal && (
+        <CompleteModal onClose={() => setShowCompleteModal(false)} />
+      )}
     </Container>
   );
 }

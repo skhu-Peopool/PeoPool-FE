@@ -1,22 +1,7 @@
 import { Calendar, UserSearch, Users } from "lucide-react";
-import styled, { createGlobalStyle } from "styled-components";
+import styled from "styled-components";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
-import menubar from "../../assets/menubar.svg";
-
-// 전역 스타일로 body의 마진을 조정
-const GlobalStyle = createGlobalStyle`
-  body {
-    margin-left: ${(props) => (props.sidebarOpen ? "17.5rem" : "0")};
-    transition: margin-left 0.3s ease;
-  }
-  
-  @media (max-width: 768px) {
-    body {
-      margin-left: 0;
-    }
-  }
-`;
 
 const Sidebar = styled.div`
   position: fixed;

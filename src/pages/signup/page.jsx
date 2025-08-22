@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../providers/AuthProvider";
 import Button from "../../components/Button";
+import { authService } from "../../lib/api/auth-service";
 
 export default function SignUpPage() {
   const [nickname, setNickName] = useState("");
@@ -14,7 +14,6 @@ export default function SignUpPage() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const { register } = useAuth();
   const navigate = useNavigate();
 
   const validateFields = () => {
@@ -30,7 +29,7 @@ export default function SignUpPage() {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault;
     const validationErrors = validateFields();
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
@@ -39,9 +38,11 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
-      await register(password, nickname, email);
-      alert("회원가입에 성공했습니다.");
-      navigate("/community");
+      await authService.sendAuthCode(email);
+
+      navigate("/code", {
+        state: { email, password, nickname },
+      });
     } catch (err) {
       alert("회원가입 실패: " + err.message);
     } finally {
@@ -66,7 +67,7 @@ export default function SignUpPage() {
             <div className="mb-7 mr-70">
               <Img src="/logo.svg" />
             </div>
-            <Form onSubmit={handleSubmit}>
+            <Form>
               <Input
                 type="text"
                 placeholder="이름"
@@ -119,17 +120,12 @@ export default function SignUpPage() {
 
               <ButtonContainer>
                 <Button
-                  type="submit"
+                  type="button"
                   disabled={loading}
                   variant="solid"
                   text={loading ? "가입 중..." : "회원가입"}
+                  onClick={handleSubmit}
                 />
-                {/* <Button
-                  type="reset"
-                  onClick={() => navigate("/")}
-                  variant="light"
-                  text="뒤로"
-                /> */}
               </ButtonContainer>
             </Form>
           </FormContainer>
@@ -151,8 +147,8 @@ const Wrap = styled.div`
 
 const Container = styled.div`
   display: flex;
-  width: 60%;
-  height: 70%;
+  width: 55%;
+  height: 80%;
   background-color: white;
   border-radius: 20px;
   box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -194,9 +190,9 @@ const FormContainer = styled.div`
 const Form = styled.form`
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
   width: 100%;
-  max-width: 400px;
+  max-width: 440px;
 `;
 
 const Input = styled.input`
@@ -226,6 +222,7 @@ const CheckboxContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-bottom: 0.5rem;
 `;
 
 const Checkbox = styled.input`
@@ -280,7 +277,7 @@ const SubText = styled.p`
 const ErrorText = styled.div`
   font-size: 0.875rem;
   color: red;
-  margin: -0.75rem 0 0.01rem;
+  margin: -0.75rem 0;
 `;
 
 const spin = keyframes`
