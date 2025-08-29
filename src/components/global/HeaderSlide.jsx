@@ -9,123 +9,164 @@ const Sidebar = styled.div`
   left: 0;
   height: 100vh;
   width: ${(props) => (props.open ? "17.5rem" : "0")};
-  background: var(--color-gradient);
-  color: white;
-  padding: ${(props) => (props.open ? "1.5rem" : "0")};
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(226, 232, 240, 0.5);
+  box-shadow: ${(props) => (props.open ? "0 8px 40px rgba(0, 0, 0, 0.08)" : "none")};
   overflow: hidden;
   transition: width 0.3s ease, padding 0.3s ease;
   white-space: nowrap;
   z-index: 1000;
+  padding: ${(props) => (props.open ? "1.5rem" : "0")};
 `;
 
 const LogoContainer = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.3);
 `;
 
 const Logo = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.25rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 700;
   opacity: ${(props) => (props.open ? 1 : 0)};
   transition: opacity 0.3s ease;
+  color: #1e293b;
+  
+  a {
+    color: inherit;
+    text-decoration: none;
+  }
 `;
 
 const LogoIcon = styled.div`
-  width: 2rem;
-  height: 2rem;
-  background: rgba(255, 255, 255, 0.2);
-  border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: #3b82f6;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
+  color: white;
+`;
+
+const MenuSection = styled.div`
+  margin-bottom: 2rem;
 `;
 
 const MenuItem = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  border-radius: 0.5rem;
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
   cursor: pointer;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s;
-  background: ${(props) =>
-    props.active ? "rgba(255, 255, 255, 0.15)" : "transparent"};
+  margin-bottom: 0.25rem;
+  transition: all 0.2s ease;
+  color: ${(props) => (props.active ? "#3b82f6" : "#64748b")};
+  background: ${(props) => (props.active ? "rgba(59, 130, 246, 0.08)" : "transparent")};
+  font-weight: ${(props) => (props.active ? "600" : "500")};
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: ${(props) => (props.active ? "rgba(59, 130, 246, 0.12)" : "rgba(248, 250, 252, 0.8)")};
+    color: ${(props) => (props.active ? "#2563eb" : "#475569")};
+    transform: translateX(2px);
   }
 `;
 
 const MenuText = styled.span`
   flex: 1;
-  font-size: 0.875rem;
-  font-weight: 500;
-`;
-
-const LogOut = styled.span`
-  display: flex;
-  font-size: 1.25rem;
-  font-weight: 500;
-  position: absolute;
-  bottom: 8rem;
-  left: 1.8rem;
-`;
-
-const LogIn = styled.span`
-  display: flex;
-  font-size: 1.25rem;
-  font-weight: 500;
-  position: absolute;
-  bottom: 4rem;
-  left: 2.75rem;
+  font-size: 0.9rem;
 `;
 
 const MenuBadge = styled.span`
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  padding: 0.125rem 0.5rem;
-  border-radius: 0.75rem;
+  background: ${(props) => (props.active ? "#3b82f6" : "#e2e8f0")};
+  color: ${(props) => (props.active ? "white" : "#64748b")};
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
   font-size: 0.75rem;
   font-weight: 600;
+  min-width: 1.5rem;
+  text-align: center;
 `;
 
-const UserProfile = styled.div`
+const AuthSection = styled.div`
   position: absolute;
-  width: 14.5rem;
   bottom: 1.5rem;
   left: 1.5rem;
   right: 1.5rem;
+`;
+
+const LogOut = styled.div`
+  padding: 0.875rem 1rem;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 12px;
+  text-align: center;
+  margin-bottom: 1rem;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: rgba(248, 250, 252, 0.8);
+    color: #475569;
+  }
+`;
+
+const LogIn = styled.div`
+  padding: 0.875rem 1rem;
+  background: #3b82f6;
+  color: white;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 12px;
+  text-align: center;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #2563eb;
+  }
+`;
+
+const UserProfile = styled.div`
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 1rem;
-  transition: all 0.2s;
-  border-radius: 0.75rem;
-  background: ${(props) =>
-    props.active ? "rgba(255, 255, 255, 0.15)" : "transparent"};
+  padding: 0.875rem 1rem;
+  border-radius: 12px;
+  background: rgba(248, 250, 252, 0.8);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 1rem;
 
   &:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(241, 245, 249, 0.9);
+    border-color: rgba(203, 213, 225, 0.8);
+    transform: translateY(-1px);
   }
 `;
 
 const UserAvatar = styled.div`
-  width: 2.75rem;
-  height: 2.75rem;
+  width: 2.5rem;
+  height: 2.5rem;
   border-radius: 50%;
-  background: white;
-  color: #73a3e7;
+  background: #3b82f6;
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
-  font-size: 0.75rem;
+  font-size: 0.875rem;
 `;
 
 const UserDetails = styled.div`
@@ -135,7 +176,13 @@ const UserDetails = styled.div`
 const UserNameProfile = styled.div`
   font-weight: 600;
   font-size: 0.875rem;
-  margin-bottom: 0.125rem;
+  color: #1e293b;
+  margin-bottom: 0.25rem;
+`;
+
+const UserRole = styled.div`
+  font-size: 0.75rem;
+  color: #64748b;
 `;
 
 const BookmarkToggle = styled.button`
@@ -144,21 +191,27 @@ const BookmarkToggle = styled.button`
   left: ${(props) => (props.open ? "17.5rem" : "0")};
   width: 1.5rem;
   height: 9rem;
-  background: var(--color-primary);
-  border: none;
-  border-radius: 0 0.5rem 0.5rem 0;
-  color: white;
-  font-size: 1.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.5);
+  border-left: none;
+  border-radius: 0 12px 12px 0;
+  color: #64748b;
+  font-size: 1.2rem;
   font-weight: bold;
   cursor: pointer;
   z-index: 1001;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: left 0.3s ease;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 
   &:hover {
-    opacity: 0.9;
+    background: rgba(248, 250, 252, 0.98);
+    color: #3b82f6;
+    transform: translateX(2px);
+    box-shadow: 0 6px 30px rgba(0, 0, 0, 0.08);
   }
 `;
 
@@ -175,9 +228,27 @@ const HeaderSlide = ({ open, setOpen }) => {
       alert("성공적으로 처리되었습니다.");
       navigate("/");
     } catch (e) {
-      alert("로그아웃에 실패했습니다.");
+      alert(e,"로그아웃에 실패했습니다.");
     }
   };
+
+  const menuItems = [
+    {
+      path: "/community",
+      icon: Users,
+      text: "Community",
+    },
+    {
+      path: "/others",
+      icon: UserSearch,
+      text: "사람찾기",
+    },
+    {
+      path: "/calendar",
+      icon: Calendar,
+      text: "달력/시간표",
+    }
+  ];
 
   return (
     <>
@@ -187,62 +258,59 @@ const HeaderSlide = ({ open, setOpen }) => {
             <LogoContainer>
               <Logo open={open}>
                 <LogoIcon>
-                  <Users size={18} />
+                  <Users size={20} />
                 </LogoIcon>
                 <a href="/">peopool</a>
               </Logo>
             </LogoContainer>
 
-            <MenuItem
-              active={currentPath === "/community"}
-              onClick={() => navigate("/community")}
-            >
-              <Users size={18} />
-              <MenuText>Community</MenuText>
-              <MenuBadge>0</MenuBadge>
-            </MenuItem>
-            <MenuItem
-              active={currentPath === "/others"}
-              onClick={() => navigate("/others")}
-            >
-              <UserSearch size={18} />
-              <MenuText>사람찾기</MenuText>
-              <MenuBadge>2</MenuBadge>
-            </MenuItem>
-            <MenuItem
-              active={currentPath === "/calendar"}
-              onClick={() => navigate("/calendar")}
-            >
-              <Calendar size={18} />
-              <MenuText>달력/시간표</MenuText>
-              <MenuBadge>1</MenuBadge>
-            </MenuItem>
+            <MenuSection>
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = currentPath === item.path;
+                
+                return (
+                  <MenuItem
+                    key={item.path}
+                    active={isActive}
+                    onClick={() => navigate(item.path)}
+                  >
+                    <Icon size={18} />
+                    <MenuText>{item.text}</MenuText>
+                  </MenuItem>
+                );
+              })}
+            </MenuSection>
 
-            {user ? (
-              <>
-                <LogOut onClick={handleLogout} style={{ cursor: "pointer" }}>
-                  로그아웃
-                </LogOut>
-                <UserProfile active onClick={() => navigate("/profile")}>
-                  <UserAvatar>profile</UserAvatar>
-                  <UserDetails>
-                    <UserNameProfile>{user.nickname}</UserNameProfile>
-                  </UserDetails>
-                </UserProfile>
-              </>
-            ) : (
-              <LogIn
-                onClick={() => navigate("/signIn")}
-                style={{ cursor: "pointer" }}
-              >
-                로그인 하기
-              </LogIn>
-            )}
+            <AuthSection>
+              {user ? (
+                <>
+                  <UserProfile onClick={() => navigate("/profile")}>
+                    <UserAvatar>
+                      {user.nickname ? user.nickname[0] : "U"}
+                    </UserAvatar>
+                    <UserDetails>
+                      <UserNameProfile>{user.nickname || "사용자"}</UserNameProfile>
+                      <UserRole>회원</UserRole>
+                    </UserDetails>
+                  </UserProfile>
+                  <LogOut onClick={handleLogout}>
+                    로그아웃
+                  </LogOut>
+                </>
+              ) : (
+                <LogIn onClick={() => navigate("/signIn")}>
+                  로그인 하기
+                </LogIn>
+              )}
+            </AuthSection>
           </>
         )}
       </Sidebar>
 
-      <BookmarkToggle open={open} onClick={() => setOpen(!open)} />
+      <BookmarkToggle open={open} onClick={() => setOpen(!open)}>
+        {open ? "‹" : "›"}
+      </BookmarkToggle>
       <div
         style={{
           marginLeft: open ? "17.5rem" : "0",

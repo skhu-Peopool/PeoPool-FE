@@ -15,7 +15,7 @@ const float = keyframes`
 const Container = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-  padding: 2rem 1rem;
+  padding: 2rem;
   position: relative;
   
   &::before {
