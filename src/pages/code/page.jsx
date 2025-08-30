@@ -74,7 +74,7 @@ export default function EmailCodePage() {
 
         <Content>
           <FormContainer>
-            <Logo src="/logo.svg" />
+            <Logo src="/logo1.svg" />
             <Label>이메일로 전송한 6자리 코드를 입력하세요.</Label>
             <CodeInputContainer>
               {code.map((value, index) => (

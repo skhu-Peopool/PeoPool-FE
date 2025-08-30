@@ -2,6 +2,9 @@ import { useState } from "react";
 import styled from "styled-components";
 import DateFilter from "../../components/DateFilter";
 import Dropdown from "../../components/Dropdown";
+import { useNavigate } from "react-router-dom";
+import { postService } from "../../lib/api/post-service";
+import { categoryReverseMap } from "../../lib/labelMaps";
 
 const Container = styled.div`
   display: flex;
@@ -45,7 +48,7 @@ const LabelGroup = styled.div`
   display: flex;
   margin-top: 2.5rem;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
 `;
 
 const FormRow = styled.div`
@@ -194,43 +197,45 @@ const TagSection = styled.div`
 `;
 
 const PostsPage = () => {
+  const navigate = useNavigate();
   const categoryOptions = ["동아리", "어울림", "경진대회", "공모전", "기타"];
   const [category, setCategory] = useState(categoryOptions[0]);
-  const [recruitNum, setRecruitNum] = useState("12");
-  const [startDate, setStartDate] = useState("2020-07-31");
-  const [endDate, setEndDate] = useState("2020-08-03");
+  const [recruitNum, setRecruitNum] = useState("1");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [activityStartDate, setActivityStartDate] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [imageFile, setImageFile] = useState(null);
 
-  const [tagInput, setTagInput] = useState("");
-  const [tags, setTags] = useState([]);
-  const [tagError, setTagError] = useState("");
-
-  const handleTagKeyDown = (e) => {
-    if (e.key === "Enter") {
-      e.preventDefault();
-      const trimmed = tagInput.trim();
-      if (!trimmed) return;
-      if (tags.length >= 3) {
-        setTagError("최대 3개의 태그만 등록할 수 있습니다");
-        return;
-      }
-      if (trimmed.length > 5) {
-        setTagError("5글자 이내로 입력해주세요");
-        return;
-      }
-      if (tags.includes(trimmed)) {
-        setTagError("이미 등록된 태그입니다");
-        return;
-      }
-      setTags([...tags, trimmed]);
-      setTagInput("");
-      setTagError("");
-    }
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) setImageFile(file);
   };
 
-  const handleTagDelete = (index) => {
-    setTags((prev) => prev.filter((_, i) => i !== index));
+  const handleRegister = async () => {
+    try {
+      await postService.addPost({
+        title,
+        content,
+        recruitmentStartDate: startDate,
+        recruitmentEndDate: endDate,
+        activityStartDate,
+        maxPeople: recruitNum,
+        category: categoryReverseMap[category],
+        imageFile,
+      });
+
+      alert("게시물이 등록되었습니다.");
+      navigate("/community");
+    } catch (error) {
+      if (error.response) {
+        console.error("서버 응답 에러:", error.response.data);
+      } else {
+        console.error("기타 에러:", error);
+      }
+      alert("등록에 실패했습니다.");
+    }
   };
 
   return (
@@ -255,6 +260,12 @@ const PostsPage = () => {
               type="number"
               value={recruitNum}
               onChange={(e) => setRecruitNum(e.target.value)}
+            />
+
+            <Label>활동 시작일</Label>
+            <DateFilter
+              startDate={activityStartDate}
+              setStartDate={setActivityStartDate}
             />
 
             <Label>모집기간</Label>
@@ -288,53 +299,30 @@ const PostsPage = () => {
           />
         </FormRow>
 
-        {/* 태그 + 첨부파일 + 버튼들 */}
-        {/* 태그 입력 */}
+        {/* 이미지 업로드 */}
         <FormRow>
-          <Label>태그</Label>
-          <TagInput
-            type="text"
-            placeholder="태그를 입력 후 Enter"
-            value={tagInput}
-            onChange={(e) => setTagInput(e.target.value)}
-            onKeyDown={handleTagKeyDown}
-            error={tagError}
-          />
-          {tagError && (
-            <p
-              style={{
-                fontSize: "0.75rem",
-                color: "#ef4444",
-                marginTop: "0.05rem",
-              }}
-            >
-              {tagError}
-            </p>
-          )}
-          <TagList>
-            {tags.map((tag, i) => (
-              <TagItem key={i}>
-                #{tag}
-                <DeleteTagButton onClick={() => handleTagDelete(i)}>
-                  ×
-                </DeleteTagButton>
-              </TagItem>
-            ))}
-          </TagList>
-        </FormRow>
-        {/* 첨부파일 */}
-        <FormRow>
-          <Label>첨부파일</Label>
+          <Label>이미지</Label>
           <File>
             <FileUploadLabel htmlFor="fileInput">파일 선택</FileUploadLabel>
-            <HiddenFileInput type="file" id="fileInput" />
-            <span style={{ marginTop: "0.5rem" }}>선택된 파일 없음</span>
+            <HiddenFileInput
+              type="file"
+              id="fileInput"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+            <span style={{ marginTop: "0.5rem" }}>
+              {imageFile?.name || "선택된 파일 없음"}
+            </span>
           </File>
         </FormRow>
+
+        {/* 버튼 */}
         <div className="flex justify-end gap-3">
           <Button variant="danger">임시저장</Button>
           <Button>취소</Button>
-          <Button variant="primary">등록</Button>
+          <Button variant="primary" onClick={handleRegister}>
+            등록
+          </Button>
         </div>
       </MainContent>
     </Container>
