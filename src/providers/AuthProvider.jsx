@@ -12,6 +12,7 @@ const AuthContext = createContext({
   updateUser: () => {},
   user: null,
   isLoading: true,
+  isAuthReady: false,
 });
 
 export const useAuth = () => {
@@ -25,10 +26,12 @@ export const useAuth = () => {
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false);
 
   const login = async (email, password) => {
     try {
-      await authService.login(email, password);
+      const accessToken = await authService.login(email, password);
+      setGlobalAccessToken(accessToken);
       await getUser();
     } catch (err) {
       console.error("로그인 실패:", err);
@@ -38,7 +41,8 @@ export default function AuthProvider({ children }) {
 
   const register = async (password, nickname, email) => {
     try {
-      await authService.register(password, nickname, email);
+      const accessToken = await authService.register(password, nickname, email);
+      setGlobalAccessToken(accessToken);
       await getUser();
     } catch (err) {
       console.error("회원가입 실패:", err);
@@ -92,6 +96,7 @@ export default function AuthProvider({ children }) {
         console.warn("[Auth] No token received from refresh.");
       }
       setIsLoading(false);
+      setIsAuthReady(true);
     })();
   }, []);
 
@@ -113,6 +118,7 @@ export default function AuthProvider({ children }) {
         register,
         updateUser,
         isLoading,
+        isAuthReady,
       }}
     >
       {children}

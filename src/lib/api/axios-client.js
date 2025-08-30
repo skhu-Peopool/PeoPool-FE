@@ -10,6 +10,10 @@ export const getAccessToken = () => accessToken;
 
 // accessToken 설정
 export const setAccessToken = (token) => {
+  if (typeof token !== "string") {
+    console.warn("Invalid accessToken:", token);
+    return;
+  }
   accessToken = token;
   console.log("setAccessToken:", token);
 };
@@ -77,13 +81,17 @@ export const defaultFetch = async (url, options = {}) => {
 
 // 인증 요청 함수
 export const tokenFetch = async (url, tokenOverride = null, options = {}) => {
-  if (tokenOverride) {
+  if (tokenOverride && typeof tokenOverride === "string") {
     setAccessToken(tokenOverride);
+  }
+
+  const token = accessToken;
+  if (!token) {
+    throw new Error("accessToken이 없습니다.");
   }
 
   const method = options.method || "GET";
   const data = options.body;
-  // const data = options.body ? JSON.parse(options.body) : undefined;
 
   const config = {
     url,

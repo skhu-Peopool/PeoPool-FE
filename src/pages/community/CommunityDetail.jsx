@@ -1,10 +1,17 @@
 import { useParams, useNavigate } from "react-router-dom";
 import styled from "styled-components";
-import example from "../../assets/example.svg";
-import mockOrders from "../../lib/ordersData";
 import ApplyModal from "../../components/modal/ApplyModal";
 import CompleteModal from "../../components/modal/CompleteModal";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { categoryLabelMap, statusLabelMap } from "../../lib/labelMaps";
+import { postService } from "../../lib/api/post-service";
+import { useAuth } from "../../providers/AuthProvider";
+
+const Rendering = styled.div`
+  display: flex;
+  justify-content: center;
+  margin-top: 10rem;
+`;
 
 const Container = styled.div`
   display: flex;
@@ -111,25 +118,21 @@ const DetailContent = styled.p`
   line-height: 1.6;
   color: #374151;
   margin-bottom: 1.5rem;
+  min-height: 50px;
 `;
 
-const Tag = styled.span`
-  color: #3b82f6;
-  margin-right: 0.5rem;
+const ImageWrapper = styled.div`
+  display: flex;
+  justify-content: flex-start;
 `;
 
 const ImagePreview = styled.img`
-  display: flex;
-  width: 100%;
+  display: block;
+  width: auto;
+  max-width: 100%;
+  height: auto;
   max-height: 300px;
-  object-fit: contain;
-  margin-bottom: 1rem;
-`;
-
-const FileInfo = styled.div`
-  font-size: 0.9rem;
-  color: #6b7280;
-  margin-bottom: 2rem;
+  margin: 1rem 0;
 `;
 
 const ApplyButton = styled.button`
@@ -150,67 +153,107 @@ const ApplyButton = styled.button`
 
 export default function CommunityDetail() {
   const { id } = useParams();
-
+  const navigate = useNavigate();
+  const { user, isAuthReady } = useAuth();
+  const [post, setPost] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const order = mockOrders.find((item) => item.id === parseInt(id));
+  useEffect(() => {
+    if (!isAuthReady) return;
 
-  if (!order) {
-    return <Container>게시글을 찾을 수 없습니다.</Container>;
+    const fetchPost = async () => {
+      try {
+        const res = await postService.getPostDetail(id);
+        console.log("받은 데이터:", res);
+        setPost(res);
+      } catch (e) {
+        console.error("게시물 로딩 실패", e);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPost();
+  }, [id, isAuthReady]);
+
+  if (!isAuthReady || isLoading) {
+    return <Rendering>로딩 중...</Rendering>;
   }
+
+  if (!post) {
+    return <Rendering>게시글을 찾을 수 없습니다.</Rendering>;
+  }
+
+  const isWriter = user && user.userId === post.writerId;
+
+  const handleEdit = () => {};
+
+  const handleDelete = async () => {
+    const confirmDelete = confirm("정말로 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    try {
+      await postService.deletePost(id);
+      alert("게시글이 삭제되었습니다.");
+      navigate("/community");
+    } catch (e) {
+      console.error("삭제 실패", e);
+      alert("게시글 삭제에 실패했습니다.");
+    }
+  };
 
   return (
     <Container>
       <MainContent>
-        <Title>{order.title}</Title>
+        <Title>{post.title}</Title>
         <MetaInfo>
-          <span className="text-[var(--color-primary)] font-bold">
-            {order.category}
+          <span className="text-[var(--color-primary)] font-['Arial] font-bold">
+            {categoryLabelMap[post.category]}
           </span>
           <div className="w-px bg-gray-300" />
-          <span>{order.date} 작성</span>
+          <span className="font-['Arial'] text-black">
+            {post.createdAt.split("T")[0]} 작성
+            {/* 이 부분 dayjs로 시간 형식 맞출예정 */}
+          </span>
         </MetaInfo>
-
         <UserInfo1>
-          <Avatar color={order.color}>{order.initial}</Avatar>
-          <UserName>{order.name}</UserName>
+          <Avatar>{post.writerName.charAt(0)}</Avatar>
+          <UserName>{post.writerName}</UserName>
         </UserInfo1>
-
         <hr className="my-5 border-gray-300" />
-
         <RecruitInfo>
-          <p>모집 기간 : 25.03.07 ~ 25.06.25</p>
           <p>
-            모집 현황 : {order.currentApplicants} / {order.maxApplicants}
+            모집 기간 : {post.recruitmentStartDate} ~ {post.recruitmentEndDate}
           </p>
+          <p>모집 현황 : 0 / {post.maxPeople}</p>
           <p>
-            모집 상태 : <Status status={order.status}>{order.status}</Status>
+            모집 상태 :{" "}
+            <Status status={statusLabelMap[post.status]}>
+              {statusLabelMap[post.status]}
+            </Status>
           </p>
         </RecruitInfo>
-
         <hr className="my-5 border-gray-300" />
-
         <h3 className="font-semibold text-lg mb-2">상세 내용</h3>
-        <DetailContent>
-          매주 함께 토익스터디 하실 분 구해용
-          {"\n"}기존 혼자 하시던 분, 새로 시작하시는 분 상관없습니다!
-          {"\n"}꾸준히 참여만 해주신다면 누구든 환영!
-          {"\n"}매주 뒤풀이도 선택적으로 참여하실 수 있습니다.
-        </DetailContent>
-
-        <Tag>#토익</Tag>
-        <Tag>#스터디</Tag>
-
-        <ImagePreview src={example} alt="임시 이미지" />
-
+        <DetailContent>{post.content}</DetailContent>
+        <p className="font-semibold mb-6">
+          활동 시작일 : {post.activityStartDate}
+        </p>
+        <ImageWrapper>
+          {post.image && <ImagePreview src={post.image} alt="게시글 이미지" />}
+        </ImageWrapper>
         <hr className="my-9 border-gray-300" />
-
-        <FileInfo>첨부파일 1개 - </FileInfo>
-
-        <ApplyButton onClick={() => setShowApplyModal(true)}>
-          지원하기
-        </ApplyButton>
+        {isWriter ? (
+          <div className="flex justify-end gap-2">
+            <ApplyButton onClick={handleEdit}>수정</ApplyButton>
+            <ApplyButton onClick={handleDelete}>삭제</ApplyButton>
+          </div>
+        ) : (
+          <ApplyButton onClick={() => setShowApplyModal(true)}>
+            지원하기
+          </ApplyButton>
+        )}
       </MainContent>
 
       {showApplyModal && (

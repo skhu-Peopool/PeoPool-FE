@@ -1,14 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Edit3 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+
 import SearchControls from "../../components/SearchControls";
 import PaginationComponent from "../../components/PaginationComponent";
 import DateFilter from "../../components/DateFilter";
-import { useNavigate } from "react-router-dom";
 import Dropdown from "../../components/Dropdown";
-import mockOrders from "../../lib/ordersData";
 import ApplyModal from "../../components/modal/ApplyModal";
 import CompleteModal from "../../components/modal/CompleteModal";
+import { postService } from "../../lib/api/post-service";
+import { categoryLabelMap, statusLabelMap } from "../../lib/labelMaps";
 
 const Container = styled.div`
   display: flex;
@@ -237,13 +239,15 @@ const ActionButton = styled.button`
 const ITEMS_PER_PAGE = 6;
 
 const Communitypage = () => {
+  const [posts, setPosts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [startDate, setStartDate] = useState("2025-07-31");
-  const [endDate, setEndDate] = useState("2025-08-03");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const navigate = useNavigate();
 
-  const statusOptions = ["전체", "모집 중", "검토 중", "모집마감", "모집예정"];
-  const [status, setStatus] = useState(statusOptions[0]);
+  const statusOptions = ["전체", "모집 중", "모집예정", "모집완료", "검토 중"];
+  const [status, setStatus] = useState("전체");
 
   const categoryOptions = [
     "전체",
@@ -253,27 +257,37 @@ const Communitypage = () => {
     "공모전",
     "기타",
   ];
-  const [category, setCategory] = useState(categoryOptions[0]);
+  const [category, setCategory] = useState("전체");
 
   const [currentPage, setCurrentPage] = useState(1);
-
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  const filteredOrders = mockOrders.filter((order) => {
-    const matchesSearch = order.title
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await postService.getPostList(currentPage, ITEMS_PER_PAGE);
+      setPosts(data);
+    };
+    fetchData();
+  }, [currentPage]);
+
+  const filteredPosts = posts.filter((post) => {
+    const titleMatch = post.title
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
-    const matchesStatus = status === "전체" || order.status === status;
-    const matchesCategory = category === "전체" || order.category === category;
-    return matchesSearch && matchesStatus && matchesCategory;
-  });
+    const statusMatch =
+      status === "전체" || statusLabelMap[post.status] === status;
+    const categoryMatch =
+      category === "전체" || categoryLabelMap[post.category] === category;
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const currentOrders = filteredOrders.slice(
-    startIndex,
-    startIndex + ITEMS_PER_PAGE
-  );
+    // 날짜 필터링 로직 추가
+    const recruitmentDate = post.recruitmentEndDate?.split("T")[0];
+    const dateMatch =
+      (!startDate || recruitmentDate >= startDate) &&
+      (!endDate || recruitmentDate <= endDate);
+
+    return titleMatch && statusMatch && categoryMatch && dateMatch;
+  });
 
   const handleWriteClick = () => navigate("/posts");
 
@@ -294,7 +308,7 @@ const Communitypage = () => {
       <MainContent>
         <Header>
           <Title>Community</Title>
-          <Subtitle>{filteredOrders.length}개의 모집 공고</Subtitle>
+          <Subtitle>{filteredPosts.length}개의 모집 공고</Subtitle>
         </Header>
 
         <Controls>
@@ -356,28 +370,30 @@ const Communitypage = () => {
               </tr>
             </TableHeader>
             <tbody>
-              {currentOrders.map((order) => (
+              {filteredPosts.map((post) => (
                 <TableRow
-                  key={order.id}
-                  onClick={() => navigate(`/community/${order.id}`)}
+                  key={post.id}
+                  onClick={() => navigate(`/community/${post.id}`)}
                   style={{ cursor: "pointer" }}
                 >
-                  <TableCell>{order.category}</TableCell>
+                  <TableCell>{categoryLabelMap[post.category]}</TableCell>
                   <TableCell>
-                    <UserInfo>{order.title}</UserInfo>
+                    <UserInfo>{post.title}</UserInfo>
                   </TableCell>
                   <TableCell>
                     <UserInfo1>
-                      <Avatar color={order.color}>{order.initial}</Avatar>
-                      <UserName>{order.name}</UserName>
+                      <Avatar>{post.writerName[0]}</Avatar>
+                      <UserName>{post.writerName}</UserName>
                     </UserInfo1>
                   </TableCell>
-                  <TableCell>{order.date}</TableCell>
                   <TableCell>
-                    {order.currentApplicants} / {order.maxApplicants}
+                    {post.recruitmentEndDate?.split("T")[0]}
                   </TableCell>
+                  <TableCell>0 / {post.maxPeople}</TableCell>
                   <TableCell>
-                    <Status status={order.status}>{order.status}</Status>
+                    <Status status={statusLabelMap[post.status]}>
+                      {statusLabelMap[post.status]}
+                    </Status>
                   </TableCell>
                   <TableCell>
                     <ActionButton
@@ -396,7 +412,7 @@ const Communitypage = () => {
         </TableContainer>
 
         <PaginationComponent
-          totalPages={Math.ceil(filteredOrders.length / ITEMS_PER_PAGE)}
+          totalPages={Math.ceil(posts.length / ITEMS_PER_PAGE)}
           onPageChange={setCurrentPage}
         />
       </MainContent>

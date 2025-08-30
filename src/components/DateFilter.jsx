@@ -35,12 +35,16 @@ const DateFilter = ({ startDate, setStartDate, endDate, setEndDate }) => {
         value={startDate}
         onChange={(e) => setStartDate(e.target.value)}
       />
-      <DateSeparator>to</DateSeparator>
-      <DateInput
-        type="date"
-        value={endDate}
-        onChange={(e) => setEndDate(e.target.value)}
-      />
+      {endDate !== undefined && setEndDate && (
+        <>
+          <DateSeparator>to</DateSeparator>
+          <DateInput
+            type="date"
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+        </>
+      )}
     </DateRange>
   );
 };

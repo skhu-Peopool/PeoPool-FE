@@ -13,6 +13,7 @@ export const authService = {
     }
 
     setAccessToken(data.accessToken);
+    return data.accessToken;
   },
 
   register: async (password, nickname, email) => {
@@ -21,9 +22,12 @@ export const authService = {
       body: { password, nickname, email },
     });
 
-    if (data.accessToken) {
-      setAccessToken(data.accessToken);
+    if (!data.accessToken) {
+      throw new Error("회원가입 응답에 accessToken이 없습니다.");
     }
+
+    setAccessToken(data.accessToken);
+    return data.accessToken;
   },
 
   // 인증 코드 전송 API

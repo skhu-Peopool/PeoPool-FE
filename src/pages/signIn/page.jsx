@@ -57,7 +57,7 @@ export default function SignInPage() {
         <Content>
           <FormContainer>
             <div className="mb-7 mr-70">
-              <Img src="/logo.svg" />
+              <Img src="/logo1.svg" />
             </div>
             <Form onSubmit={handleSubmit}>
               <Input
