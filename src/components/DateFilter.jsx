@@ -1,5 +1,5 @@
-import React from "react";
 import styled from "styled-components";
+import { Calendar } from "lucide-react";
 
 const DateRange = styled.div`
   display: flex;
@@ -9,27 +9,41 @@ const DateRange = styled.div`
 `;
 
 const DateInput = styled.input`
-  padding: 0.5rem 0.75rem;
-  border: 0.125rem solid var(--color-border);
-  border-radius: 0.5rem;
+  padding: 0.75rem 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  color: white;
   font-size: 0.875rem;
-  background: white;
-  color: #334155;
+  font-weight: 500;
+  transition: all 0.3s ease;
+
   &:focus {
     outline: none;
-    border-color: var(--color-primary);
+    border-color: rgba(255, 255, 255, 0.5);
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  &::-webkit-calendar-picker-indicator {
+    filter: brightness(0) invert(1);
+    opacity: 0.7;
   }
 `;
 
 const DateSeparator = styled.span`
-  color: #334155;
-  font-size: 0.875rem;
-  font-weight: 500;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+`;
+
+const CalendarIcon = styled(Calendar)`
+  color: rgba(255, 255, 255, 0.8);
 `;
 
 const DateFilter = ({ startDate, setStartDate, endDate, setEndDate }) => {
   return (
     <DateRange>
+      <CalendarIcon size={16} />
       <DateInput
         type="date"
         value={startDate}
@@ -37,7 +51,7 @@ const DateFilter = ({ startDate, setStartDate, endDate, setEndDate }) => {
       />
       {endDate !== undefined && setEndDate && (
         <>
-          <DateSeparator>to</DateSeparator>
+          <DateSeparator>~</DateSeparator>
           <DateInput
             type="date"
             value={endDate}
