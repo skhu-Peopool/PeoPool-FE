@@ -113,6 +113,16 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/posts/edit/:postId"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <PostsPage />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
         path="/others"
         element={
           <PrivateRoute>

@@ -5,25 +5,28 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 const DropdownContainer = styled.div`
   position: relative;
   width: 200px;
-`;
-
-const Label = styled.label`
-  font-size: 1rem;
-  margin-bottom: 0.35rem;
-  display: block;
-  font-weight: 500;
+  z-index: 6;
 `;
 
 const Selected = styled.div`
   padding: 0.75rem 1rem;
-  background: #f1f5f9;
-  border-radius: 0.5rem;
-  border: 1px solid #cbd5e1;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 0.75rem;
+  color: white;
   display: flex;
   justify-content: space-between;
   align-items: center;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
 `;
 
 const Options = styled.ul`
@@ -32,32 +35,32 @@ const Options = styled.ul`
   left: 0;
   width: 100%;
   margin-top: 0.25rem;
-  background: white;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.08);
-  border: 1px solid #e2e8f0;
+  background: #9abdf5ff;
+  backdrop-filter: blur(12px);
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
   max-height: 200px;
   overflow-y: auto;
-  z-index: 20;
+  z-index: 10;
 `;
 
 const Option = styled.li`
   padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e2e8f0;
-  cursor: pointer;
   font-size: 0.95rem;
-  color: #1e293b;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s;
 
   &:hover {
-    background-color: #f8fafc;
+    background: rgba(255, 255, 255, 0.25);
   }
 
-  &:last-child {
-    border-bottom: none;
+  &:not(:last-child) {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
   }
 `;
 
-const Dropdown = ({ label, options = [], selected, setSelected }) => {
+const Dropdown = ({ options = [], selected, setSelected }) => {
   const [isOpen, setIsOpen] = useState(false);
   const containerRef = useRef(null);
 
@@ -81,7 +84,6 @@ const Dropdown = ({ label, options = [], selected, setSelected }) => {
 
   return (
     <DropdownContainer ref={containerRef}>
-      <Label>{label}</Label>
       <Selected onClick={() => setIsOpen(!isOpen)}>
         <span>{selected}</span>
         {isOpen ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
