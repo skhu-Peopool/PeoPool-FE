@@ -7,14 +7,14 @@ export const postService = {
     start,
     end,
     category,
-    status,
+    postStatus,
     query,
   } = {}) => {
     const params = { page, size };
     if (start) params.start = start;
     if (end) params.end = end;
     if (category && category !== "전체") params.category = category;
-    if (status && status !== "전체") params.status = status;
+    if (postStatus && postStatus !== "전체") params.postStatus = postStatus;
     if (query) params.query = query;
 
     const response = await defaultFetch("/post/list", {
@@ -73,7 +73,7 @@ export const postService = {
   },
 
   getPostDetail: async (postId) => {
-    const response = await tokenFetch(`/post/${postId}`, null, {
+    const response = await defaultFetch(`/post/${postId}`, {
       method: "GET",
     });
     return response || [];
@@ -96,7 +96,7 @@ export const postService = {
       activityStartDate,
       maxPeople,
       category,
-      status,
+      postStatus,
       imageFile,
     }
   ) => {
@@ -113,7 +113,7 @@ export const postService = {
       activityStartDate: formatDate(activityStartDate),
       maxPeople: Number(maxPeople),
       category: category.toUpperCase(),
-      status: status?.toUpperCase(),
+      postStatus: postStatus?.toUpperCase(),
     };
 
     formData.append("postUpdateReq", JSON.stringify(postUpdateReq));

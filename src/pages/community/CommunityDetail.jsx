@@ -325,15 +325,13 @@ const ApplyButton = styled.button`
 export default function CommunityDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthReady } = useAuth();
+  const { user } = useAuth();
   const [post, setPost] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
   useEffect(() => {
-    if (!isAuthReady) return;
-
     const fetchPost = async () => {
       try {
         const res = await postService.getPostDetail(id);
@@ -346,9 +344,9 @@ export default function CommunityDetail() {
       }
     };
     fetchPost();
-  }, [id, isAuthReady]);
+  }, [id]);
 
-  if (!isAuthReady || isLoading) {
+  if (isLoading) {
     return <Rendering>로딩 중...</Rendering>;
   }
 
@@ -419,10 +417,6 @@ export default function CommunityDetail() {
 
           <DetailContent>{post.content}</DetailContent>
 
-          <p className="font-semibold mb-6">
-            활동 시작일 : {post.activityStartDate}
-          </p>
-
           <ImageWrapper>
             {post.image && (
               <ImagePreview src={post.image} alt="게시글 이미지" />
@@ -441,32 +435,47 @@ export default function CommunityDetail() {
               <IconWrapper>
                 <Calendar size={16} />
               </IconWrapper>
-              <span>
-                모집 기간 : {post.recruitmentStartDate} ~{" "}
-                {post.recruitmentEndDate}
-              </span>
+              <div className="flex gap-3.5">
+                모집 기간 <span>:</span>{" "}
+                <span>
+                  {post.recruitmentStartDate} ~ {post.recruitmentEndDate}
+                </span>
+              </div>
+            </RecruitItem>
+            <RecruitItem>
+              <IconWrapper>
+                <Calendar size={16} />
+              </IconWrapper>
+              <div className="flex gap-3.5">
+                활동 시작일 <span>:</span> <span>{post.activityStartDate}</span>
+              </div>
             </RecruitItem>
             <RecruitItem>
               <IconWrapper>
                 <Users size={16} />
               </IconWrapper>
               <div style={{ flex: 1 }}>
-                <div>모집 현황 : 0 / {post.maxPeople}</div>
-                <ProgressBar>
+                <div className="flex gap-3">
+                  모집 인원 <span>:</span>{" "}
+                  <span className="font-bold">{post.maxPeople}</span>
+                </div>
+                {/* <ProgressBar>
                   <ProgressFill current={0} max={post.maxPeople} />
-                </ProgressBar>
+                </ProgressBar> */}
               </div>
             </RecruitItem>
             <RecruitItem>
               <IconWrapper>
                 <Eye size={16} />
               </IconWrapper>
-              <span>
-                모집 상태 :{" "}
-                <Status status={statusLabelMap[post.status]}>
-                  {statusLabelMap[post.status]}
-                </Status>
-              </span>
+              <div className="flex gap-3">
+                모집 상태 <span>:</span>{" "}
+                <span>
+                  <Status status={statusLabelMap[post.postStatus]}>
+                    {statusLabelMap[post.postStatus]}
+                  </Status>
+                </span>
+              </div>
             </RecruitItem>
           </RecruitInfo>
 

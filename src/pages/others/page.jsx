@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { Users, MessageCircle, Star, MapPin, Clock } from 'lucide-react';
-import styled, { keyframes } from 'styled-components';
+import React, { useState } from "react";
+import { Users, MessageCircle, Star, MapPin, Clock } from "lucide-react";
+import styled, { keyframes } from "styled-components";
+
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -17,7 +18,7 @@ const Container = styled.div`
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
   padding: 2rem;
   position: relative;
-  
+
   &::before {
     content: '';
     position: absolute;
@@ -291,34 +292,37 @@ const TeamFinder = () => {
   const [members, setMembers] = useState([
     {
       id: 1,
-      name: '차은우',
-      role: '대학 3년차',
-      description: '모든 준비하고 있습니다. 토익준비, 디자인, 패션 등 함께 공부하실 분들 환영해요. 새로운 사람들과 함께 성장하며 배워나가고 싶어요.',
-      hashtags: ['토익', '디자인', '패션'],
-      avatar: '자',
-      lastSeen: '5분 전',
-      rating: 4.8
+      name: "자은우",
+      role: "대학 3년차",
+      description:
+        "모든 준비하고 있습니다. 토익준비, 디자인, 패션 등 함께 공부하실 분들 환영해요. 새로운 사람들과 함께 성장하며 배워나가고 싶어요.",
+      hashtags: ["토익", "디자인", "패션"],
+      avatar: "자",
+      lastSeen: "5분 전",
+      rating: 4.8,
     },
     {
       id: 2,
-      name: 'Grute',
+      name: "Grute",
       role: "I'm Grute",
-      description: '다양한 프로젝트에 관심이 많습니다. 함께 창의적인 아이디어를 나누고 실현해보아요!',
-      hashtags: ['프로젝트', '창의'],
-      avatar: 'G',
-      lastSeen: '1시간 전',
-      rating: 4.9
+      description:
+        "다양한 프로젝트에 관심이 많습니다. 함께 창의적인 아이디어를 나누고 실현해보아요!",
+      hashtags: ["프로젝트", "창의"],
+      avatar: "G",
+      lastSeen: "1시간 전",
+      rating: 4.9,
     },
     {
       id: 3,
-      name: '한시연',
-      role: '프론트엔드 개발자',
-      description: 'React, TypeScript를 주로 사용하는 개발자입니다. 사이드 프로젝트나 스터디 함께 하실 분 찾아요.',
-      hashtags: ['React', 'TypeScript', '개발'],
-      avatar: '한',
-      lastSeen: '30분 전',
-      rating: 4.7
-    }
+      name: "김민지",
+      role: "프론트엔드 개발자",
+      description:
+        "React, TypeScript를 주로 사용하는 개발자입니다. 사이드 프로젝트나 스터디 함께 하실 분 찾아요.",
+      hashtags: ["React", "TypeScript", "개발"],
+      avatar: "김",
+      lastSeen: "30분 전",
+      rating: 4.7,
+    },
   ]);
 
   const handleContact = (person) => {
@@ -383,13 +387,13 @@ const TeamFinder = () => {
             </SearchResults>
           </HeaderContent>
         </Header>
-        
+
         <Grid>
           {members.length > 0 ? (
             members.map((member) => (
-              <PersonCard 
-                key={member.id} 
-                member={member} 
+              <PersonCard
+                key={member.id}
+                member={member}
                 onContact={handleContact}
               />
             ))

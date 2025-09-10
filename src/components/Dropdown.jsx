@@ -4,12 +4,12 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 
 const DropdownContainer = styled.div`
   position: relative;
-  width: 200px;
+  width: 220px;
   z-index: 6;
 `;
 
 const Selected = styled.div`
-  padding: 0.75rem 1rem;
+  padding: 0.85rem 1rem;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.3);
