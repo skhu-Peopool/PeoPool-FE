@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Users,
   Calendar,
@@ -418,7 +418,7 @@ const PostsPage = () => {
           activityStartDate,
           maxPeople: recruitNum,
           category: categoryReverseMap[category],
-          status: statusReverseMap[status],
+          postStatus: statusReverseMap[status],
           imageFile,
         });
         alert("게시글이 수정되었습니다.");
@@ -465,8 +465,8 @@ const PostsPage = () => {
           console.warn("카테고리 매핑 실패:", data.category);
         }
 
-        if (statusLabelMap[data.status]) {
-          setStatus(statusLabelMap[data.status]);
+        if (statusLabelMap[data.postStatus]) {
+          setStatus(statusLabelMap[data.postStatus]);
         }
 
         setImageFile(data.image);
@@ -562,6 +562,7 @@ const PostsPage = () => {
                 </Label>
                 <DropdownWrapper ref={statusDropdownRef}>
                   <DropdownButton
+                    tabIndex="0"
                     onClick={() =>
                       setIsStatusDropdownOpen(!isStatusDropdownOpen)
                     }
