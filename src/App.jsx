@@ -27,7 +27,7 @@ function MainLayout({ children }) {
     <AppWrapper>
       <HeaderSlide open={isSidebarOpen} setOpen={setIsSidebarOpen} />
 
-      <Content $hasSidebar={isSidebarOpen}>{children}</Content>
+      <Content style={{paddingTop: '4rem'}} $hasSidebar={isSidebarOpen}>{children}</Content>
     </AppWrapper>
   );
 }
