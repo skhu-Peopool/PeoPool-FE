@@ -393,7 +393,6 @@ const HeaderSlide = () => {
       <Header>
         <Container>
           <Nav>
-            {/* Logo Section */}
             <LogoSection>
               <LogoIcon>
                 <Users size={18} />
@@ -401,7 +400,6 @@ const HeaderSlide = () => {
               <LogoText href="/">peopool</LogoText>
             </LogoSection>
 
-            {/* Desktop Navigation */}
             <DesktopNav>
               {menuItems.map((item) => {
                 const Icon = item.icon;
@@ -420,9 +418,7 @@ const HeaderSlide = () => {
               })}
             </DesktopNav>
 
-            {/* User Section */}
             <UserSection>
-              {/* Desktop User Section */}
               <DesktopUserSection>
                 {user ? (
                   <>
@@ -444,7 +440,6 @@ const HeaderSlide = () => {
                 )}
               </DesktopUserSection>
 
-              {/* Mobile Menu Button */}
               <MobileMenuButton
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
@@ -453,11 +448,8 @@ const HeaderSlide = () => {
             </UserSection>
           </Nav>
         </Container>
-
-        {/* Mobile Menu */}
         <MobileMenu isOpen={isMobileMenuOpen}>
           <MobileMenuContent>
-            {/* Mobile Navigation Items */}
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = currentPath === item.path;
@@ -474,7 +466,6 @@ const HeaderSlide = () => {
               );
             })}
 
-            {/* Mobile User Section */}
             <MobileUserSection>
               {user ? (
                 <>
@@ -507,8 +498,6 @@ const HeaderSlide = () => {
           </MobileMenuContent>
         </MobileMenu>
       </Header>
-
-      {/* Content Padding to prevent overlap */}
       <ContentPadding />
     </>
   );
