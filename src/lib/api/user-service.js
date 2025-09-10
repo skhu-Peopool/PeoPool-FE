@@ -10,4 +10,11 @@ export const userService = {
       method: "PATCH",
       body: userData,
     }),
+
+  // 비밀번호 변경
+  changePassword: ({ email, newPassword }) =>
+    tokenFetch("/forgotpwd", undefined, {
+      method: "PATCH",
+      body: { email, newPassword },
+    }),
 };

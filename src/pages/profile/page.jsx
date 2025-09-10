@@ -1,42 +1,162 @@
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React, { useState } from "react";
+import {
+  User,
+  Edit3,
+  Lock,
+  Calendar,
+  Mail,
+  Phone,
+  MessageCircle,
+  Award,
+  BookOpen,
+  PenTool,
+} from "lucide-react";
+import styled, { keyframes } from "styled-components";
+
+const fadeIn = keyframes`
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+`;
+
+const float = keyframes`
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-5px); }
+`;
 
 const Container = styled.div`
-  margin: 0 auto;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
   padding: 2rem;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: #f5f5f5;
+  position: relative;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
+    animation: ${float} 6s ease-in-out infinite;
+  }
+`;
+
+const ContentWrapper = styled.div`
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+`;
+
+const Header = styled.div`
+  text-align: center;
+  margin-bottom: 3rem;
+  animation: ${fadeIn} 0.8s ease-out;
+`;
+
+const HeaderContent = styled.div`
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border-radius: 2rem;
+  padding: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+`;
+
+const TitleWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
 `;
 
 const Title = styled.h1`
-  font-size: clamp(2rem, 4vw, 2.5rem);
-  font-weight: bold;
-  color: #333;
-  margin-bottom: 2rem;
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(45deg, #ffffff, #e0e7ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+`;
+
+const Subtitle = styled.p`
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 1.125rem;
+  font-weight: 300;
 `;
 
 const Card = styled.div`
-  background: white;
-  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
   padding: 2rem;
-  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
   margin-bottom: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: ${fadeIn} 1s ease-out 0.2s both;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
+  }
+`;
+
+const ProfileCard = styled(Card)`
   display: flex;
   gap: 2rem;
+  align-items: flex-start;
+`;
+
+const ProfileImageWrapper = styled.div`
+  position: relative;
 `;
 
 const ProfileImage = styled.div`
   width: 8rem;
   height: 8rem;
   border-radius: 50%;
-  background: linear-gradient(135deg, #c084fc, #a855f7);
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
   font-size: 3rem;
-  font-weight: bold;
+  font-weight: 700;
   flex-shrink: 0;
+  box-shadow: 0 8px 32px rgba(96, 165, 250, 0.3);
+  position: relative;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    background: linear-gradient(45deg, #60a5fa, #3b82f6, #93c5fd);
+    border-radius: 50%;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  ${ProfileCard}:hover &::after {
+    opacity: 1;
+  }
+`;
+
+const OnlineIndicator = styled.div`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: #10b981;
+  border: 3px solid white;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
 `;
 
 const ProfileInfo = styled.div`
@@ -44,28 +164,28 @@ const ProfileInfo = styled.div`
 `;
 
 const ProfileName = styled.h2`
-  font-size: 1.75rem;
-  color: #c084fc;
+  font-size: 2rem;
+  color: #1f2937;
   margin-bottom: 1rem;
-  font-weight: 500;
+  font-weight: 700;
 `;
 
 const EditInput = styled.input`
-  font-size: 1.75rem;
-  color: #c084fc;
+  font-size: 2rem;
+  color: #1f2937;
   margin-bottom: 1rem;
-  font-weight: 500;
+  font-weight: 700;
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 2px solid #e5e7eb;
-  border-radius: 0.5rem;
+  border-radius: 0.75rem;
   background: white;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #c084fc;
-    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
   }
 
   &::placeholder {
@@ -73,76 +193,117 @@ const EditInput = styled.input`
   }
 `;
 
-const InfoItem = styled.div`
-  margin-bottom: 0.75rem;
-  font-size: 0.875rem;
-  color: #666;
+const InfoGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+`;
 
-  strong {
-    color: #333;
-    display: inline-block;
-    min-width: 4rem;
+const InfoItem = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: rgba(96, 165, 250, 0.05);
+  border-radius: 0.75rem;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(96, 165, 250, 0.1);
+    transform: translateX(4px);
   }
 `;
 
-const InfoLabel = styled.label`
-  display: block;
+const InfoIcon = styled.div`
+  width: 2.5rem;
+  height: 2.5rem;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+`;
+
+const InfoContent = styled.div`
+  flex: 1;
+`;
+
+const InfoLabel = styled.div`
   font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+`;
+
+const InfoValue = styled.div`
+  font-size: 0.95rem;
+  color: #1f2937;
   font-weight: 500;
-  color: #374151;
-  margin-bottom: 0.25rem;
+  margin-top: 0.25rem;
 `;
 
 const InfoInput = styled.input`
   width: 100%;
   padding: 0.5rem;
-  font-size: 0.875rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.375rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   background: white;
-  color: #666;
+  color: #1f2937;
+  margin-top: 0.25rem;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #c084fc;
-    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
   }
 `;
 
-const InfoInputGroup = styled.div`
+const TagsContainer = styled.div`
+  margin-bottom: 1.5rem;
+`;
+
+const TagsGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
   margin-bottom: 0.75rem;
 `;
 
-const Tags = styled.div`
-  margin-top: 1rem;
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-`;
-
 const Tag = styled.span`
-  background: #f0f0f0;
-  color: #666;
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+  padding: 0.5rem 1rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+    transform: scale(1.05);
+  }
 `;
 
 const TagInput = styled.input`
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   font-size: 0.875rem;
   border: 2px solid #e5e7eb;
-  border-radius: 0.375rem;
+  border-radius: 0.75rem;
   background: white;
-  color: #666;
+  color: #1f2937;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #c084fc;
-    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
   }
 
   &::placeholder {
@@ -150,544 +311,583 @@ const TagInput = styled.input`
   }
 `;
 
-const ProfileActions = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 0.625rem;
-  align-items: flex-end;
-`;
-
-const ProfileButton = styled.button`
-  padding: 0.5rem 1rem;
-  border-radius: 1.25rem;
-  border: none;
-  font-size: 0.875rem;
-  cursor: pointer;
-  font-weight: 400;
-  transition: all 0.3s ease;
-  min-width: 7rem;
-
-  &.edit {
-    background: #93c5fd;
-    color: white;
-
-    &:hover {
-      background: #60a5fa;
-      transform: translateY(-2px);
-      box-shadow: 0 0.25rem 0.75rem rgba(147, 197, 253, 0.4);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 0.125rem 0.375rem rgba(147, 197, 253, 0.3);
-    }
-  }
-
-  &.password {
-    background: #a5b4fc;
-    color: white;
-
-    &:hover {
-      background: #818cf8;
-      transform: translateY(-2px);
-      box-shadow: 0 0.25rem 0.75rem rgba(165, 180, 252, 0.4);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 0.125rem 0.375rem rgba(165, 180, 252, 0.3);
-    }
-  }
-
-  &.save {
-    background: #4ade80;
-    color: white;
-
-    &:hover {
-      background: #22c55e;
-      transform: translateY(-2px);
-      box-shadow: 0 0.25rem 0.75rem rgba(74, 222, 128, 0.4);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 0.125rem 0.375rem rgba(74, 222, 128, 0.3);
-    }
-  }
-
-  &.cancel {
-    background: #9ca3af;
-    color: white;
-
-    &:hover {
-      background: #6b7280;
-      transform: translateY(-2px);
-      box-shadow: 0 0.25rem 0.75rem rgba(156, 163, 175, 0.4);
-    }
-
-    &:active {
-      transform: translateY(0);
-      box-shadow: 0 0.125rem 0.375rem rgba(156, 163, 175, 0.3);
-    }
-  }
-`;
-
 const Introduction = styled.div`
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid #eee;
+  padding: 1.5rem;
+  background: rgba(96, 165, 250, 0.05);
+  border-radius: 1rem;
+  border-left: 4px solid #60a5fa;
 `;
 
 const IntroTitle = styled.h3`
-  font-size: 1rem;
-  color: #333;
-  margin-bottom: 0.625rem;
+  font-size: 1.25rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+  font-weight: 600;
 `;
 
 const IntroInput = styled.input`
   width: 100%;
-  padding: 0.5rem;
-  font-size: 1rem;
+  padding: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
   border: 2px solid #e5e7eb;
-  border-radius: 0.375rem;
+  border-radius: 0.75rem;
   background: white;
-  color: #333;
-  margin-bottom: 0.625rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #c084fc;
-    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
   }
 `;
 
 const IntroTextArea = styled.textarea`
   width: 100%;
-  padding: 0.5rem;
-  font-size: 0.875rem;
+  padding: 0.75rem;
+  font-size: 0.95rem;
   border: 2px solid #e5e7eb;
-  border-radius: 0.375rem;
+  border-radius: 0.75rem;
   background: white;
-  color: #666;
-  line-height: 1.5;
+  color: #4b5563;
+  line-height: 1.6;
   resize: vertical;
-  min-height: 3rem;
+  min-height: 4rem;
+  margin-bottom: 0.75rem;
   transition: all 0.3s ease;
 
   &:focus {
     outline: none;
-    border-color: #c084fc;
-    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.1);
   }
 `;
 
 const IntroText = styled.p`
-  color: #666;
-  line-height: 1.5;
-  margin-bottom: 0.5rem;
+  color: #4b5563;
+  line-height: 1.6;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
 `;
 
-const KakaoId = styled.div`
-  margin-top: 1rem;
+const ProfileActions = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  align-items: flex-end;
+`;
+
+const ProfileButton = styled.button`
+  padding: 0.75rem 1.5rem;
+  border-radius: 1rem;
+  border: none;
   font-size: 0.875rem;
-  color: #666;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-width: 8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
 
-  strong {
-    color: #333;
+  &.edit {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+    color: white;
+    box-shadow: 0 4px 20px rgba(96, 165, 250, 0.4);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(96, 165, 250, 0.5);
+    }
+  }
+
+  &.password {
+    background: linear-gradient(135deg, #a5b4fc, #818cf8);
+    color: white;
+    box-shadow: 0 4px 20px rgba(165, 180, 252, 0.4);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(165, 180, 252, 0.5);
+    }
+  }
+
+  &.save {
+    background: linear-gradient(135deg, #34d399, #10b981);
+    color: white;
+    box-shadow: 0 4px 20px rgba(52, 211, 153, 0.4);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(52, 211, 153, 0.5);
+    }
+  }
+
+  &.cancel {
+    background: linear-gradient(135deg, #9ca3af, #6b7280);
+    color: white;
+    box-shadow: 0 4px 20px rgba(156, 163, 175, 0.4);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(156, 163, 175, 0.5);
+    }
   }
 `;
 
-const KakaoInput = styled.input`
-  width: 100%;
-  padding: 0.5rem;
-  font-size: 0.875rem;
-  border: 2px solid #e5e7eb;
-  border-radius: 0.375rem;
-  background: white;
-  color: #666;
-  transition: all 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: #c084fc;
-    box-shadow: 0 0 0 3px rgba(192, 132, 252, 0.1);
-  }
-`;
-
-const ActivitySection = styled.div`
-  background: white;
-  border-radius: 0.75rem;
-  padding: 2rem;
-  box-shadow: 0 0.125rem 0.625rem rgba(0, 0, 0, 0.1);
-  margin-bottom: 2rem;
-
-  &:last-child {
-    margin-bottom: 0;
-  }
+const ActivitySection = styled(Card)`
+  animation: ${fadeIn} 1s ease-out 0.4s both;
 `;
 
 const ActivityHeader = styled.div`
   display: flex;
   align-items: center;
-  gap: 15px;
-  margin-bottom: 25px;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid rgba(96, 165, 250, 0.1);
 `;
 
 const ActivityTitle = styled.h2`
-  font-size: 24px;
-  color: #333;
-  font-weight: bold;
+  font-size: 1.5rem;
+  color: #1f2937;
+  font-weight: 700;
 `;
 
-const ActivityItem = styled.div`
+const ActivityIconWrapper = styled.div`
+  width: 3rem;
+  height: 3rem;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+`;
+
+const Timeline = styled.div`
+  position: relative;
+`;
+
+const TimelineItem = styled.div`
   display: flex;
   align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
   position: relative;
+
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    left: 1rem;
+    top: 2.5rem;
+    width: 2px;
+    height: calc(100% + 0.5rem);
+    background: linear-gradient(to bottom, #60a5fa, transparent);
+  }
 `;
 
-const ActivityDot = styled.div`
-  width: 0.875rem;
-  height: 0.875rem;
+const TimelineDot = styled.div`
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
-  background: #93c5fd;
-  margin-top: 0.5rem;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(96, 165, 250, 0.3);
   z-index: 2;
-`;
-
-const ActivityLine = styled.div`
-  position: absolute;
-  left: 0.375rem;
-  top: 1.375rem;
-  width: 0.125rem;
-  height: calc(100% - 0.625rem);
-  background: #93c5fd;
-  z-index: 1;
-`;
-
-const ActivityContent = styled.div`
-  flex: 1;
-  border-left: 0.1875rem solid #93c5fd;
-  background-color: #F8FAFC;
-  border-radius: 0.5rem;
-  padding: 1.25rem;
   position: relative;
-  margin-left: -0.1875rem;
+`;
+
+const TimelineContent = styled.div`
+  flex: 1;
+  background: rgba(96, 165, 250, 0.05);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  border-left: 3px solid #60a5fa;
+  position: relative;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: rgba(96, 165, 250, 0.1);
+    transform: translateX(4px);
+  }
 `;
 
 const ActivityName = styled.h3`
   font-size: 1.125rem;
-  color: #333;
+  color: #1f2937;
   margin-bottom: 0.75rem;
   font-weight: 600;
 `;
 
 const ActivityDate = styled.div`
   font-size: 0.875rem;
-  color: #888;
+  color: #6b7280;
   margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const ActivityHours = styled.div`
   font-size: 0.875rem;
-  color: #888;
+  color: #6b7280;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const CompleteBadge = styled.span`
-  background: #d1fae5;
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
   color: #065f46;
-  padding: 0.375rem 0.75rem;
+  padding: 0.5rem 1rem;
   border-radius: 1rem;
   font-size: 0.75rem;
-  position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  font-weight: 500;
+  font-weight: 600;
 `;
 
 const TimeStamp = styled.div`
-  color: #666;
-  font-size: 0.75rem;
-  margin-top: 0.625rem;
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 `;
 
 const ProfileEditPage = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [profileData, setProfileData] = useState({
-    name: 'John Doe',
-    email: 'johndoe@email.com',
-    phone: '010 - 8765-2431',
-    birthday: 'March 15, 1995',
-    joinDate: '2022년 4월 7일',
-    tags: ['풀스텍', '디자이너', '클라이머'],
-    introTitle: '대학 3년차',
-    introText1: '모델 준비하고 있습니다.',
-    introText2: '토익준비, 디자인, 패션 등 함께 공부하실분을 환영해요!',
-    kakaoId: 'John_Doe'
+    name: "John Doe",
+    email: "johndoe@email.com",
+    phone: "010-8765-2431",
+    birthday: "March 15, 1995",
+    joinDate: "2022년 4월 7일",
+    tags: ["풀스텍", "디자이너", "클라이머"],
+    introTitle: "대학 3년차",
+    introText1: "모델 준비하고 있습니다.",
+    introText2: "토익준비, 디자인, 패션 등 함께 공부하실분을 환영해요!",
+    kakaoId: "John_Doe",
   });
-  const [tagInput, setTagInput] = useState(profileData.tags.join(', '));
+  const [tagInput, setTagInput] = useState(profileData.tags.join(", "));
+
   const handleInputChange = (field, value) => {
-    setProfileData(prev => ({
+    setProfileData((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
-  const handleTagsChange = (value) => {
-    // 빈 문자열이면 빈 배열로 설정
-    if (!value.trim()) {
-      setProfileData(prev => ({
-        ...prev,
-        tags: []
-      }));
-      return;
-    }
-    
-    const tagsArray = value.split(',').map(tag => tag.trim()).filter(tag => tag !== '');
-    setProfileData(prev => ({
+  const handleSave = () => {
+    setProfileData((prev) => ({
       ...prev,
-      tags: tagsArray
+      tags: tagInput
+        .split(",")
+        .map((tag) => tag.trim())
+        .filter((tag) => tag !== ""),
     }));
+    setIsEditing(false);
   };
-
- 
 
   const handleCancel = () => {
+    setTagInput(profileData.tags.join(", "));
     setIsEditing(false);
   };
 
   const getInitials = (name) => {
-    return name.split(' ').map(n => n[0]).join('');
-  };
-
-  const handleSave = () => {
-    setProfileData(prev => ({
-      ...prev,
-      tags: tagInput
-        .split(',')
-        .map(tag => tag.trim())
-        .filter(tag => tag !== '')
-    }));
-    setIsEditing(false);
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("");
   };
 
   return (
     <Container>
-      <Title>Profile</Title>
-      
-      <Card>
-        <ProfileImage>
-          {getInitials(profileData.name)}
-        </ProfileImage>
-        
-        <ProfileInfo>
-          {isEditing ? (
-            <>
+      <ContentWrapper>
+        <Header>
+          <HeaderContent>
+            <TitleWrapper>
+              <User color="white" size={40} />
+              <Title>Profile</Title>
+            </TitleWrapper>
+            <Subtitle>나만의 프로필을 관리하고 활동을 확인해보세요</Subtitle>
+          </HeaderContent>
+        </Header>
+
+        <ProfileCard>
+          <ProfileImageWrapper>
+            <ProfileImage>{getInitials(profileData.name)}</ProfileImage>
+            <OnlineIndicator />
+          </ProfileImageWrapper>
+
+          <ProfileInfo>
+            {isEditing ? (
               <EditInput
                 type="text"
                 value={profileData.name}
-                onChange={(e) => handleInputChange('name', e.target.value)}
+                onChange={(e) => handleInputChange("name", e.target.value)}
                 placeholder="이름을 입력하세요"
               />
-              
-              <InfoInputGroup>
-                <InfoLabel>가입일</InfoLabel>
-                <InfoInput
-                  type="text"
-                  value={profileData.joinDate}
-                  onChange={(e) => handleInputChange('joinDate', e.target.value)}
-                />
-              </InfoInputGroup>
-              
-              <InfoInputGroup>
-                <InfoLabel>생일</InfoLabel>
-                <InfoInput
-                  type="text"
-                  value={profileData.birthday}
-                  onChange={(e) => handleInputChange('birthday', e.target.value)}
-                />
-              </InfoInputGroup>
-              
-              <InfoInputGroup>
-                <InfoLabel>Email</InfoLabel>
-                <InfoInput
-                  type="email"
-                  value={profileData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                />
-              </InfoInputGroup>
-              
-              <InfoInputGroup>
-                <InfoLabel>핸드폰</InfoLabel>
-                <InfoInput
-                  type="text"
-                  value={profileData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                />
-              </InfoInputGroup>
-              
-              <InfoInputGroup>
-                <InfoLabel>태그 (쉼표로 구분)</InfoLabel>
+            ) : (
+              <ProfileName>{profileData.name}</ProfileName>
+            )}
+
+            <InfoGrid>
+              <InfoItem>
+                <InfoIcon>
+                  <Calendar size={16} />
+                </InfoIcon>
+                <InfoContent>
+                  <InfoLabel>가입일</InfoLabel>
+                  {isEditing ? (
+                    <InfoInput
+                      type="text"
+                      value={profileData.joinDate}
+                      onChange={(e) =>
+                        handleInputChange("joinDate", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <InfoValue>{profileData.joinDate}</InfoValue>
+                  )}
+                </InfoContent>
+              </InfoItem>
+
+              <InfoItem>
+                <InfoIcon>
+                  <Calendar size={16} />
+                </InfoIcon>
+                <InfoContent>
+                  <InfoLabel>생일</InfoLabel>
+                  {isEditing ? (
+                    <InfoInput
+                      type="text"
+                      value={profileData.birthday}
+                      onChange={(e) =>
+                        handleInputChange("birthday", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <InfoValue>{profileData.birthday}</InfoValue>
+                  )}
+                </InfoContent>
+              </InfoItem>
+
+              <InfoItem>
+                <InfoIcon>
+                  <Mail size={16} />
+                </InfoIcon>
+                <InfoContent>
+                  <InfoLabel>Email</InfoLabel>
+                  {isEditing ? (
+                    <InfoInput
+                      type="email"
+                      value={profileData.email}
+                      onChange={(e) =>
+                        handleInputChange("email", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <InfoValue>{profileData.email}</InfoValue>
+                  )}
+                </InfoContent>
+              </InfoItem>
+
+              <InfoItem>
+                <InfoIcon>
+                  <Phone size={16} />
+                </InfoIcon>
+                <InfoContent>
+                  <InfoLabel>핸드폰</InfoLabel>
+                  {isEditing ? (
+                    <InfoInput
+                      type="text"
+                      value={profileData.phone}
+                      onChange={(e) =>
+                        handleInputChange("phone", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <InfoValue>{profileData.phone}</InfoValue>
+                  )}
+                </InfoContent>
+              </InfoItem>
+            </InfoGrid>
+
+            <TagsContainer>
+              <InfoLabel style={{ marginBottom: "0.75rem", display: "block" }}>
+                관심 분야
+              </InfoLabel>
+              {isEditing ? (
                 <TagInput
                   type="text"
                   value={tagInput}
                   onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="예: 풀스텍, 디자이너, 클라이머"
+                  placeholder="예: 풀스텍, 디자이너, 클라이머 (쉼표로 구분)"
                 />
-              </InfoInputGroup>
-              
-              <Introduction>
-                <InfoLabel>소개 제목</InfoLabel>
-                <IntroInput
-                  type="text"
-                  value={profileData.introTitle}
-                  onChange={(e) => handleInputChange('introTitle', e.target.value)}
-                />
-                
-                <InfoLabel>소개 내용 1</InfoLabel>
-                <IntroTextArea
-                  value={profileData.introText1}
-                  onChange={(e) => handleInputChange('introText1', e.target.value)}
-                  rows="2"
-                />
-                
-                <InfoLabel>소개 내용 2</InfoLabel>
-                <IntroTextArea
-                  value={profileData.introText2}
-                  onChange={(e) => handleInputChange('introText2', e.target.value)}
-                  rows="2"
-                />
-                
-                <InfoLabel>카카오톡 ID</InfoLabel>
-                <KakaoInput
-                  type="text"
-                  value={profileData.kakaoId}
-                  onChange={(e) => handleInputChange('kakaoId', e.target.value)}
-                />
-              </Introduction>
-            </>
-          ) : (
-            <>
-              <ProfileName>{profileData.name}</ProfileName>
-              <InfoItem><strong>가입일:</strong> {profileData.joinDate}</InfoItem>
-              <InfoItem><strong>생일:</strong> {profileData.birthday}</InfoItem>
-              <InfoItem><strong>Email:</strong> {profileData.email}</InfoItem>
-              <InfoItem><strong>핸드폰:</strong> {profileData.phone}</InfoItem>
-              
-              <Tags>
-                {profileData.tags.map((tag, index) => (
-                  <Tag key={index}>#{tag}</Tag>
-                ))}
-              </Tags>
-              
-              <Introduction>
-                <IntroTitle>{profileData.introTitle}</IntroTitle>
-                <IntroText>{profileData.introText1}</IntroText>
-                <IntroText>{profileData.introText2}</IntroText>
-                
-                <KakaoId><strong>카카오톡:</strong> {profileData.kakaoId}</KakaoId>
-              </Introduction>
-            </>
-          )}
-        </ProfileInfo>
-        
-        <ProfileActions>
-          {isEditing ? (
-            <>
-              <ProfileButton className="save" onClick={handleSave}>
-                저장하기
-              </ProfileButton>
-              <ProfileButton className="cancel" onClick={handleCancel}>
-                취소하기
-              </ProfileButton>
-            </>
-          ) : (
-            <>
-              <ProfileButton className="edit" onClick={() => setIsEditing(true)}>
-                프로필 수정
-              </ProfileButton>
-              <ProfileButton className="password">
-                비밀번호 변경
-              </ProfileButton>
-            </>
-          )}
-        </ProfileActions>
-      </Card>
-      
-      <ActivitySection>
-        <ActivityHeader>
-          <ActivityTitle>내 활동내역</ActivityTitle>
-        </ActivityHeader>
-        
-        <ActivityItem>
-          <ActivityDot />
-          <ActivityContent>
-            <CompleteBadge>활동 종료</CompleteBadge>
-            <ActivityName>UX/UI Design — Basics 스터디</ActivityName>
-            <ActivityDate>22.03.07 ~ 25.04.06 동안 활동했어요.</ActivityDate>
-            <ActivityHours>24회 활동함</ActivityHours>
-          </ActivityContent>
-          <ActivityLine />
-        </ActivityItem>
-        
-        <ActivityItem>
-          <ActivityDot />
-          <ActivityContent>
-            <CompleteBadge>활동 종료</CompleteBadge>
-            <ActivityName>UX/UI Design — Advanced 스터디</ActivityName>
-            <ActivityDate>22.03.07 ~ 25.04.06 동안 활동했어요.</ActivityDate>
-            <ActivityHours>18회 활동함</ActivityHours>
-          </ActivityContent>
-          <ActivityLine />
-        </ActivityItem>
-        
-        <ActivityItem>
-          <ActivityDot />
-          <ActivityContent>
-            <ActivityName>UX/UI Design — Animation 스터디</ActivityName>
-            <TimeStamp>시작일 : 15:06 2023</TimeStamp>
-          </ActivityContent>
-        </ActivityItem>
-      </ActivitySection>
+              ) : (
+                <TagsGrid>
+                  {profileData.tags.map((tag, index) => (
+                    <Tag key={index}>#{tag}</Tag>
+                  ))}
+                </TagsGrid>
+              )}
+            </TagsContainer>
 
-      <ActivitySection>
-        <ActivityHeader>
-          <ActivityTitle>내가 쓴 글</ActivityTitle>
-        </ActivityHeader>
-        
-        <ActivityItem>
-          <ActivityDot />
-          <ActivityContent>
-            <CompleteBadge>활동 종료</CompleteBadge>
-            <ActivityName>UX/UI Design — Basics 스터디</ActivityName>
-            <ActivityDate>22.03.07 ~ 25.04.06 동안 활동했어요.</ActivityDate>
-            <ActivityHours>24회 활동함</ActivityHours>
-          </ActivityContent>
-          <ActivityLine />
-        </ActivityItem>
-        
-        <ActivityItem>
-          <ActivityDot />
-          <ActivityContent>
-            <CompleteBadge>활동 종료</CompleteBadge>
-            <ActivityName>UX/UI Design — Advanced 스터디</ActivityName>
-            <ActivityDate>22.03.07 ~ 25.04.06 동안 활동했어요.</ActivityDate>
-            <ActivityHours>18회 활동함</ActivityHours>
-          </ActivityContent>
-          <ActivityLine />
-        </ActivityItem>
-        
-        <ActivityItem>
-          <ActivityDot />
-          <ActivityContent>
-            <ActivityName>UX/UI Design — Animation 스터디</ActivityName>
-            <TimeStamp>시작일 : 15:06 2023</TimeStamp>
-          </ActivityContent>
-        </ActivityItem>
-      </ActivitySection>
+            <Introduction>
+              {isEditing ? (
+                <>
+                  <IntroInput
+                    type="text"
+                    value={profileData.introTitle}
+                    onChange={(e) =>
+                      handleInputChange("introTitle", e.target.value)
+                    }
+                    placeholder="소개 제목"
+                  />
+
+                  <IntroTextArea
+                    value={profileData.introText1}
+                    onChange={(e) =>
+                      handleInputChange("introText1", e.target.value)
+                    }
+                    rows="2"
+                    placeholder="소개 내용 1"
+                  />
+
+                  <IntroTextArea
+                    value={profileData.introText2}
+                    onChange={(e) =>
+                      handleInputChange("introText2", e.target.value)
+                    }
+                    rows="2"
+                    placeholder="소개 내용 2"
+                  />
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                      marginTop: "1rem",
+                    }}
+                  >
+                    <MessageCircle size={20} color="#60a5fa" />
+                    <InfoInput
+                      type="text"
+                      value={profileData.kakaoId}
+                      onChange={(e) =>
+                        handleInputChange("kakaoId", e.target.value)
+                      }
+                      placeholder="카카오톡 ID"
+                      style={{ margin: 0 }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <IntroTitle>{profileData.introTitle}</IntroTitle>
+                  <IntroText>{profileData.introText1}</IntroText>
+                  <IntroText>{profileData.introText2}</IntroText>
+
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                      marginTop: "1rem",
+                      color: "#4b5563",
+                    }}
+                  >
+                    <MessageCircle size={20} color="#60a5fa" />
+                    <strong style={{ color: "#1f2937" }}>카카오톡:</strong>{" "}
+                    {profileData.kakaoId}
+                  </div>
+                </>
+              )}
+            </Introduction>
+          </ProfileInfo>
+
+          <ProfileActions>
+            {isEditing ? (
+              <>
+                <ProfileButton className="save" onClick={handleSave}>
+                  저장하기
+                </ProfileButton>
+                <ProfileButton className="cancel" onClick={handleCancel}>
+                  취소하기
+                </ProfileButton>
+              </>
+            ) : (
+              <>
+                <ProfileButton
+                  className="edit"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Edit3 size={16} />
+                  프로필 수정
+                </ProfileButton>
+                <ProfileButton className="password">
+                  <Lock size={16} />
+                  비밀번호 변경
+                </ProfileButton>
+              </>
+            )}
+          </ProfileActions>
+        </ProfileCard>
+
+        <ActivitySection>
+          <ActivityHeader>
+            <ActivityIconWrapper>
+              <Award size={20} />
+            </ActivityIconWrapper>
+            <ActivityTitle>내 활동내역</ActivityTitle>
+          </ActivityHeader>
+
+          <Timeline>
+            <TimelineItem>
+              <TimelineDot>
+                <BookOpen size={12} />
+              </TimelineDot>
+              <TimelineContent>
+                <CompleteBadge>활동 종료</CompleteBadge>
+                <ActivityName>UX/UI Design — Basics 스터디</ActivityName>
+                <ActivityDate>
+                  <Calendar size={14} />
+                  22.03.07 ~ 25.04.06 동안 활동했어요.
+                </ActivityDate>
+                <ActivityHours>
+                  <Award size={14} />
+                  조회수 89회
+                </ActivityHours>
+              </TimelineContent>
+            </TimelineItem>
+
+            <TimelineItem>
+              <TimelineDot>
+                <PenTool size={12} />
+              </TimelineDot>
+              <TimelineContent>
+                <ActivityName>TypeScript 학습 팁 공유</ActivityName>
+                <TimeStamp>
+                  <Calendar size={14} />
+                  작성일 : 2023.12.05
+                </TimeStamp>
+              </TimelineContent>
+            </TimelineItem>
+          </Timeline>
+        </ActivitySection>
+      </ContentWrapper>
     </Container>
   );
 };

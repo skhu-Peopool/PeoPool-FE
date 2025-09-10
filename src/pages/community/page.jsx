@@ -129,41 +129,6 @@ const Controls = styled.div`
 const SearchContainer = styled.div`
   position: relative;
   flex: 1;
-  max-width: 400px;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 1rem 1rem 1rem 3rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 1rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 1rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  &::placeholder {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  &:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.3);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
-  }
-`;
-
-const SearchIcon = styled(Search)`
-  position: absolute;
-  left: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: rgba(255, 255, 255, 0.7);
-  pointer-events: none;
 `;
 
 const WriteButton = styled.button`
@@ -560,7 +525,7 @@ const CommunityPage = () => {
       start: startDate || undefined,
       end: endDate || undefined,
       category: category !== "전체" ? categoryReverseMap[category] : undefined,
-      status: status !== "전체" ? statusReverseMap[status] : undefined,
+      postStatus: status !== "전체" ? statusReverseMap[status] : undefined,
       query: searchTerm || undefined,
     });
 
@@ -570,7 +535,7 @@ const CommunityPage = () => {
       start: startDate,
       end: endDate,
       category: category !== "전체" ? categoryReverseMap[category] : undefined,
-      status: status !== "전체" ? statusReverseMap[status] : undefined,
+      postStatus: status !== "전체" ? statusReverseMap[status] : undefined,
       query: searchTerm,
     });
 
@@ -625,7 +590,6 @@ const CommunityPage = () => {
         <ControlsSection>
           <Controls>
             <SearchContainer>
-              <SearchIcon size={20} />
               <SearchControls
                 searchTerm={searchTerm}
                 setSearchTerm={setSearchTerm}
@@ -675,8 +639,8 @@ const CommunityPage = () => {
                 <Card key={post.id} onClick={() => handleCardClick(post.id)}>
                   <CardHeader>
                     <Category>{categoryLabelMap[post.category]}</Category>
-                    <Status status={statusLabelMap[post.status]}>
-                      {statusLabelMap[post.status]}
+                    <Status status={statusLabelMap[post.postStatus]}>
+                      {statusLabelMap[post.postStatus]}
                     </Status>
                   </CardHeader>
 
@@ -716,14 +680,14 @@ const CommunityPage = () => {
                           setShowApplyModal(true);
                         }}
                         disabled={["RECRUITED", "UPCOMING"].includes(
-                          post.status
+                          post.postStatus
                         )}
                       >
-                        {post.status === "RECRUITED"
+                        {post.postStatus === "RECRUITED"
                           ? "모집완료"
-                          : post.status === "UPCOMING"
+                          : post.postStatus === "UPCOMING"
                           ? "모집예정"
-                          : post.status === "UNDER_REVIEW"
+                          : post.postStatus === "UNDER_REVIEW"
                           ? "검토 중"
                           : "지원하기"}
                       </ApplyButton>
