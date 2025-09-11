@@ -46,7 +46,7 @@ const SearchControls = ({ searchTerm, setSearchTerm }) => {
     <SearchContainer>
       <SearchIcon size={20} />
       <SearchInput
-        placeholder="제목, 내용, 작성자 등을 검색해보세요..."
+        placeholder="제목, 작성자 등을 검색해보세요..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
       />

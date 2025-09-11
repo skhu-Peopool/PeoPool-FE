@@ -320,6 +320,9 @@ const ApplyButton = styled.button`
   &:active {
     transform: translateY(0);
   }
+
+   &:disabled {
+    background: #acafb7ff;
 `;
 
 export default function CommunityDetail() {
@@ -510,8 +513,20 @@ export default function CommunityDetail() {
                 <ApplyButton onClick={handleDelete}>삭제</ApplyButton>
               </div>
             ) : (
-              <ApplyButton onClick={() => setShowApplyModal(true)}>
-                지원하기
+              <ApplyButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowApplyModal(true);
+                }}
+                disabled={["RECRUITED", "UPCOMING"].includes(post.postStatus)}
+              >
+                {post.postStatus === "RECRUITED"
+                  ? "모집완료"
+                  : post.postStatus === "UPCOMING"
+                  ? "모집예정"
+                  : post.postStatus === "UNDER_REVIEW"
+                  ? "검토 중"
+                  : "지원하기"}
               </ApplyButton>
             )}
           </ButtonContainer>

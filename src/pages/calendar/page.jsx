@@ -26,7 +26,7 @@ const Container = styled.div`
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -96,7 +96,7 @@ const CalendarWrapper = styled.div`
   overflow: hidden;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -186,13 +186,18 @@ const DayHeader = styled.div`
   position: relative;
 
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.5),
+      transparent
+    );
   }
 `;
 
@@ -230,20 +235,25 @@ const DateCell = styled.div`
     background-color: rgba(96, 165, 250, 0.1);
     color: #3b82f6;
     font-weight: 700;
-    border: 2px solid #3b82f6;
+    border: 4px solid #3b82f6;
 
     &:hover {
       background-color: rgba(96, 165, 250, 0.2);
     }
 
     &::after {
-      content: '';
+      content: "";
       position: absolute;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.1) 50%, transparent 70%);
+      background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(59, 130, 246, 0.1) 50%,
+        transparent 70%
+      );
       animation: ${shimmer} 3s ease-in-out infinite;
       pointer-events: none;
     }
@@ -262,7 +272,7 @@ const CalendarPage = () => {
 
   const getCurrentYear = () => currentDate.getFullYear();
   const getCurrentMonth = () => currentDate.getMonth();
-  
+
   const startOfMonth = new Date(getCurrentYear(), getCurrentMonth(), 1);
   const endOfMonth = new Date(getCurrentYear(), getCurrentMonth() + 1, 0);
   const startDay = startOfMonth.getDay();
@@ -273,27 +283,41 @@ const CalendarPage = () => {
     newDate.setMonth(newDate.getMonth() - 1);
     setCurrentDate(newDate);
   };
-  
+
   const nextMonth = () => {
     const newDate = new Date(currentDate);
     newDate.setMonth(newDate.getMonth() + 1);
     setCurrentDate(newDate);
   };
-  
+
   const resetToday = () => {
     setCurrentDate(new Date());
   };
 
   const today = new Date();
   const isToday = (day) => {
-    return today.getFullYear() === getCurrentYear() &&
-           today.getMonth() === getCurrentMonth() &&
-           today.getDate() === day;
+    return (
+      today.getFullYear() === getCurrentYear() &&
+      today.getMonth() === getCurrentMonth() &&
+      today.getDate() === day
+    );
   };
 
   const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
-  const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", 
-                     "7월", "8월", "9월", "10월", "11월", "12월"];
+  const monthNames = [
+    "1월",
+    "2월",
+    "3월",
+    "4월",
+    "5월",
+    "6월",
+    "7월",
+    "8월",
+    "9월",
+    "10월",
+    "11월",
+    "12월",
+  ];
 
   const renderDates = () => {
     const cells = [];
@@ -315,7 +339,7 @@ const CalendarPage = () => {
     for (let d = 1; d <= daysInMonth; d++) {
       const todayCheck = isToday(d);
       cells.push(
-        <DateCell key={`current-${d}`} className={todayCheck ? 'today' : ''}>
+        <DateCell key={`current-${d}`} className={todayCheck ? "today" : ""}>
           <DayNumber>{d}</DayNumber>
         </DateCell>
       );
@@ -346,7 +370,7 @@ const CalendarPage = () => {
             <Subtitle>팀의 일정을 한눈에 확인하고 관리해보세요</Subtitle>
           </HeaderContent>
         </Header>
-        
+
         <CalendarWrapper>
           <CalendarHeader>
             <MonthNavigation>
