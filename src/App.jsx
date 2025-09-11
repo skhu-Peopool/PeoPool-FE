@@ -173,6 +173,7 @@ export default App;
 const AppWrapper = styled.div`
   display: flex;
   min-height: 100vh;
+  background: white;
   overflow-y: auto;
 `;
 
