@@ -91,18 +91,21 @@ export const tokenFetch = async (url, tokenOverride = null, options = {}) => {
   }
 
   const method = options.method || "GET";
-  const data = options.body;
 
   const config = {
     url,
     method,
-    data,
-    params: options.params,
     headers: {
       ...(options.headers || {}),
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token}`,
     },
   };
+
+  if (method === "GET") {
+    config.params = options.params;
+  } else {
+    config.data = options.data || options.body;
+  }
 
   const res = await axiosClient(config);
   return res.data;

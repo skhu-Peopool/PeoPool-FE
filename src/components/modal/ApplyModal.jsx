@@ -1,6 +1,8 @@
 import styled, { keyframes } from "styled-components";
 import { useState } from "react";
 import { X, FileText, AlertCircle } from "lucide-react";
+import { enrollmentService } from "../../lib/api/enrollment-service";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 const fadeIn = keyframes`
   from { opacity: 0; }
@@ -18,53 +20,93 @@ const slideUp = keyframes`
   }
 `;
 
-export default function ApplyModal({ onClose, onComplete }) {
+export default function ApplyModal({ postId, onClose, onComplete }) {
   const [text, setText] = useState("");
+  const queryClient = useQueryClient();
+
+  const applyMutation = useMutation({
+    mutationFn: (applicationText) =>
+      enrollmentService.applyToPost(postId, applicationText),
+    onSuccess: () => {
+      // 상세 페이지 + 리스트 캐시 무효화
+      queryClient.invalidateQueries(["postDetail", postId]);
+      queryClient.invalidateQueries(["postList"]);
+
+      onComplete(); // 완료 모달 열기
+    },
+    onError: (error) => {
+      console.error("지원 실패:", error);
+      alert("지원에 실패했습니다. 다시 시도해주세요.");
+    },
+  });
+
+  const handleSubmit = () => {
+    if (!text.trim() || text.length > 1000 || applyMutation.isPending) return;
+    applyMutation.mutate(text);
+  };
 
   return (
     <Overlay onClick={onClose}>
       <ModalBox onClick={(e) => e.stopPropagation()}>
-        <Header>
-          <TitleWrapper>
-            <IconWrapper>
-              <FileText size={20} />
-            </IconWrapper>
-            <Title>지원서 작성</Title>
-          </TitleWrapper>
-          <CloseBtn onClick={onClose}>
-            <X size={20} />
-          </CloseBtn>
-        </Header>
+        <ScrollWrapper>
+          <Header>
+            <TitleWrapper>
+              <IconWrapper>
+                <FileText size={20} />
+              </IconWrapper>
+              <Title>지원서 작성</Title>
+            </TitleWrapper>
+            <CloseBtn onClick={onClose}>
+              <X size={20} />
+            </CloseBtn>
+          </Header>
 
-        <Content>
-          <Label>지원동기</Label>
-          <Textarea
-            value={text}
-            onChange={(e) => setText(e.target.value)}
-            placeholder="지원동기를 작성해주세요.&#10;&#10;• 프로젝트에 관심을 갖게 된 이유&#10;• 본인의 관련 경험이나 역량&#10;• 프로젝트를 통해 얻고 싶은 것&#10;&#10;작성하신 내용은 게시자에게 전달됩니다."
-          />
-          <CharCount>
-            <span className={text.length > 1000 ? "over" : ""}>{text.length}</span> / 1000자
-          </CharCount>
-        </Content>
+          <DividerWrapper>
+            <SectionDivider />
+          </DividerWrapper>
 
-        <CautionCard>
-          <CautionIcon>
-            <AlertCircle size={16} />
-          </CautionIcon>
-          <CautionText>
-            <strong>지원 전 확인사항</strong>
-            <br />
-            내 프로필이 비공개 상태여도 게시자가 프로필을 열람할 수 있습니다.
-          </CautionText>
-        </CautionCard>
+          <Content>
+            <Label>지원동기</Label>
+            <Textarea
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="지원동기를 작성해주세요.&#10;&#10;• 프로젝트에 관심을 갖게 된 이유&#10;• 본인의 관련 경험이나 역량&#10;• 프로젝트를 통해 얻고 싶은 것&#10;&#10;작성하신 내용은 게시자에게 전달됩니다."
+            />
+            <CharCount>
+              <span className={text.length > 1000 ? "over" : ""}>
+                {text.length}
+              </span>{" "}
+              / 1000자
+            </CharCount>
+          </Content>
 
-        <ButtonContainer>
-          <CancelBtn onClick={onClose}>취소</CancelBtn>
-          <ApplyBtn onClick={onComplete} disabled={!text.trim() || text.length > 1000}>
-            지원하기
-          </ApplyBtn>
-        </ButtonContainer>
+          <CautionCard>
+            <CautionIcon>
+              <AlertCircle size={16} />
+            </CautionIcon>
+            <CautionText>
+              <strong>지원 전 확인사항</strong>
+              <br />내 프로필이 비공개 상태여도 게시자가 프로필을 열람할 수
+              있습니다.
+            </CautionText>
+          </CautionCard>
+
+          <DividerWrapper>
+            <SectionDivider />
+          </DividerWrapper>
+
+          <ButtonContainer>
+            <CancelBtn onClick={onClose}>취소</CancelBtn>
+            <ApplyBtn
+              onClick={handleSubmit}
+              disabled={
+                !text.trim() || text.length > 1000 || applyMutation.isPending
+              }
+            >
+              {applyMutation.isPending ? "신청 중..." : "지원하기"}
+            </ApplyBtn>
+          </ButtonContainer>
+        </ScrollWrapper>
       </ModalBox>
     </Overlay>
   );
@@ -86,7 +128,7 @@ const ModalBox = styled.div`
   background: white;
   border-radius: 20px;
   width: 600px;
-  max-width: 90vw;
+  max-width: 60vw;
   max-height: 90vh;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
@@ -94,12 +136,29 @@ const ModalBox = styled.div`
   animation: ${slideUp} 0.3s ease-out;
 `;
 
+const ScrollWrapper = styled.div`
+  max-height: 90vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+`;
+
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 2rem 2.5rem 1.5rem;
-  border-bottom: 1px solid #e2e8f0;
+`;
+
+const DividerWrapper = styled.div`
+  padding: 0 2.5rem;
+`;
+
+const SectionDivider = styled.hr`
+  border: none;
+  height: 1px;
+  background: #e2e8f0;
+  width: 100%;
 `;
 
 const TitleWrapper = styled.div`
@@ -210,7 +269,7 @@ const CautionText = styled.div`
   font-size: 0.875rem;
   color: #92400e;
   line-height: 1.5;
-  
+
   strong {
     font-weight: 600;
   }
@@ -220,7 +279,6 @@ const ButtonContainer = styled.div`
   display: flex;
   gap: 1rem;
   padding: 1.5rem 2.5rem 2rem;
-  border-top: 1px solid #e2e8f0;
 `;
 
 const CancelBtn = styled.button`

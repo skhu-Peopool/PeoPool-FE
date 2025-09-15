@@ -20,7 +20,7 @@ const SearchInput = styled.input`
   transition: all 0.3s ease;
 
   &::placeholder {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.93);
   }
 
   &:focus {
