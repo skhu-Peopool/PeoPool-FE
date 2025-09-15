@@ -1,16 +1,6 @@
 import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
-import {
-  Edit3,
-  Search,
-  Calendar,
-  Users,
-  Clock,
-  Eye,
-  MessageCircle,
-  Star,
-  RotateCcw,
-} from "lucide-react";
+import { Edit3, Users, Clock } from "lucide-react";
 import ApplyModal from "../../components/modal/ApplyModal";
 import CompleteModal from "../../components/modal/CompleteModal";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +15,8 @@ import Dropdown from "../../components/Dropdown";
 import DateFilter from "../../components/DateFilter";
 import SearchControls from "../../components/SearchControls";
 import { useAuth } from "../../providers/AuthProvider";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { enrollmentService } from "../../lib/api/enrollment-service";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -512,45 +504,46 @@ const CommunityPage = () => {
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
+  const [selectedPostId, setSelectedPostId] = useState(null);
+
   const { user } = useAuth();
 
   const navigate = useNavigate();
 
-  const fetchData = async () => {
-    const pageSize = 6;
+  const queryClient = useQueryClient();
 
-    const res = await postService.getPostList({
-      page: currentPage,
-      size: pageSize,
-      start: startDate || undefined,
-      end: endDate || undefined,
-      category: category !== "전체" ? categoryReverseMap[category] : undefined,
-      postStatus: status !== "전체" ? statusReverseMap[status] : undefined,
-      query: searchTerm || undefined,
-    });
-
-    console.log("📤 API 요청 파라미터:", {
-      page: currentPage,
-      size: pageSize,
-      start: startDate,
-      end: endDate,
-      category: category !== "전체" ? categoryReverseMap[category] : undefined,
-      postStatus: status !== "전체" ? statusReverseMap[status] : undefined,
-      query: searchTerm,
-    });
-
-    console.log("📨 API 응답 결과:", res);
-
-    setPosts(res.posts || []);
-    setTotalPages(res.totalPages || 1);
-    setCurrentPage(res.currentPage || 1);
-    setTotalCount(res.totalCount || 0);
-  };
+  const { data: postListData } = useQuery({
+    queryKey: [
+      "postList",
+      { page: currentPage, category, status, searchTerm, startDate, endDate },
+    ],
+    queryFn: () =>
+      postService.getPostList({
+        page: currentPage,
+        size: 6,
+        start: startDate || undefined,
+        end: endDate || undefined,
+        category:
+          category !== "전체" ? categoryReverseMap[category] : undefined,
+        postStatus: status !== "전체" ? statusReverseMap[status] : undefined,
+        query: searchTerm || undefined,
+      }),
+    keepPreviousData: true,
+  });
 
   useEffect(() => {
-    fetchData();
-    // setCurrentPage(1);
-  }, [currentPage, startDate, endDate, category, status, searchTerm]);
+    if (postListData) {
+      setPosts(postListData.posts || []);
+      setTotalPages(postListData.totalPages || 1);
+      setCurrentPage(postListData.currentPage || 1);
+      setTotalCount(postListData.totalCount || 0);
+    }
+  }, [postListData]);
+
+  const { data: myEnrollments } = useQuery({
+    queryKey: ["myEnrollments"],
+    queryFn: () => enrollmentService.getMyEnrollments(),
+  });
 
   // 모집 기간, 상태, 카테고리, 검색 필터는 프론트에서 처리
   const filteredPosts = posts;
@@ -633,6 +626,10 @@ const CommunityPage = () => {
         <CardGrid>
           {filteredPosts.length > 0 ? (
             filteredPosts.map((post) => {
+              const isApplied = myEnrollments?.some(
+                (enrollment) => enrollment.postId === post.id
+              );
+
               const progressPercentage = (0 / post.maxPeople) * 100;
 
               return (
@@ -666,7 +663,7 @@ const CommunityPage = () => {
                   <RecruitInfo>
                     <RecruitProgress>
                       <ProgressText>
-                        모집현황: 0 / {post.maxPeople}명
+                        모집현황: {post.appliedPeople ?? 0} / {post.maxPeople}명
                       </ProgressText>
                       <ProgressBar>
                         <ProgressFill percentage={progressPercentage} />
@@ -675,9 +672,29 @@ const CommunityPage = () => {
 
                     {user?.id !== post.writerId && (
                       <ApplyButton
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation();
-                          setShowApplyModal(true);
+
+                          // 신청 취소일 경우
+                          if (isApplied) {
+                            const confirmed =
+                              window.confirm("정말 신청을 취소하시겠습니까?");
+                            if (!confirmed) return;
+
+                            try {
+                              await enrollmentService.cancelEnrollment(post.id);
+                              alert("신청이 취소되었습니다.");
+                              // 최신 상태 반영을 위해 refetch 처리
+                              queryClient.invalidateQueries(["myEnrollments"]);
+                            } catch (error) {
+                              console.error("신청 취소 실패:", error);
+                              alert("신청 취소 중 오류가 발생했습니다.");
+                            }
+                          } else {
+                            // 지원하기 모달 로직
+                            setSelectedPostId(post.id);
+                            setShowApplyModal(true);
+                          }
                         }}
                         disabled={["RECRUITED", "UPCOMING"].includes(
                           post.postStatus
@@ -689,6 +706,8 @@ const CommunityPage = () => {
                           ? "모집예정"
                           : post.postStatus === "UNDER_REVIEW"
                           ? "검토 중"
+                          : isApplied
+                          ? "지원취소"
                           : "지원하기"}
                       </ApplyButton>
                     )}
@@ -739,11 +758,16 @@ const CommunityPage = () => {
         )}
       </ContentWrapper>
 
-      {showApplyModal && (
+      {showApplyModal && selectedPostId && (
         <ApplyModal
-          onClose={() => setShowApplyModal(false)}
+          postId={selectedPostId}
+          onClose={() => {
+            setShowApplyModal(false);
+            setSelectedPostId(null);
+          }}
           onComplete={() => {
             setShowApplyModal(false);
+            setSelectedPostId(null);
             setShowCompleteModal(true);
           }}
         />

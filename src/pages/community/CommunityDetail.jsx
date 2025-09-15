@@ -2,11 +2,13 @@ import { useNavigate, useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import ApplyModal from "../../components/modal/ApplyModal";
 import CompleteModal from "../../components/modal/CompleteModal";
-import { useEffect, useState } from "react";
-import { Users, Calendar, FileText, Tag, User, Clock, Eye } from "lucide-react";
+import { useState } from "react";
+import { Users, Calendar, FileText, Tag, Clock, Eye } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
 import { postService } from "../../lib/api/post-service";
 import { categoryLabelMap, statusLabelMap } from "../../lib/labelMaps";
+import { useQuery } from "@tanstack/react-query";
+import { enrollmentService } from "../../lib/api/enrollment-service";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -234,22 +236,22 @@ const ImagePreview = styled.img`
   margin: 1rem 0;
 `;
 
-const ProgressBar = styled.div`
-  width: 100%;
-  height: 8px;
-  background: #e2e8f0;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0.75rem 0;
-`;
+// const ProgressBar = styled.div`
+//   width: 100%;
+//   height: 8px;
+//   background: #e2e8f0;
+//   border-radius: 4px;
+//   overflow: hidden;
+//   margin: 0.75rem 0;
+// `;
 
-const ProgressFill = styled.div`
-  height: 100%;
-  background: linear-gradient(90deg, #60a5fa, #3b82f6);
-  border-radius: 4px;
-  width: ${(props) => (props.current / props.max) * 100}%;
-  transition: all 0.5s ease;
-`;
+// const ProgressFill = styled.div`
+//   height: 100%;
+//   background: linear-gradient(90deg, #60a5fa, #3b82f6);
+//   border-radius: 4px;
+//   width: ${(props) => (props.current / props.max) * 100}%;
+//   transition: all 0.5s ease;
+// `;
 
 const StatsGrid = styled.div`
   display: grid;
@@ -320,46 +322,44 @@ const ApplyButton = styled.button`
   &:active {
     transform: translateY(0);
   }
+
+   &:disabled {
+    background: #acafb7ff;
 `;
 
 export default function CommunityDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
-  const [post, setPost] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
   const [showApplyModal, setShowApplyModal] = useState(false);
   const [showCompleteModal, setShowCompleteModal] = useState(false);
 
-  useEffect(() => {
-    const fetchPost = async () => {
-      try {
-        const res = await postService.getPostDetail(id);
-        console.log("받은 데이터:", res);
-        setPost(res);
-      } catch (e) {
-        console.error("게시물 로딩 실패", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchPost();
-  }, [id]);
+  const {
+    data: post,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["postDetail", id],
+    queryFn: () => postService.getPostDetail(id),
+    enabled: !!id,
+  });
 
-  if (isLoading) {
-    return <Rendering>로딩 중...</Rendering>;
-  }
+  const { data: myEnrollments } = useQuery({
+    queryKey: ["myEnrollments"],
+    queryFn: () => enrollmentService.getMyEnrollments(),
+  });
 
-  if (!post) {
+  const isApplied = myEnrollments?.some(
+    (enrollment) => enrollment.postId === Number(id)
+  );
+
+  if (isLoading) return <Rendering>로딩 중...</Rendering>;
+  if (isError || !post)
     return <Rendering>게시글을 찾을 수 없습니다.</Rendering>;
-  }
 
   const isWriter = user && user.id === post.writerId;
 
-  const handleEdit = () => {
-    navigate(`/posts/edit/${post.id}`);
-  };
-
+  const handleEdit = () => navigate(`/posts/edit/${post.id}`);
   const handleDelete = async () => {
     const confirmDelete = confirm("정말로 삭제하시겠습니까?");
     if (!confirmDelete) return;
@@ -484,7 +484,7 @@ export default function CommunityDetail() {
               <StatIcon>
                 <Users size={20} />
               </StatIcon>
-              <StatValue>{0}</StatValue>
+              <StatValue>{post.appliedPeople ?? 0}</StatValue>
               <StatLabel>현재 지원자</StatLabel>
             </StatCard>
             <StatCard>
@@ -510,8 +510,22 @@ export default function CommunityDetail() {
                 <ApplyButton onClick={handleDelete}>삭제</ApplyButton>
               </div>
             ) : (
-              <ApplyButton onClick={() => setShowApplyModal(true)}>
-                지원하기
+              <ApplyButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowApplyModal(true);
+                }}
+                disabled={["RECRUITED", "UPCOMING"].includes(post.postStatus)}
+              >
+                {post.postStatus === "RECRUITED"
+                  ? "모집완료"
+                  : post.postStatus === "UPCOMING"
+                  ? "모집예정"
+                  : post.postStatus === "UNDER_REVIEW"
+                  ? "검토 중"
+                  : isApplied
+                  ? "지원취소"
+                  : "지원하기"}
               </ApplyButton>
             )}
           </ButtonContainer>
@@ -520,6 +534,7 @@ export default function CommunityDetail() {
 
       {showApplyModal && (
         <ApplyModal
+          postId={post.id}
           onClose={() => setShowApplyModal(false)}
           onComplete={() => {
             setShowApplyModal(false);
@@ -529,7 +544,12 @@ export default function CommunityDetail() {
       )}
 
       {showCompleteModal && (
-        <CompleteModal onClose={() => setShowCompleteModal(false)} />
+        <CompleteModal
+          onClose={() => {
+            setShowCompleteModal(false);
+            navigate("/community");
+          }}
+        />
       )}
     </Container>
   );

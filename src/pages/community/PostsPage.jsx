@@ -278,6 +278,40 @@ const FileUploadArea = styled.div`
   }
 `;
 
+const ImageWrapper = styled.div`
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+`;
+
+const PreviewImage = styled.img`
+  width: 100%;
+  border-radius: 1rem;
+  display: block;
+`;
+
+const CloseBtn = styled.button`
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.3rem;
+  border-radius: 100%;
+  border: none;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #e2e8f0;
+    color: #374151;
+  }
+`;
+
 const FileUploadContent = styled.div`
   display: flex;
   flex-direction: column;
@@ -379,6 +413,8 @@ const PostsPage = () => {
   const categoryDropdownRef = useRef(null);
   const statusDropdownRef = useRef(null);
 
+  const fileInputRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -404,7 +440,10 @@ const PostsPage = () => {
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
-    if (file) setImageFile(file);
+    if (!file) return;
+
+    setImageFile(file);
+    setImageUrl(URL.createObjectURL(file));
   };
 
   const handleSubmit = async () => {
@@ -678,8 +717,10 @@ const PostsPage = () => {
             </Label>
             <FileUploadArea>
               <input
+                ref={fileInputRef}
                 type="file"
                 id="file-upload"
+                accept="image/*"
                 onChange={handleImageChange}
               />
               <label
@@ -701,13 +742,20 @@ const PostsPage = () => {
             </FileUploadArea>
 
             {imageUrl && (
-              <div style={{ marginTop: "1rem" }}>
-                <img
-                  src={imageUrl}
-                  alt="현재 이미지"
-                  style={{ maxWidth: "100%", borderRadius: "1rem" }}
-                />
-              </div>
+              <ImageWrapper style={{ marginTop: "1rem" }}>
+                <PreviewImage src={imageUrl} alt="현재 이미지" />
+                <CloseBtn
+                  onClick={() => {
+                    setImageFile(null);
+                    setImageUrl("");
+                    if (fileInputRef.current) {
+                      fileInputRef.current.value = "";
+                    }
+                  }}
+                >
+                  <X size={18} />
+                </CloseBtn>
+              </ImageWrapper>
             )}
           </FormSection>
 
