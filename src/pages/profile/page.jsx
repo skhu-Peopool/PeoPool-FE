@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   User,
   Edit3,
@@ -54,7 +54,6 @@ const Header = styled.div`
   margin-bottom: 3rem;
   animation: ${fadeIn} 0.8s ease-out;
 `;
-
 const HeaderContent = styled.div`
   background: rgba(255, 255, 255, 0.15);
   backdrop-filter: blur(10px);
@@ -63,7 +62,6 @@ const HeaderContent = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.2);
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
 `;
-
 const TitleWrapper = styled.div`
   display: flex;
   align-items: center;
@@ -71,7 +69,6 @@ const TitleWrapper = styled.div`
   gap: 1rem;
   margin-bottom: 0.5rem;
 `;
-
 const Title = styled.h1`
   font-size: 2.5rem;
   font-weight: 800;
@@ -80,13 +77,11 @@ const Title = styled.h1`
   -webkit-text-fill-color: transparent;
   background-clip: text;
 `;
-
 const Subtitle = styled.p`
   color: rgba(255, 255, 255, 0.9);
   font-size: 1.125rem;
   font-weight: 300;
 `;
-
 const Card = styled.div`
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
@@ -148,6 +143,32 @@ const ProfileImage = styled.div`
   }
 `;
 
+const ProfileImageDisplay = styled.img`
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  object-fit: cover;
+`;
+
+const ProfileImageHover = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  ${ProfileImageWrapper}:hover & {
+    opacity: 1;
+  }
+`;
+
 const OnlineIndicator = styled.div`
   position: absolute;
   bottom: 4px;
@@ -159,7 +180,6 @@ const OnlineIndicator = styled.div`
   border-radius: 50%;
   box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
 `;
-
 const ProfileInfo = styled.div`
   flex: 1;
 `;
@@ -200,7 +220,6 @@ const InfoGrid = styled.div`
   gap: 1rem;
   margin-bottom: 1.5rem;
 `;
-
 const InfoItem = styled.div`
   display: flex;
   align-items: center;
@@ -215,7 +234,6 @@ const InfoItem = styled.div`
     transform: translateX(4px);
   }
 `;
-
 const InfoIcon = styled.div`
   width: 2.5rem;
   height: 2.5rem;
@@ -268,14 +286,12 @@ const InfoInput = styled.input`
 const TagsContainer = styled.div`
   margin-bottom: 1.5rem;
 `;
-
 const TagsGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-bottom: 0.75rem;
 `;
-
 const Tag = styled.span`
   background: linear-gradient(135deg, #dbeafe, #bfdbfe);
   color: #1e40af;
@@ -290,7 +306,6 @@ const Tag = styled.span`
     transform: scale(1.05);
   }
 `;
-
 const TagInput = styled.input`
   width: 100%;
   padding: 0.75rem;
@@ -311,21 +326,18 @@ const TagInput = styled.input`
     color: #9ca3af;
   }
 `;
-
 const Introduction = styled.div`
   padding: 1.5rem;
   background: rgba(96, 165, 250, 0.05);
   border-radius: 1rem;
   border-left: 4px solid #60a5fa;
 `;
-
 const IntroTitle = styled.h3`
   font-size: 1.25rem;
   color: #1f2937;
   margin-bottom: 1rem;
   font-weight: 600;
 `;
-
 const IntroInput = styled.input`
   width: 100%;
   padding: 0.75rem;
@@ -379,7 +391,6 @@ const ProfileActions = styled.div`
   gap: 0.75rem;
   align-items: flex-end;
 `;
-
 const ProfileButton = styled.button`
   padding: 0.75rem 1.5rem;
   border-radius: 1rem;
@@ -398,7 +409,6 @@ const ProfileButton = styled.button`
     background: linear-gradient(135deg, #60a5fa, #3b82f6);
     color: white;
     box-shadow: 0 4px 20px rgba(96, 165, 250, 0.4);
-
     &:hover {
       transform: translateY(-2px);
       box-shadow: 0 8px 30px rgba(96, 165, 250, 0.5);
@@ -438,7 +448,6 @@ const ProfileButton = styled.button`
     }
   }
 `;
-
 const ActivitySection = styled(Card)`
   animation: ${fadeIn} 1s ease-out 0.4s both;
 `;
@@ -451,7 +460,6 @@ const ActivityHeader = styled.div`
   padding-bottom: 1rem;
   border-bottom: 2px solid rgba(96, 165, 250, 0.1);
 `;
-
 const ActivityTitle = styled.h2`
   font-size: 1.5rem;
   color: #1f2937;
@@ -468,7 +476,6 @@ const ActivityIconWrapper = styled.div`
   justify-content: center;
   color: white;
 `;
-
 const Timeline = styled.div`
   position: relative;
 `;
@@ -514,7 +521,6 @@ const TimelineContent = styled.div`
   border-left: 3px solid #60a5fa;
   position: relative;
   transition: all 0.3s ease;
-
   &:hover {
     background: rgba(96, 165, 250, 0.1);
     transform: translateX(4px);
@@ -567,9 +573,15 @@ const TimeStamp = styled.div`
 `;
 
 const ProfileEditPage = () => {
+  const DEFAULT_IMAGE_URL =
+    "https://peopool-profile-image.s3.ap-northeast-2.amazonaws.com/default.png";
+
   const [isEditing, setIsEditing] = useState(false);
   const [initialProfileData, setInitialProfileData] = useState(null);
   const [profileData, setProfileData] = useState(null);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -586,6 +598,14 @@ const ProfileEditPage = () => {
     fetchUserData();
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (imagePreview) {
+        URL.revokeObjectURL(imagePreview);
+      }
+    };
+  }, [imagePreview]);
+
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
       ...prev,
@@ -593,11 +613,48 @@ const ProfileEditPage = () => {
     }));
   };
 
+  const handleImageClick = () => {
+    if (isEditing) {
+      fileInputRef.current.click();
+    }
+  };
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
+
   const handleSave = async () => {
+    const memberProfileUpdateReq = {
+      nickname: profileData.nickname,
+      mainIntroduction: profileData.mainIntroduction || "",
+      subIntroduction: profileData.subIntroduction || "",
+      hashtag: profileData.hashtag || "",
+      kakaoId: profileData.kakaoId || "",
+    };
+
+    const formData = new FormData();
+
+    formData.append(
+      "memberProfileUpdateReq",
+      JSON.stringify(memberProfileUpdateReq)
+    );
+
+    if (imageFile) {
+      formData.append("image", imageFile);
+    }
+
     try {
-      await userService.updateMe(profileData);
-      setInitialProfileData(profileData);
+      const updatedData = await userService.updateMe(formData);
+      setInitialProfileData(updatedData);
+      setProfileData(updatedData);
       setIsEditing(false);
+      setImageFile(null);
+      setImagePreview(null);
       alert("프로필이 성공적으로 업데이트되었습니다!");
     } catch (error) {
       console.error("프로필 업데이트에 실패했습니다.", error);
@@ -608,8 +665,9 @@ const ProfileEditPage = () => {
   const handleCancel = () => {
     setProfileData(initialProfileData);
     setIsEditing(false);
+    setImageFile(null);
+    setImagePreview(null);
   };
-
   const getInitials = (name) => {
     if (!name) return "";
     return name
@@ -636,8 +694,32 @@ const ProfileEditPage = () => {
         </Header>
 
         <ProfileCard>
-          <ProfileImageWrapper>
-            <ProfileImage>{getInitials(profileData.nickname)}</ProfileImage>
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleImageChange}
+            accept="image/*"
+            style={{ display: "none" }}
+          />
+          <ProfileImageWrapper
+            onClick={handleImageClick}
+            style={{ cursor: isEditing ? "pointer" : "default" }}>
+            {imagePreview ? (
+              <ProfileImageDisplay src={imagePreview} alt="Profile Preview" />
+            ) : profileData.profileImage &&
+              profileData.profileImage !== DEFAULT_IMAGE_URL ? (
+              <ProfileImageDisplay
+                src={profileData.profileImage}
+                alt="Profile"
+              />
+            ) : (
+              <ProfileImage>{getInitials(profileData.nickname)}</ProfileImage>
+            )}
+            {isEditing && (
+              <ProfileImageHover>
+                <Edit3 size={24} />
+              </ProfileImageHover>
+            )}
             <OnlineIndicator />
           </ProfileImageWrapper>
 
@@ -668,27 +750,6 @@ const ProfileEditPage = () => {
 
               <InfoItem>
                 <InfoIcon>
-                  <Calendar size={16} />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>생일</InfoLabel>
-                  {isEditing ? (
-                    <InfoInput
-                      type="text"
-                      value={profileData.birthday}
-                      placeholder="YYYY-MM-DD"
-                      onChange={(e) =>
-                        handleInputChange("birthday", e.target.value)
-                      }
-                    />
-                  ) : (
-                    <InfoValue>{profileData.birthday || "정보 없음"}</InfoValue>
-                  )}
-                </InfoContent>
-              </InfoItem>
-
-              <InfoItem>
-                <InfoIcon>
                   <Mail size={16} />
                 </InfoIcon>
                 <InfoContent>
@@ -704,6 +765,26 @@ const ProfileEditPage = () => {
                 <InfoContent>
                   <InfoLabel>핸드폰</InfoLabel>
                   <InfoValue>정보 없음</InfoValue>
+                </InfoContent>
+              </InfoItem>
+
+              <InfoItem>
+                <InfoIcon>
+                  <MessageCircle size={16} />
+                </InfoIcon>
+                <InfoContent>
+                  <InfoLabel>카카오 ID</InfoLabel>
+                  {isEditing ? (
+                    <InfoInput
+                      type="text"
+                      value={profileData.kakaoId || ""}
+                      onChange={(e) =>
+                        handleInputChange("kakaoId", e.target.value)
+                      }
+                    />
+                  ) : (
+                    <InfoValue>{profileData.kakaoId || "정보 없음"}</InfoValue>
+                  )}
                 </InfoContent>
               </InfoItem>
             </InfoGrid>
@@ -733,10 +814,25 @@ const ProfileEditPage = () => {
             <Introduction>
               {isEditing ? (
                 <>
-                  <IntroTextArea
-                    value={profileData.introduction || ""}
+                  <InfoLabel style={{ marginBottom: "0.5rem" }}>
+                    한 줄 소개
+                  </InfoLabel>
+                  <InfoInput
+                    type="text"
+                    value={profileData.subIntroduction || ""}
                     onChange={(e) =>
-                      handleInputChange("introduction", e.target.value)
+                      handleInputChange("subIntroduction", e.target.value)
+                    }
+                    placeholder="나를 한 줄로 표현해보세요."
+                    style={{ marginBottom: "1rem" }}
+                  />
+                  <InfoLabel style={{ marginBottom: "0.5rem" }}>
+                    자기소개
+                  </InfoLabel>
+                  <IntroTextArea
+                    value={profileData.mainIntroduction || ""}
+                    onChange={(e) =>
+                      handleInputChange("mainIntroduction", e.target.value)
                     }
                     rows="4"
                     placeholder="자기소개를 입력하세요."
@@ -744,9 +840,11 @@ const ProfileEditPage = () => {
                 </>
               ) : (
                 <>
-                  <IntroTitle>자기소개</IntroTitle>
+                  <IntroTitle>
+                    {profileData.subIntroduction || "한 줄 소개가 없습니다."}
+                  </IntroTitle>
                   <IntroText>
-                    {profileData.introduction || "자기소개가 없습니다."}
+                    {profileData.mainIntroduction || "자기소개가 없습니다."}
                   </IntroText>
                 </>
               )}
@@ -825,5 +923,4 @@ const ProfileEditPage = () => {
     </Container>
   );
 };
-
 export default ProfileEditPage;
