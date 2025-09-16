@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   User,
   Edit3,
@@ -12,6 +12,7 @@ import {
   PenTool,
 } from "lucide-react";
 import styled, { keyframes } from "styled-components";
+import { userService } from "../../lib/api/user-service";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -567,19 +568,23 @@ const TimeStamp = styled.div`
 
 const ProfileEditPage = () => {
   const [isEditing, setIsEditing] = useState(false);
-  const [profileData, setProfileData] = useState({
-    name: "John Doe",
-    email: "johndoe@email.com",
-    phone: "010-8765-2431",
-    birthday: "March 15, 1995",
-    joinDate: "2022년 4월 7일",
-    tags: ["풀스텍", "디자이너", "클라이머"],
-    introTitle: "대학 3년차",
-    introText1: "모델 준비하고 있습니다.",
-    introText2: "토익준비, 디자인, 패션 등 함께 공부하실분을 환영해요!",
-    kakaoId: "John_Doe",
-  });
-  const [tagInput, setTagInput] = useState(profileData.tags.join(", "));
+  const [initialProfileData, setInitialProfileData] = useState(null);
+  const [profileData, setProfileData] = useState(null);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const data = await userService.getMe();
+        setProfileData(data);
+        setInitialProfileData(data);
+      } catch (error) {
+        console.error("사용자 정보를 불러오는데 실패했습니다.", error);
+        alert("사용자 정보를 불러오는데 실패했습니다.");
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   const handleInputChange = (field, value) => {
     setProfileData((prev) => ({
@@ -588,28 +593,34 @@ const ProfileEditPage = () => {
     }));
   };
 
-  const handleSave = () => {
-    setProfileData((prev) => ({
-      ...prev,
-      tags: tagInput
-        .split(",")
-        .map((tag) => tag.trim())
-        .filter((tag) => tag !== ""),
-    }));
-    setIsEditing(false);
+  const handleSave = async () => {
+    try {
+      await userService.updateMe(profileData);
+      setInitialProfileData(profileData);
+      setIsEditing(false);
+      alert("프로필이 성공적으로 업데이트되었습니다!");
+    } catch (error) {
+      console.error("프로필 업데이트에 실패했습니다.", error);
+      alert("프로필 업데이트에 실패했습니다. 다시 시도해주세요.");
+    }
   };
 
   const handleCancel = () => {
-    setTagInput(profileData.tags.join(", "));
+    setProfileData(initialProfileData);
     setIsEditing(false);
   };
 
   const getInitials = (name) => {
+    if (!name) return "";
     return name
       .split(" ")
       .map((n) => n[0])
       .join("");
   };
+
+  if (!profileData) {
+    return <Container>Loading...</Container>;
+  }
 
   return (
     <Container>
@@ -626,7 +637,7 @@ const ProfileEditPage = () => {
 
         <ProfileCard>
           <ProfileImageWrapper>
-            <ProfileImage>{getInitials(profileData.name)}</ProfileImage>
+            <ProfileImage>{getInitials(profileData.nickname)}</ProfileImage>
             <OnlineIndicator />
           </ProfileImageWrapper>
 
@@ -634,12 +645,12 @@ const ProfileEditPage = () => {
             {isEditing ? (
               <EditInput
                 type="text"
-                value={profileData.name}
-                onChange={(e) => handleInputChange("name", e.target.value)}
+                value={profileData.nickname}
+                onChange={(e) => handleInputChange("nickname", e.target.value)}
                 placeholder="이름을 입력하세요"
               />
             ) : (
-              <ProfileName>{profileData.name}</ProfileName>
+              <ProfileName>{profileData.nickname}</ProfileName>
             )}
 
             <InfoGrid>
@@ -649,17 +660,9 @@ const ProfileEditPage = () => {
                 </InfoIcon>
                 <InfoContent>
                   <InfoLabel>가입일</InfoLabel>
-                  {isEditing ? (
-                    <InfoInput
-                      type="text"
-                      value={profileData.joinDate}
-                      onChange={(e) =>
-                        handleInputChange("joinDate", e.target.value)
-                      }
-                    />
-                  ) : (
-                    <InfoValue>{profileData.joinDate}</InfoValue>
-                  )}
+                  <InfoValue>
+                    {new Date(profileData.createdAt).toLocaleDateString()}
+                  </InfoValue>
                 </InfoContent>
               </InfoItem>
 
@@ -673,12 +676,13 @@ const ProfileEditPage = () => {
                     <InfoInput
                       type="text"
                       value={profileData.birthday}
+                      placeholder="YYYY-MM-DD"
                       onChange={(e) =>
                         handleInputChange("birthday", e.target.value)
                       }
                     />
                   ) : (
-                    <InfoValue>{profileData.birthday}</InfoValue>
+                    <InfoValue>{profileData.birthday || "정보 없음"}</InfoValue>
                   )}
                 </InfoContent>
               </InfoItem>
@@ -689,17 +693,7 @@ const ProfileEditPage = () => {
                 </InfoIcon>
                 <InfoContent>
                   <InfoLabel>Email</InfoLabel>
-                  {isEditing ? (
-                    <InfoInput
-                      type="email"
-                      value={profileData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                    />
-                  ) : (
-                    <InfoValue>{profileData.email}</InfoValue>
-                  )}
+                  <InfoValue>{profileData.email}</InfoValue>
                 </InfoContent>
               </InfoItem>
 
@@ -709,17 +703,7 @@ const ProfileEditPage = () => {
                 </InfoIcon>
                 <InfoContent>
                   <InfoLabel>핸드폰</InfoLabel>
-                  {isEditing ? (
-                    <InfoInput
-                      type="text"
-                      value={profileData.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                    />
-                  ) : (
-                    <InfoValue>{profileData.phone}</InfoValue>
-                  )}
+                  <InfoValue>정보 없음</InfoValue>
                 </InfoContent>
               </InfoItem>
             </InfoGrid>
@@ -731,15 +715,17 @@ const ProfileEditPage = () => {
               {isEditing ? (
                 <TagInput
                   type="text"
-                  value={tagInput}
-                  onChange={(e) => setTagInput(e.target.value)}
-                  placeholder="예: 풀스텍, 디자이너, 클라이머 (쉼표로 구분)"
+                  value={profileData.hashtag || ""}
+                  onChange={(e) => handleInputChange("hashtag", e.target.value)}
+                  placeholder="예: 풀스텍, 디자이너 (쉼표로 구분)"
                 />
               ) : (
                 <TagsGrid>
-                  {profileData.tags.map((tag, index) => (
-                    <Tag key={index}>#{tag}</Tag>
-                  ))}
+                  {(profileData.hashtag || "")
+                    .split(",")
+                    .map((tag, index) =>
+                      tag.trim() ? <Tag key={index}>#{tag.trim()}</Tag> : null
+                    )}
                 </TagsGrid>
               )}
             </TagsContainer>
@@ -747,72 +733,21 @@ const ProfileEditPage = () => {
             <Introduction>
               {isEditing ? (
                 <>
-                  <IntroInput
-                    type="text"
-                    value={profileData.introTitle}
-                    onChange={(e) =>
-                      handleInputChange("introTitle", e.target.value)
-                    }
-                    placeholder="소개 제목"
-                  />
-
                   <IntroTextArea
-                    value={profileData.introText1}
+                    value={profileData.introduction || ""}
                     onChange={(e) =>
-                      handleInputChange("introText1", e.target.value)
+                      handleInputChange("introduction", e.target.value)
                     }
-                    rows="2"
-                    placeholder="소개 내용 1"
+                    rows="4"
+                    placeholder="자기소개를 입력하세요."
                   />
-
-                  <IntroTextArea
-                    value={profileData.introText2}
-                    onChange={(e) =>
-                      handleInputChange("introText2", e.target.value)
-                    }
-                    rows="2"
-                    placeholder="소개 내용 2"
-                  />
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.75rem",
-                      marginTop: "1rem",
-                    }}
-                  >
-                    <MessageCircle size={20} color="#60a5fa" />
-                    <InfoInput
-                      type="text"
-                      value={profileData.kakaoId}
-                      onChange={(e) =>
-                        handleInputChange("kakaoId", e.target.value)
-                      }
-                      placeholder="카카오톡 ID"
-                      style={{ margin: 0 }}
-                    />
-                  </div>
                 </>
               ) : (
                 <>
-                  <IntroTitle>{profileData.introTitle}</IntroTitle>
-                  <IntroText>{profileData.introText1}</IntroText>
-                  <IntroText>{profileData.introText2}</IntroText>
-
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "0.75rem",
-                      marginTop: "1rem",
-                      color: "#4b5563",
-                    }}
-                  >
-                    <MessageCircle size={20} color="#60a5fa" />
-                    <strong style={{ color: "#1f2937" }}>카카오톡:</strong>{" "}
-                    {profileData.kakaoId}
-                  </div>
+                  <IntroTitle>자기소개</IntroTitle>
+                  <IntroText>
+                    {profileData.introduction || "자기소개가 없습니다."}
+                  </IntroText>
                 </>
               )}
             </Introduction>
@@ -832,8 +767,7 @@ const ProfileEditPage = () => {
               <>
                 <ProfileButton
                   className="edit"
-                  onClick={() => setIsEditing(true)}
-                >
+                  onClick={() => setIsEditing(true)}>
                   <Edit3 size={16} />
                   프로필 수정
                 </ProfileButton>
