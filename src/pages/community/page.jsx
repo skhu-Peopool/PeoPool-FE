@@ -126,8 +126,8 @@ const SearchContainer = styled.div`
 const WriteButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
+  gap: 0.75rem;  
+  padding: 0.75rem 1rem;
   background: linear-gradient(135deg, #ffffff, #f1f5f9);
   color: #475569;
   border: none;
@@ -163,52 +163,6 @@ const FilterGroup = styled.div`
   align-items: center;
 `;
 
-const Select = styled.select`
-  padding: 0.75rem 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  option {
-    background: #3b82f6;
-    color: white;
-  }
-`;
-
-const DateInput = styled.input`
-  padding: 0.75rem 1rem;
-  border: 2px solid rgba(255, 255, 255, 0.3);
-  border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.2);
-  backdrop-filter: blur(10px);
-  color: white;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.3s ease;
-
-  &:focus {
-    outline: none;
-    border-color: rgba(255, 255, 255, 0.5);
-    background: rgba(255, 255, 255, 0.3);
-  }
-
-  &::-webkit-calendar-picker-indicator {
-    filter: brightness(0) invert(1);
-    opacity: 0.7;
-  }
-`;
 
 const CardGrid = styled.div`
   display: grid;
@@ -458,6 +412,7 @@ const PageButton = styled.button`
 const EmptyState = styled.div`
   grid-column: 1 / -1;
   text-align: center;
+  justify-content: center;
   padding: 4rem 2rem;
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -717,7 +672,6 @@ const CommunityPage = () => {
             })
           ) : (
             <EmptyState>
-              <Users size={64} style={{ marginBottom: "1rem", opacity: 0.5 }} />
               <h3 style={{ marginBottom: "0.5rem" }}>검색 결과가 없습니다</h3>
               <p>다른 검색어나 필터를 사용해보세요</p>
             </EmptyState>

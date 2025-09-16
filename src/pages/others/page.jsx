@@ -283,6 +283,7 @@ const Tag = styled.span`
 
 const EmptyState = styled.div`
   grid-column: 1 / -1;
+  align-items: center;
   text-align: center;
   padding: 4rem 2rem;
   color: rgba(255, 255, 255, 0.8);
@@ -399,7 +400,6 @@ const TeamFinder = () => {
             ))
           ) : (
             <EmptyState>
-              <Users size={64} style={{ marginBottom: '1rem', opacity: 0.5 }} />
               <p>아직 등록된 멤버가 없습니다.</p>
             </EmptyState>
           )}

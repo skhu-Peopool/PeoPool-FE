@@ -9,7 +9,7 @@ const DropdownContainer = styled.div`
 `;
 
 const Selected = styled.div`
-  padding: 0.85rem 1rem;
+  padding: 0.75rem 1rem;
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
   border: 2px solid rgba(255, 255, 255, 0.3);

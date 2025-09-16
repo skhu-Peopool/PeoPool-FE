@@ -14,6 +14,7 @@ import HeaderSlide from "./components/global/HeaderSlide";
 import OthersPage from "./pages/others/page";
 import CalendarPage from "./pages/calendar/page";
 import ProfilePage from "./pages/profile/page";
+import ApplicationManagementPage from './pages/management/page'
 import CommunityDetail from "./pages/community/CommunityDetail";
 import PostsPage from "./pages/community/PostsPage";
 import { useAuth } from "./providers/AuthProvider";
@@ -148,6 +149,17 @@ function AppRoutes() {
           <PrivateRoute>
             <MainLayout>
               <ProfilePage />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+
+      <Route
+        path="/manegement"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <ApplicationManagementPage />
             </MainLayout>
           </PrivateRoute>
         }
