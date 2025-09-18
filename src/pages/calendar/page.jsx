@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import Header from "../../components/Header";
 
 // Keyframe animations
 const float = keyframes`
@@ -42,46 +43,6 @@ const ContentWrapper = styled.div`
   margin: 0 auto;
   position: relative;
   z-index: 1;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: ${fadeIn} 0.8s ease-out;
-`;
-
-const HeaderContent = styled.div`
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 2rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(45deg, #ffffff, #e0e7ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin: 0;
-`;
-
-const Subtitle = styled.p`
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.125rem;
-  font-weight: 300;
-  margin: 0;
 `;
 
 const CalendarWrapper = styled.div`
@@ -361,16 +322,7 @@ const CalendarPage = () => {
   return (
     <Container>
       <ContentWrapper>
-        <Header>
-          <HeaderContent>
-            <TitleWrapper>
-              <Calendar color="white" size={40} />
-              <Title>달력/시간표</Title>
-            </TitleWrapper>
-            <Subtitle>팀의 일정을 한눈에 확인하고 관리해보세요</Subtitle>
-          </HeaderContent>
-        </Header>
-
+        <Header icon={<Calendar color="white" size={40} />} title={'달력/시간표'} subTitle={'팀의 일정을 한눈에 확인하고 관리해보세요'}/>
         <CalendarWrapper>
           <CalendarHeader>
             <MonthNavigation>

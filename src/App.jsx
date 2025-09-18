@@ -28,7 +28,7 @@ function MainLayout({ children }) {
     <AppWrapper>
       <HeaderSlide open={isSidebarOpen} setOpen={setIsSidebarOpen} />
 
-      <Content style={{paddingTop: '4rem'}} $hasSidebar={isSidebarOpen}>{children}</Content>
+      <Content $hasSidebar={isSidebarOpen}>{children}</Content>
     </AppWrapper>
   );
 }
@@ -191,4 +191,15 @@ const AppWrapper = styled.div`
 
 const Content = styled.main`
   flex: 1;
+  min-height: 100vh;
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+
+  padding-top: 4rem;
+  color: #444;
+  font-family: 'Pretendard', sans-serif;
+
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  
 `;
