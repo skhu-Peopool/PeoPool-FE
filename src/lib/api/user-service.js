@@ -6,9 +6,12 @@ export const userService = {
 
   // 프로필 or 마이페이지 수정 api로 쓸 예정
   updateMe: (userData) =>
-    tokenFetch("/update", undefined, {
+    tokenFetch("/update/profile", undefined, {
       method: "PATCH",
       body: userData,
+      headers: {
+        "Content-Type": null, // 'application/json' 덮어쓰기
+      },
     }),
 
   // 비밀번호 변경
