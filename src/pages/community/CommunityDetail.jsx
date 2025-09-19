@@ -9,6 +9,7 @@ import { postService } from "../../lib/api/post-service";
 import { categoryLabelMap, statusLabelMap } from "../../lib/labelMaps";
 import { useQuery } from "@tanstack/react-query";
 import { enrollmentService } from "../../lib/api/enrollment-service";
+import dayjs from "dayjs";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -327,6 +328,15 @@ const ApplyButton = styled.button`
     background: #acafb7ff;
 `;
 
+// 남은 일수 계산 함수
+function getRemainingDays(endDate) {
+  const today = dayjs().startOf("day");
+  const end = dayjs(endDate).startOf("day");
+
+  const diff = end.diff(today, "day");
+  return diff >= 0 ? diff : 0;
+}
+
 export default function CommunityDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -373,6 +383,8 @@ export default function CommunityDetail() {
       alert("게시글 삭제에 실패했습니다.");
     }
   };
+
+  const remainingDays = getRemainingDays(post.recruitmentEndDate);
 
   return (
     <Container>
@@ -491,14 +503,14 @@ export default function CommunityDetail() {
               <StatIcon>
                 <Calendar size={20} />
               </StatIcon>
-              <StatValue>82</StatValue>
+              <StatValue>{remainingDays}</StatValue>
               <StatLabel>남은 일수</StatLabel>
             </StatCard>
             <StatCard>
               <StatIcon>
                 <Eye size={20} />
               </StatIcon>
-              <StatValue>156</StatValue>
+              <StatValue>{post.views}</StatValue>
               <StatLabel>조회수</StatLabel>
             </StatCard>
           </StatsGrid>

@@ -645,41 +645,83 @@ const PostsPage = () => {
               />
             </FormGroup>
 
-            <FormGroup>
-              <Label>
-                <Calendar size={16} />
-                모집 시작일
-              </Label>
-              <Input
-                type="date"
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-            </FormGroup>
+            {isEditMode ? (
+              <>
+                <FormGroup>
+                  <Label>
+                    <Calendar size={16} />
+                    활동 시작일
+                  </Label>
+                  <Input
+                    type="date"
+                    value={activityStartDate}
+                    onChange={(e) => setActivityStartDate(e.target.value)}
+                  />
+                </FormGroup>
 
-            <FormGroup>
-              <Label>
-                <Calendar size={16} />
-                모집 마감일
-              </Label>
-              <Input
-                type="date"
-                value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
-              />
-            </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <Calendar size={16} />
+                    모집 시작일
+                  </Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </FormGroup>
 
-            <FormGroup>
-              <Label>
-                <Calendar size={16} />
-                활동 시작일
-              </Label>
-              <Input
-                type="date"
-                value={activityStartDate}
-                onChange={(e) => setActivityStartDate(e.target.value)}
-              />
-            </FormGroup>
+                <FormGroup>
+                  <Label>
+                    <Calendar size={16} />
+                    모집 마감일
+                  </Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </FormGroup>
+              </>
+            ) : (
+              <>
+                <FormGroup>
+                  <Label>
+                    <Calendar size={16} />
+                    모집 시작일
+                  </Label>
+                  <Input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>
+                    <Calendar size={16} />
+                    모집 마감일
+                  </Label>
+                  <Input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                  />
+                </FormGroup>
+
+                <FormGroup>
+                  <Label>
+                    <Calendar size={16} />
+                    활동 시작일
+                  </Label>
+                  <Input
+                    type="date"
+                    value={activityStartDate}
+                    onChange={(e) => setActivityStartDate(e.target.value)}
+                  />
+                </FormGroup>
+              </>
+            )}
           </FormRow>
 
           {/* 제목 */}
