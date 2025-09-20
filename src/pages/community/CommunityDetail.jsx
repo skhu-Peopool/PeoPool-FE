@@ -9,6 +9,7 @@ import { postService } from "../../lib/api/post-service";
 import { categoryLabelMap, statusLabelMap } from "../../lib/labelMaps";
 import { useQuery } from "@tanstack/react-query";
 import { enrollmentService } from "../../lib/api/enrollment-service";
+import dayjs from "dayjs";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -327,6 +328,15 @@ const ApplyButton = styled.button`
     background: #acafb7ff;
 `;
 
+// 남은 일수 계산 함수
+function getRemainingDays(endDate) {
+  const today = dayjs().startOf("day");
+  const end = dayjs(endDate).startOf("day");
+
+  const diff = end.diff(today, "day");
+  return diff >= 0 ? diff : 0;
+}
+
 export default function CommunityDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -349,9 +359,11 @@ export default function CommunityDetail() {
     queryFn: () => enrollmentService.getMyEnrollments(),
   });
 
-  const isApplied = myEnrollments?.some(
-    (enrollment) => enrollment.postId === Number(id)
+  const myEnrollment = myEnrollments?.find(
+    (enrollment) => enrollment.postId === post.id
   );
+  const isApproved = myEnrollment?.status === "APPROVED";
+  const isApplied = !!myEnrollment;
 
   if (isLoading) return <Rendering>로딩 중...</Rendering>;
   if (isError || !post)
@@ -373,6 +385,8 @@ export default function CommunityDetail() {
       alert("게시글 삭제에 실패했습니다.");
     }
   };
+
+  const remainingDays = getRemainingDays(post.recruitmentEndDate);
 
   return (
     <Container>
@@ -491,14 +505,14 @@ export default function CommunityDetail() {
               <StatIcon>
                 <Calendar size={20} />
               </StatIcon>
-              <StatValue>82</StatValue>
+              <StatValue>{remainingDays}</StatValue>
               <StatLabel>남은 일수</StatLabel>
             </StatCard>
             <StatCard>
               <StatIcon>
                 <Eye size={20} />
               </StatIcon>
-              <StatValue>156</StatValue>
+              <StatValue>{post.views}</StatValue>
               <StatLabel>조회수</StatLabel>
             </StatCard>
           </StatsGrid>
@@ -513,9 +527,15 @@ export default function CommunityDetail() {
               <ApplyButton
                 onClick={(e) => {
                   e.stopPropagation();
+
+                  if (isApproved) return;
+
                   setShowApplyModal(true);
                 }}
-                disabled={["RECRUITED", "UPCOMING"].includes(post.postStatus)}
+                disabled={
+                  ["RECRUITED", "UPCOMING"].includes(post.postStatus) ||
+                  isApproved
+                }
               >
                 {post.postStatus === "RECRUITED"
                   ? "모집완료"
@@ -523,6 +543,8 @@ export default function CommunityDetail() {
                   ? "모집예정"
                   : post.postStatus === "UNDER_REVIEW"
                   ? "검토 중"
+                  : isApproved
+                  ? "승인완료"
                   : isApplied
                   ? "지원취소"
                   : "지원하기"}

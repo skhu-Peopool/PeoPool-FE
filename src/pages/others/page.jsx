@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Users, MessageCircle, Star, MapPin, Clock } from "lucide-react";
+import { Users, MessageCircle, Star, Clock } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import Header from "../../components/Header";
 
@@ -20,7 +20,7 @@ const Container = styled.div`
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -67,7 +67,7 @@ const Card = styled.div`
   overflow: hidden;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -82,7 +82,7 @@ const Card = styled.div`
   &:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    
+
     &::before {
       transform: scaleX(1);
     }
@@ -143,9 +143,9 @@ const Avatar = styled.div`
   font-size: 1.25rem;
   box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
   position: relative;
-  
+
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -2px;
     left: -2px;
@@ -157,7 +157,7 @@ const Avatar = styled.div`
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  
+
   ${Card}:hover &::after {
     opacity: 1;
   }
@@ -235,7 +235,7 @@ const Tag = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
     transform: scale(1.05);
@@ -296,7 +296,7 @@ const TeamFinder = () => {
       <ContactButton>
         <MessageCircle size={18} />
       </ContactButton>
-      
+
       <ProfileHeader>
         <AvatarWrapper>
           <Avatar>{member.avatar}</Avatar>
@@ -320,9 +320,9 @@ const TeamFinder = () => {
           </MetaInfo>
         </ProfileInfo>
       </ProfileHeader>
-      
+
       {member.description && <Description>{member.description}</Description>}
-      
+
       {member.hashtags && member.hashtags.length > 0 && (
         <TagsContainer>
           {member.hashtags.map((tag, index) => (
@@ -336,7 +336,11 @@ const TeamFinder = () => {
   return (
     <Container>
       <ContentWrapper>
-        <Header icon={ <Users color="white" size={40} />} title={'팀원 찾기'} subTitle={'완벽한 팀메이트를 찾아 함께 성장해보세요'}/>
+        <Header
+          icon={<Users color="white" size={40} />}
+          title={"팀원 찾기"}
+          subTitle={"완벽한 팀메이트를 찾아 함께 성장해보세요"}
+        />
         <Grid>
           {members.length > 0 ? (
             members.map((member) => (

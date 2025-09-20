@@ -26,4 +26,36 @@ export const enrollmentService = {
     });
     return response;
   },
+
+  // 해당 게시글에 대한 신청 목록 조회
+  getApplicantsByPostId: async (postId) => {
+    const response = await tokenFetch(`/enrollment/post/${postId}`, {
+      method: "GET",
+    });
+    return response.enrollmentApplyingList || [];
+  },
+
+  // 신청 승인
+  approveEnrollment: async (enrollmentId) => {
+    const response = await tokenFetch(
+      `/enrollment/approve/${enrollmentId}`,
+      null,
+      {
+        method: "PATCH",
+      }
+    );
+    return response;
+  },
+
+  // 신청 거절
+  rejectEnrollment: async (enrollmentId) => {
+    const response = await tokenFetch(
+      `/enrollment/reject/${enrollmentId}`,
+      null,
+      {
+        method: "PATCH",
+      }
+    );
+    return response;
+  },
 };

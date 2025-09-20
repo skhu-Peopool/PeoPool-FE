@@ -14,7 +14,7 @@ import HeaderSlide from "./components/global/HeaderSlide";
 import OthersPage from "./pages/others/page";
 import CalendarPage from "./pages/calendar/page";
 import ProfilePage from "./pages/profile/page";
-import ApplicationManagementPage from './pages/management/page'
+import ApplicationManagementPage from "./pages/management/page";
 import CommunityDetail from "./pages/community/CommunityDetail";
 import PostsPage from "./pages/community/PostsPage";
 import { useAuth } from "./providers/AuthProvider";
@@ -155,7 +155,7 @@ function AppRoutes() {
       />
 
       <Route
-        path="/manegement"
+        path="/management"
         element={
           <PrivateRoute>
             <MainLayout>
@@ -198,8 +198,7 @@ const Content = styled.main`
 
   padding-top: 4rem;
   color: #444;
-  font-family: 'Pretendard', sans-serif;
+  font-family: "Pretendard", sans-serif;
 
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
-  
 `;

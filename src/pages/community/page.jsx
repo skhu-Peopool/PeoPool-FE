@@ -89,7 +89,7 @@ const SearchContainer = styled.div`
 const WriteButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.75rem;  
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: linear-gradient(135deg, #ffffff, #f1f5f9);
   color: #475569;
@@ -125,7 +125,6 @@ const FilterGroup = styled.div`
   gap: 1rem;
   align-items: center;
 `;
-
 
 const CardGrid = styled.div`
   display: grid;
@@ -488,8 +487,11 @@ const CommunityPage = () => {
   return (
     <Container>
       <ContentWrapper>
-
-        <Header icon={<Users color="white" size={40} />} title={'Community'} subTitle={`${totalCount}개의 모집 공고가 있습니다}`} />
+        <Header
+          icon={<Users color="white" size={40} />}
+          title={"Community"}
+          subTitle={`${totalCount}개의 모집 공고가 있습니다}`}
+        />
         <ControlsSection>
           <Controls>
             <SearchContainer>
@@ -536,9 +538,11 @@ const CommunityPage = () => {
         <CardGrid>
           {filteredPosts.length > 0 ? (
             filteredPosts.map((post) => {
-              const isApplied = myEnrollments?.some(
+              const myEnrollment = myEnrollments?.find(
                 (enrollment) => enrollment.postId === post.id
               );
+              const isApproved = myEnrollment?.status === "APPROVED";
+              const isApplied = !!myEnrollment;
 
               const progressPercentage = (0 / post.maxPeople) * 100;
 
@@ -585,6 +589,8 @@ const CommunityPage = () => {
                         onClick={async (e) => {
                           e.stopPropagation();
 
+                          if (isApproved) return;
+
                           // 신청 취소일 경우
                           if (isApplied) {
                             const confirmed =
@@ -606,9 +612,10 @@ const CommunityPage = () => {
                             setShowApplyModal(true);
                           }
                         }}
-                        disabled={["RECRUITED", "UPCOMING"].includes(
-                          post.postStatus
-                        )}
+                        disabled={
+                          ["RECRUITED", "UPCOMING"].includes(post.postStatus) ||
+                          isApproved
+                        }
                       >
                         {post.postStatus === "RECRUITED"
                           ? "모집완료"
@@ -616,6 +623,8 @@ const CommunityPage = () => {
                           ? "모집예정"
                           : post.postStatus === "UNDER_REVIEW"
                           ? "검토 중"
+                          : isApproved
+                          ? "승인완료"
                           : isApplied
                           ? "지원취소"
                           : "지원하기"}

@@ -22,8 +22,6 @@ export const postService = {
       params,
     });
 
-    console.log("📨 response from API:", response);
-
     return {
       posts: response.postList || [],
       totalCount: response.totalCount || 0,
@@ -130,5 +128,18 @@ export const postService = {
     });
 
     return response;
+  },
+
+  getMyPost: async () => {
+    const response = await tokenFetch(`/post/mypost`, {
+      method: "GET",
+    });
+
+    return {
+      posts: response.postList || [],
+      totalCount: response.totalCount || 0,
+      totalPages: response.totalPages || 1,
+      currentPage: response.currentPage || 1,
+    };
   },
 };
