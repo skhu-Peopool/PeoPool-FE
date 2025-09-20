@@ -18,7 +18,7 @@ export default function SignUpPage() {
 
   const validateFields = () => {
     const newErrors = {};
-    if (!nickname) newErrors.nickname = "이름을 입력하세요";
+    if (!nickname) newErrors.nickname = "닉네임을 입력하세요";
     if (!email) newErrors.email = "이메일을 입력하세요";
     if (!password) newErrors.password = "비밀번호를 입력하세요";
     if (!confirmPassword) newErrors.confirmPassword = "비밀번호를 재입력하세요";
@@ -38,6 +38,24 @@ export default function SignUpPage() {
 
     setLoading(true);
     try {
+      const [isNickDuplicate, isEmailDuplicate] = await Promise.all([
+        authService.checkNicknameDuplicate(nickname),
+        authService.checkEmailDuplicate(email),
+      ]);
+
+      const newErrors = {};
+      if (isNickDuplicate) {
+        newErrors.nickname = "이미 사용 중인 닉네임입니다.";
+      }
+      if (isEmailDuplicate) {
+        newErrors.email = "이미 사용 중인 이메일입니다.";
+      }
+
+      if (Object.keys(newErrors).length > 0) {
+        setErrors(newErrors);
+        return;
+      }
+
       await authService.sendAuthCode(email);
 
       navigate("/code", {
@@ -70,7 +88,7 @@ export default function SignUpPage() {
             <Form>
               <Input
                 type="text"
-                placeholder="이름"
+                placeholder="닉네임"
                 value={nickname}
                 onChange={(e) => setNickName(e.target.value)}
                 $error={errors.nickname}

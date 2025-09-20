@@ -17,6 +17,7 @@ import SearchControls from "../../components/SearchControls";
 import { useAuth } from "../../providers/AuthProvider";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { enrollmentService } from "../../lib/api/enrollment-service";
+import Header from "../../components/Header";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -59,44 +60,6 @@ const ContentWrapper = styled.div`
   z-index: 1;
 `;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: ${fadeIn} 0.8s ease-out;
-`;
-
-const HeaderContent = styled.div`
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 2rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(45deg, #ffffff, #e0e7ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`;
-
-const Subtitle = styled.p`
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.125rem;
-  font-weight: 300;
-`;
-
 const ControlsSection = styled.div`
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
@@ -126,7 +89,7 @@ const SearchContainer = styled.div`
 const WriteButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 0.75rem;  
+  gap: 0.75rem;
   padding: 0.75rem 1rem;
   background: linear-gradient(135deg, #ffffff, #f1f5f9);
   color: #475569;
@@ -162,7 +125,6 @@ const FilterGroup = styled.div`
   gap: 1rem;
   align-items: center;
 `;
-
 
 const CardGrid = styled.div`
   display: grid;
@@ -525,16 +487,11 @@ const CommunityPage = () => {
   return (
     <Container>
       <ContentWrapper>
-        <Header>
-          <HeaderContent>
-            <TitleWrapper>
-              <Users color="white" size={40} />
-              <Title>Community</Title>
-            </TitleWrapper>
-            <Subtitle>{totalCount}개의 모집 공고가 있습니다</Subtitle>
-          </HeaderContent>
-        </Header>
-
+        <Header
+          icon={<Users color="white" size={40} />}
+          title={"Community"}
+          subTitle={`${totalCount}개의 모집 공고가 있습니다}`}
+        />
         <ControlsSection>
           <Controls>
             <SearchContainer>
@@ -581,9 +538,11 @@ const CommunityPage = () => {
         <CardGrid>
           {filteredPosts.length > 0 ? (
             filteredPosts.map((post) => {
-              const isApplied = myEnrollments?.some(
+              const myEnrollment = myEnrollments?.find(
                 (enrollment) => enrollment.postId === post.id
               );
+              const isApproved = myEnrollment?.status === "APPROVED";
+              const isApplied = !!myEnrollment;
 
               const progressPercentage = (0 / post.maxPeople) * 100;
 
@@ -630,6 +589,8 @@ const CommunityPage = () => {
                         onClick={async (e) => {
                           e.stopPropagation();
 
+                          if (isApproved) return;
+
                           // 신청 취소일 경우
                           if (isApplied) {
                             const confirmed =
@@ -651,9 +612,10 @@ const CommunityPage = () => {
                             setShowApplyModal(true);
                           }
                         }}
-                        disabled={["RECRUITED", "UPCOMING"].includes(
-                          post.postStatus
-                        )}
+                        disabled={
+                          ["RECRUITED", "UPCOMING"].includes(post.postStatus) ||
+                          isApproved
+                        }
                       >
                         {post.postStatus === "RECRUITED"
                           ? "모집완료"
@@ -661,6 +623,8 @@ const CommunityPage = () => {
                           ? "모집예정"
                           : post.postStatus === "UNDER_REVIEW"
                           ? "검토 중"
+                          : isApproved
+                          ? "승인완료"
                           : isApplied
                           ? "지원취소"
                           : "지원하기"}

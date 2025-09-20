@@ -359,9 +359,11 @@ export default function CommunityDetail() {
     queryFn: () => enrollmentService.getMyEnrollments(),
   });
 
-  const isApplied = myEnrollments?.some(
-    (enrollment) => enrollment.postId === Number(id)
+  const myEnrollment = myEnrollments?.find(
+    (enrollment) => enrollment.postId === post.id
   );
+  const isApproved = myEnrollment?.status === "APPROVED";
+  const isApplied = !!myEnrollment;
 
   if (isLoading) return <Rendering>로딩 중...</Rendering>;
   if (isError || !post)
@@ -525,9 +527,15 @@ export default function CommunityDetail() {
               <ApplyButton
                 onClick={(e) => {
                   e.stopPropagation();
+
+                  if (isApproved) return;
+
                   setShowApplyModal(true);
                 }}
-                disabled={["RECRUITED", "UPCOMING"].includes(post.postStatus)}
+                disabled={
+                  ["RECRUITED", "UPCOMING"].includes(post.postStatus) ||
+                  isApproved
+                }
               >
                 {post.postStatus === "RECRUITED"
                   ? "모집완료"
@@ -535,6 +543,8 @@ export default function CommunityDetail() {
                   ? "모집예정"
                   : post.postStatus === "UNDER_REVIEW"
                   ? "검토 중"
+                  : isApproved
+                  ? "승인완료"
                   : isApplied
                   ? "지원취소"
                   : "지원하기"}

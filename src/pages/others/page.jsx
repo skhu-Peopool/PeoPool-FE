@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Users, MessageCircle, Star, MapPin, Clock } from "lucide-react";
+import { Users, MessageCircle, Star, Clock } from "lucide-react";
 import styled, { keyframes } from "styled-components";
-
+import Header from "../../components/Header";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -20,7 +20,7 @@ const Container = styled.div`
   position: relative;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -36,45 +36,6 @@ const ContentWrapper = styled.div`
   margin: 0 auto;
   position: relative;
   z-index: 1;
-`;
-
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: ${fadeIn} 0.8s ease-out;
-`;
-
-const HeaderContent = styled.div`
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 2rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(45deg, #ffffff, #e0e7ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`;
-
-const Subtitle = styled.p`
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.125rem;
-  font-weight: 300;
-  margin-bottom: 1.5rem;
 `;
 
 const SearchResults = styled.div`
@@ -106,7 +67,7 @@ const Card = styled.div`
   overflow: hidden;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -121,7 +82,7 @@ const Card = styled.div`
   &:hover {
     transform: translateY(-8px) scale(1.02);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
-    
+
     &::before {
       transform: scaleX(1);
     }
@@ -182,9 +143,9 @@ const Avatar = styled.div`
   font-size: 1.25rem;
   box-shadow: 0 4px 20px rgba(96, 165, 250, 0.3);
   position: relative;
-  
+
   &::after {
-    content: '';
+    content: "";
     position: absolute;
     top: -2px;
     left: -2px;
@@ -196,7 +157,7 @@ const Avatar = styled.div`
     opacity: 0;
     transition: opacity 0.3s ease;
   }
-  
+
   ${Card}:hover &::after {
     opacity: 1;
   }
@@ -274,7 +235,7 @@ const Tag = styled.span`
   font-size: 0.75rem;
   font-weight: 600;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background: linear-gradient(135deg, #c7d2fe, #a5b4fc);
     transform: scale(1.05);
@@ -335,7 +296,7 @@ const TeamFinder = () => {
       <ContactButton>
         <MessageCircle size={18} />
       </ContactButton>
-      
+
       <ProfileHeader>
         <AvatarWrapper>
           <Avatar>{member.avatar}</Avatar>
@@ -359,9 +320,9 @@ const TeamFinder = () => {
           </MetaInfo>
         </ProfileInfo>
       </ProfileHeader>
-      
+
       {member.description && <Description>{member.description}</Description>}
-      
+
       {member.hashtags && member.hashtags.length > 0 && (
         <TagsContainer>
           {member.hashtags.map((tag, index) => (
@@ -375,20 +336,11 @@ const TeamFinder = () => {
   return (
     <Container>
       <ContentWrapper>
-        <Header>
-          <HeaderContent>
-            <TitleWrapper>
-              <Users color="white" size={40} />
-              <Title>팀원 찾기</Title>
-            </TitleWrapper>
-            <Subtitle>완벽한 팀메이트를 찾아 함께 성장해보세요</Subtitle>
-            <SearchResults>
-              <Users size={16} />
-              {members.length}명의 활성 멤버
-            </SearchResults>
-          </HeaderContent>
-        </Header>
-
+        <Header
+          icon={<Users color="white" size={40} />}
+          title={"팀원 찾기"}
+          subTitle={"완벽한 팀메이트를 찾아 함께 성장해보세요"}
+        />
         <Grid>
           {members.length > 0 ? (
             members.map((member) => (

@@ -1,7 +1,22 @@
-import { useEffect, useState } from "react";
-import styled, { keyframes } from "styled-components";
-import { Users, Clock, CheckCircle, XCircle, Eye, User, Mail, Phone } from "lucide-react";
-
+import React, { useEffect, useState } from "react";
+import styled, { css, keyframes } from "styled-components";
+import {
+  Users,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Eye,
+  Mail,
+  Edit3,
+  Search,
+  Award,
+} from "lucide-react";
+import mockOrders from "../../lib/ordersData";
+import Header from "../../components/Header";
+import { postService } from "../../lib/api/post-service";
+import { categoryLabelMap } from "../../lib/labelMaps";
+import { enrollmentService } from "../../lib/api/enrollment-service";
+// --- Animations ---
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
@@ -13,11 +28,12 @@ const float = keyframes`
 `;
 
 const slideUp = keyframes`
-  from { opacity: 0; transform: translateY(40px) scale(0.95); }
+  from { opacity: 0; transform: translateY(30px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 `;
 
-const Container = styled.div`
+// --- Base Layout ---
+const PageWrapper = styled.div`
   min-height: 100vh;
   background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
   padding: 2rem;
@@ -36,179 +52,310 @@ const Container = styled.div`
   }
 `;
 
-const ContentWrapper = styled.div`
+const ContentContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   position: relative;
   z-index: 1;
 `;
 
-const Header = styled.div`
-  text-align: center;
-  margin-bottom: 3rem;
-  animation: ${fadeIn} 0.8s ease-out;
-`;
-
-const HeaderContent = styled.div`
-  background: rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  border-radius: 2rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-`;
-
-const TitleWrapper = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(45deg, #ffffff, #e0e7ff);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-`;
-
-const Subtitle = styled.p`
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 1.125rem;
-  font-weight: 300;
-`;
-
-const StatsSection = styled.div`
+// --- Stat Cards ---
+const StatCardsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
-  animation: ${fadeIn} 1s ease-out 0.1s both;
+  margin-bottom: 3rem;
+  animation: ${fadeIn} 1s ease-out 0.2s both;
 `;
 
 const StatCard = styled.div`
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(10px);
   border-radius: 1.5rem;
   padding: 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.2);
-  text-align: center;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   transition: all 0.3s ease;
 
   &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
   }
 `;
 
-const StatNumber = styled.div`
+const StatValue = styled.p`
   font-size: 2rem;
-  font-weight: 800;
-  color: white;
-  margin-bottom: 0.5rem;
+  font-weight: 700;
+  margin-top: 0.25rem;
 `;
 
-const StatLabel = styled.div`
+const StatLabel = styled.p`
   color: rgba(255, 255, 255, 0.8);
   font-size: 0.875rem;
-  font-weight: 500;
 `;
 
-const ApplicationList = styled.div`
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border-radius: 1.5rem;
-  padding: 2rem;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  animation: ${slideUp} 1s ease-out 0.3s both;
+const IconWrapper = styled.div`
+  padding: 0.75rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: ${(props) => props.bgColor};
 `;
 
-const ApplicationCard = styled.div`
-  background: ${(props) => 
-    props.status === "rejected" 
-      ? "linear-gradient(135deg, rgba(248, 250, 252, 0.95), rgba(241, 245, 249, 0.95))" 
-      : "rgba(255, 255, 255, 0.95)"
-  };
+// --- Main Layout & Panels ---
+const MainGrid = styled.div`
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+  animation: ${slideUp} 1s ease-out 0.4s both;
+  @media (min-width: 1024px) {
+    grid-template-columns: minmax(350px, 1fr) 2fr;
+  }
+`;
+
+const Panel = styled.div`
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px);
   border-radius: 1.5rem;
-  padding: 2rem;
-  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+`;
+
+const PanelHeader = styled.div`
+  display: flex;
+  // justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+`;
+
+const PanelTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+`;
+
+// --- Left Panel: Post List ---
+const PostList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+`;
+
+const PostItem = styled.div`
   position: relative;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid ${(props) => 
-    props.status === "rejected" 
-      ? "rgba(203, 213, 225, 0.8)" 
-      : "rgba(255, 255, 255, 0.3)"
-  };
-  box-shadow: ${(props) => 
-    props.status === "rejected" 
-      ? "0 10px 40px rgba(148, 163, 184, 0.15)" 
-      : "0 10px 40px rgba(0, 0, 0, 0.1)"
-  };
-  overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: ${(props) => 
-      props.status === "rejected" 
-        ? "linear-gradient(90deg, #cbd5e1, #94a3b8, #cbd5e1)"
-        : "linear-gradient(90deg, #60a5fa, #3b82f6, #93c5fd)"
-    };
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.3s ease;
-  }
-
-  ${(props) => props.status === "rejected" && `
-    &::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: repeating-linear-gradient(
-        -45deg,
-        transparent,
-        transparent 10px,
-        rgba(203, 213, 225, 0.1) 10px,
-        rgba(203, 213, 225, 0.1) 20px
-      );
-      pointer-events: none;
-    }
-  `}
+  cursor: pointer;
+  border-radius: 1rem;
+  padding: 1rem 1.25rem;
+  background: ${(props) =>
+    props.isSelected ? "linear-gradient(135deg, #e0f2fe, #dbeafe)" : "white"};
+  border: 1px solid
+    ${(props) =>
+      props.isSelected ? "rgba(59, 130, 246, 0.5)" : "rgba(0,0,0,0.08)"};
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 
   &:hover {
     transform: translateY(-4px);
-    box-shadow: ${(props) => 
-      props.status === "rejected" 
-        ? "0 20px 60px rgba(148, 163, 184, 0.25)" 
-        : "0 20px 60px rgba(0, 0, 0, 0.15)"
-    };
-
-    &::before {
-      transform: scaleX(1);
-    }
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+    border-color: rgba(59, 130, 246, 0.4);
   }
+`;
 
-  &:last-child {
-    margin-bottom: 0;
+const NewApplicationBadge = styled.div`
+  position: absolute;
+  top: -0.25rem;
+  right: -0.25rem;
+  background: linear-gradient(135deg, #fb923c, #f97316);
+  color: white;
+  padding: 0.3rem 0.6rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  box-shadow: 0 4px 10px rgba(249, 115, 22, 0.3);
+`;
+
+const PostTitle = styled.h4`
+  font-weight: 600;
+  color: #111827;
+  margin: 0.5rem 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+`;
+
+const PostInfo = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+`;
+
+const Tag = styled.span`
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  ${(props) => {
+    switch (props.type) {
+      case "category":
+        return css`
+          background-color: ${props.category === "동아리"
+            ? "#e9d5ff"
+            : props.category === "어울림"
+            ? "#dbeafe"
+            : props.category === "경진대회"
+            ? "#dcfce7"
+            : props.category === "공모전"
+            ? "#fef3c7"
+            : "#f3f4f6"};
+          color: ${props.category === "동아리"
+            ? "#7c3aed"
+            : props.category === "어울림"
+            ? "#2563eb"
+            : props.category === "경진대회"
+            ? "#16a34a"
+            : props.category === "공모전"
+            ? "#d97706"
+            : "#4b5563"};
+        `;
+      case "status":
+        return css`
+          background-color: ${props.status === "모집 중"
+            ? "#dcfce7"
+            : props.status === "검토 중"
+            ? "#fef3c7"
+            : props.status === "모집마감"
+            ? "#fee2e2"
+            : "#f3f4f6"};
+          color: ${props.status === "모집 중"
+            ? "#16a34a"
+            : props.status === "검토 중"
+            ? "#d97706"
+            : props.status === "모집마감"
+            ? "#dc2626"
+            : "#4b5563"};
+        `;
+      default:
+        return "";
+    }
+  }}
+`;
+
+// --- Right Panel: Applications ---
+const ControlsPanel = styled(Panel)`
+  margin-bottom: 1.5rem;
+  padding: 1.5rem;
+`;
+
+const ApplicationsHeader = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  @media (min-width: 768px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+`;
+
+const SearchInputContainer = styled.div`
+  position: relative;
+  flex: 1;
+`;
+
+const SearchIcon = styled(Search)`
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #9ca3af;
+`;
+
+const SearchInput = styled.input`
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 3rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 0.75rem;
+  background: white;
+  transition: all 0.2s ease;
+  &:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+  }
+`;
+
+const FilterButtons = styled.div`
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+`;
+
+const FilterButton = styled.button`
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+
+  ${(props) =>
+    props.isActive
+      ? css`
+          background: linear-gradient(135deg, #4f46e5, #7c3aed);
+          color: white;
+          box-shadow: 0 4px 15px rgba(96, 165, 250, 0.4);
+          transform: translateY(-2px);
+        `
+      : css`
+          background-color: white;
+          color: #4b5563;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+          &:hover {
+            background-color: #f9fafb;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+          }
+        `}
+`;
+
+const ApplicationList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 1.5rem;
+`;
+
+const ApplicationItem = styled.div`
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   }
 `;
 
 const ApplicationHeader = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1.5rem;
+  justify-content: space-between;
+  margin-bottom: 1rem;
 `;
 
 const UserInfo = styled.div`
@@ -218,394 +365,546 @@ const UserInfo = styled.div`
 `;
 
 const Avatar = styled.div`
-  width: 3rem;
-  height: 3rem;
-  border-radius: 50%;
-  background: ${(props) => 
-    props.status === "rejected" 
-      ? "linear-gradient(135deg, #e2e8f0, #cbd5e1)"
-      : "linear-gradient(135deg, #60a5fa, #3b82f6)"
-  };
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: 9999px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: ${(props) => props.status === "rejected" ? "#64748b" : "white"};
+  color: white;
   font-weight: 700;
-  font-size: 1.2rem;
-  box-shadow: ${(props) => 
-    props.status === "rejected" 
-      ? "0 4px 20px rgba(203, 213, 225, 0.4)"
-      : "0 4px 20px rgba(96, 165, 250, 0.3)"
-  };
+  font-size: 1.25rem;
+  flex-shrink: 0;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  ${(props) => {
+    switch (props.status) {
+      case "rejected":
+        return "background: linear-gradient(135deg, #9ca3af, #6b7280);";
+      case "approved":
+        return "background: linear-gradient(135deg, #4ade80, #22c55e);";
+      default:
+        return "background: linear-gradient(135deg, #60a5fa, #3b82f6);";
+    }
+  }}
 `;
 
 const UserDetails = styled.div``;
 
-const UserName = styled.h3`
-  font-size: 1.25rem;
+const UserName = styled.h4`
+  font-size: 1.125rem;
   font-weight: 700;
-  color: ${(props) => props.status === "rejected" ? "#64748b" : "#1f2937"};
-  margin-bottom: 0.25rem;
+  color: #111827;
 `;
 
-const UserRole = styled.span`
-  color: ${(props) => props.status === "rejected" ? "#94a3b8" : "#6b7280"};
-  font-size: 0.875rem;
-  font-weight: 500;
-`;
-
-const StatusBadge = styled.span`
-  padding: 0.5rem 1rem;
-  border-radius: 1rem;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  background: ${(props) => {
-    switch (props.status) {
-      case "pending":
-        return "linear-gradient(135deg, #fef3c7, #fed7af)";
-      case "approved":
-        return "linear-gradient(135deg, #d1fae5, #a7f3d0)";
-      case "rejected":
-        return "linear-gradient(135deg, #fee2e2, #fecaca)";
-      default:
-        return "linear-gradient(135deg, #e5e7eb, #d1d5db)";
-    }
-  }};
-  color: ${(props) => {
-    switch (props.status) {
-      case "pending":
-        return "#92400e";
-      case "approved":
-        return "#065f46";
-      case "rejected":
-        return "#dc2626";
-      default:
-        return "#374151";
-    }
-  }};
-`;
-
-const ApplicationContent = styled.div`
-  margin-bottom: 1.5rem;
-`;
-
-const ContactInfo = styled.div`
+const UserContactInfo = styled.div`
   display: flex;
-  gap: 2rem;
-  margin-bottom: 1rem;
   flex-wrap: wrap;
-`;
-
-const ContactItem = styled.div`
-  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: ${(props) => props.status === "rejected" ? "#94a3b8" : "#6b7280"};
+  gap: 1rem;
+  margin-top: 0.5rem;
   font-size: 0.875rem;
+  color: #6b7280;
 `;
 
-const ApplicationText = styled.div`
-  background: ${(props) => 
-    props.status === "rejected" 
-      ? "rgba(156, 163, 175, 0.1)" 
-      : "rgba(59, 130, 246, 0.05)"
-  };
-  border-radius: 1rem;
-  padding: 1rem;
-  margin-top: 1rem;
-`;
-
-const ApplicationLabel = styled.div`
+const StatusTag = styled.span`
+  padding: 0.3rem 0.8rem;
+  border-radius: 9999px;
+  font-size: 0.8rem;
   font-weight: 600;
-  color: ${(props) => props.status === "rejected" ? "#9ca3af" : "#374151"};
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
+  ${(props) => {
+    switch (props.status) {
+      case "pending":
+        return "background-color: #fef3c7; color: #92400e;";
+      case "approved":
+        return "background-color: #dcfce7; color: #14532d;";
+      case "rejected":
+        return "background-color: #fee2e2; color: #991b1b;";
+      default:
+        return "";
+    }
+  }}
 `;
 
-const ApplicationMessage = styled.p`
-  color: ${(props) => props.status === "rejected" ? "#9ca3af" : "#4b5563"};
-  line-height: 1.6;
-  margin: 0;
-`;
-
-const ApplicationDate = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: ${(props) => props.status === "rejected" ? "#9ca3af" : "#6b7280"};
-  font-size: 0.875rem;
+const SkillsContainer = styled.div`
   margin-bottom: 1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+`;
+
+const SkillBadge = styled.span`
+  padding: 0.25rem 0.75rem;
+  background-color: #f3f4f6;
+  color: #4b5563;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+`;
+
+const MessageBubble = styled.div`
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid #e5e7eb;
+`;
+
+const MessageText = styled.p`
+  color: #374151;
+  line-height: 1.625;
 `;
 
 const ActionButtons = styled.div`
   display: flex;
-  gap: 1rem;
   justify-content: flex-end;
+  gap: 0.75rem;
 `;
 
-const ActionButton = styled.button`
+const Button = styled.button`
+  padding: 0.6rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s;
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
   border: none;
-  border-radius: 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s ease;
-  min-width: 100px;
-  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 
-  &.approve {
-    background: linear-gradient(135deg, #10b981, #059669);
-    color: white;
-
-    &:hover {
-      background: linear-gradient(135deg, #059669, #047857);
-      transform: scale(1.05);
-      box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
-    }
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
   }
-
-  &.reject {
-    background: linear-gradient(135deg, #ef4444, #dc2626);
-    color: white;
-
-    &:hover {
-      background: linear-gradient(135deg, #dc2626, #b91c1c);
-      transform: scale(1.05);
-      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
-    }
-  }
-
-  &.view {
-    background: linear-gradient(135deg, #6b7280, #4b5563);
-    color: white;
-
-    &:hover {
-      background: linear-gradient(135deg, #4b5563, #374151);
-      transform: scale(1.05);
-      box-shadow: 0 4px 20px rgba(107, 114, 128, 0.4);
-    }
-  }
-
   &:active {
-    transform: scale(0.95);
+    transform: translateY(0px);
   }
+`;
 
-  &:disabled {
-    background: #d1d5db;
-    color: #9ca3af;
-    cursor: not-allowed;
-    transform: none;
-    box-shadow: none;
-  }
+const ViewButton = styled(Button)`
+  color: #4b5563;
+  background-color: white;
+`;
+
+const RejectButton = styled(Button)`
+  color: white;
+  background: linear-gradient(135deg, #f87171, #ef4444);
+`;
+
+const ApproveButton = styled(Button)`
+  color: white;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
 `;
 
 const EmptyState = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
   padding: 4rem 2rem;
-  color: rgba(255, 255, 255, 0.8);
+  text-align: center;
+`;
+
+const EmptyIcon = styled(Users)`
+  margin: 0 auto 1rem;
+  color: #9ca3af;
+`;
+
+const EmptyTitle = styled.h3`
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.5rem;
+`;
+
+const EmptySubtitle = styled.p`
+  color: #6b7280;
 `;
 
 const ApplicationManagementPage = () => {
-  const [applications, setApplications] = useState([
-    {
-      id: 1,
-      userName: "박대경",
-      userEmail: "park@hansiyeon.com",
-      role: "Frontend Developer",
-      applicationDate: "2024-01-15",
-      message: "안녕하세요! 프론트엔드 개발자로 참여하고 싶습니다. React와 TypeScript에 능숙하며, 특히 사용자 인터페이스 개발에 관심이 많습니다. 팀과 함께 좋은 프로젝트를 만들어가고 싶습니다.",
-      status: "pending"
-    },
-    {
-      id: 2,
-      userName: "김다은",
-      userEmail: "kim@hansiyeon.com",
-      role: "UI/UX Designer",
-      applicationDate: "2024-01-14",
-      message: "디자인 분야에서 5년간 경험을 쌓아왔습니다. 사용자 중심의 디자인을 통해 더 나은 서비스를 만들고 싶습니다. 피그마와 어도비 툴에 능숙합니다.",
-      status: "approved"
-    },
-    {
-      id: 3,
-      userName: "최현서",
-      userEmail: "choi@hansiyeon.com",
-      role: "Data Analyst",
-      applicationDate: "2024-01-12",
-      message: "데이터 분석을 통해 비즈니스 인사이트를 도출하는 것을 좋아합니다. Python, SQL, Tableau 등을 활용한 분석 경험이 있습니다.",
-      status: "pending"
-    },
-    {
-      id: 4,
-      userName: "김명철",
-      userEmail: "kim@hansiyeon.com",
-      role: "Backend Developer",
-      applicationDate: "2024-01-13",
-      message: "백엔드 개발 경험이 3년 정도 있습니다. Node.js와 Python을 주로 사용하며, 데이터베이스 설계와 API 개발에 관심이 많습니다.",
-      status: "rejected"
-    }
-  ]);
+  const [allApplications, setAllApplications] = useState({});
 
-  const [stats, setStats] = useState({
-    total: 0,
-    pending: 0,
-    approved: 0,
-    rejected: 0
+  const [myPosts, setMyPosts] = useState([]);
+  const [selectedPostId, setSelectedPostId] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+
+  const selectedPost = myPosts.find((p) => p.id === selectedPostId) || null;
+  const allAppsForPost = selectedPostId
+    ? allApplications[selectedPostId] || []
+    : [];
+
+  const filteredApplications = allAppsForPost.filter((app) => {
+    const matchesSearch =
+      // app.userName.includes(searchTerm.toLowerCase()) ||
+      app.userEmail.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === "all" || app.status === statusFilter;
+    return matchesSearch && matchesStatus;
   });
 
+  const totalApplications = Object.values(allApplications).flat().length;
+  const pendingApplications = Object.values(allApplications)
+    .flat()
+    .filter((a) => a.status === "pending").length;
+  const approvedApplications = Object.values(allApplications)
+    .flat()
+    .filter((a) => a.status === "approved").length;
+  const rejectedApplications = Object.values(allApplications)
+    .flat()
+    .filter((a) => a.status === "rejected").length;
+
   useEffect(() => {
-    const total = applications.length;
-    const pending = applications.filter(app => app.status === "pending").length;
-    const approved = applications.filter(app => app.status === "approved").length;
-    const rejected = applications.filter(app => app.status === "rejected").length;
+    async function fetchPosts() {
+      try {
+        const response = await postService.getMyPost();
+        const formatted = response.posts.map((post) => ({
+          id: post.id,
+          title: post.title,
+          category: post.category,
+          maxPeople: post.maxPeople,
+          appliedPeople: post.appliedPeople,
+          postStatus: post.postStatus,
+          // hasNewApplications: false, // 실제로는 별도 API 필요
+        }));
+        setMyPosts(formatted);
+        if (formatted.length > 0) setSelectedPostId(formatted[0].id);
+      } catch (err) {
+        console.error("Failed to fetch posts", err);
+      }
+    }
+    fetchPosts();
+  }, []);
 
-    setStats({ total, pending, approved, rejected });
-  }, [applications]);
+  useEffect(() => {
+    async function fetchApplicants(postId) {
+      try {
+        const response = await enrollmentService.getApplicantsByPostId(postId);
 
-  const handleApprove = (id) => {
-    if (window.confirm("이 지원자를 승인하시겠습니까?")) {
-      setApplications(prev => 
-        prev.map(app => 
-          app.id === id ? { ...app, status: "approved" } : app
-        )
-      );
-      alert("지원자가 승인되었습니다.");
+        const applicants = response.map((app, index) => ({
+          id: app.enrollmentId,
+          userName: app.memberId,
+          userEmail: `user${index + 1}@example.com`,
+          applicationDate: app.appliedAt.split("T")[0],
+          message: app.comment,
+          status: app.status.toLowerCase(),
+          skills: ["React", "Node.js"],
+        }));
+
+        setAllApplications((prev) => ({
+          ...prev,
+          [postId]: applicants,
+        }));
+      } catch (err) {
+        console.error("신청자 목록 불러오기 실패", err);
+      }
+    }
+
+    if (selectedPostId) {
+      fetchApplicants(selectedPostId);
+    }
+  }, [selectedPostId]);
+
+  const handleApprove = async (enrollmentId) => {
+    try {
+      await enrollmentService.approveEnrollment(enrollmentId);
+      setAllApplications((prev) => ({
+        ...prev,
+        [selectedPostId]: prev[selectedPostId].map((a) =>
+          a.id === enrollmentId ? { ...a, status: "approved" } : a
+        ),
+      }));
+    } catch (error) {
+      console.error("승인 요청 실패", error);
+      alert("승인 처리에 실패했습니다.");
     }
   };
 
-  const handleReject = (id) => {
-    if (window.confirm("이 지원자를 거절하시겠습니까?")) {
-      setApplications(prev => 
-        prev.map(app => 
-          app.id === id ? { ...app, status: "rejected" } : app
-        )
-      );
-      alert("지원자가 거절되었습니다.");
+  const handleReject = async (enrollmentId) => {
+    try {
+      await enrollmentService.rejectEnrollment(enrollmentId);
+      setAllApplications((prev) => ({
+        ...prev,
+        [selectedPostId]: prev[selectedPostId].map((a) =>
+          a.id === enrollmentId ? { ...a, status: "rejected" } : a
+        ),
+      }));
+    } catch (error) {
+      console.error("거절 요청 실패", error);
+      alert("거절 처리에 실패했습니다.");
     }
   };
 
   const getStatusText = (status) => {
     switch (status) {
-      case "pending": return "검토 중";
-      case "approved": return "승인됨";
-      case "rejected": return "거절됨";
-      default: return "알 수 없음";
+      case "pending":
+        return "대기 중";
+      case "approved":
+        return "승인됨";
+      case "rejected":
+        return "거절됨";
+      default:
+        return "알 수 없음";
     }
   };
 
   return (
-    <Container>
-      <ContentWrapper>
-        <Header>
-          <HeaderContent>
-            <TitleWrapper>
-              <Users color="white" size={40} />
-              <Title>신청자 관리</Title>
-            </TitleWrapper>
-            <Subtitle>지원자들의 신청서를 검토하고 승인/거절을 결정하세요</Subtitle>
-          </HeaderContent>
-        </Header>
-
-        <StatsSection>
+    <PageWrapper>
+      <ContentContainer>
+        <Header
+          icon={<Users color="white" size={32} />}
+          title={"신청자 관리"}
+          subTitle={"지원자들의 신청서를 검토하고 관리하세요"}
+        />
+        <StatCardsGrid>
           <StatCard>
-            <StatNumber>{stats.total}</StatNumber>
-            <StatLabel>총 지원자</StatLabel>
+            <div>
+              <StatLabel>전체 신청서</StatLabel>
+              <StatValue style={{ color: "white" }}>
+                {totalApplications}
+              </StatValue>
+            </div>
+            <IconWrapper bgColor="rgba(255, 255, 255, 0.15)">
+              <Users color="white" size={24} />
+            </IconWrapper>
           </StatCard>
           <StatCard>
-            <StatNumber>{stats.pending}</StatNumber>
-            <StatLabel>검토 대기</StatLabel>
+            <div>
+              <StatLabel>검토 대기</StatLabel>
+              <StatValue style={{ color: "#fcd34d" }}>
+                {pendingApplications}
+              </StatValue>
+            </div>
+            <IconWrapper bgColor="rgba(251, 191, 36, 0.2)">
+              <Clock color="#fcd34d" size={24} />
+            </IconWrapper>
           </StatCard>
           <StatCard>
-            <StatNumber>{stats.approved}</StatNumber>
-            <StatLabel>승인됨</StatLabel>
+            <div>
+              <StatLabel>승인 완료</StatLabel>
+              <StatValue style={{ color: "#86efac" }}>
+                {approvedApplications}
+              </StatValue>
+            </div>
+            <IconWrapper bgColor="rgba(134, 239, 172, 0.2)">
+              <CheckCircle color="#86efac" size={24} />
+            </IconWrapper>
           </StatCard>
           <StatCard>
-            <StatNumber>{stats.rejected}</StatNumber>
-            <StatLabel>거절됨</StatLabel>
+            <div>
+              <StatLabel>거절</StatLabel>
+              <StatValue style={{ color: "#fca5a5" }}>
+                {rejectedApplications}
+              </StatValue>
+            </div>
+            <IconWrapper bgColor="rgba(252, 165, 165, 0.2)">
+              <XCircle color="#fca5a5" size={24} />
+            </IconWrapper>
           </StatCard>
-        </StatsSection>
+        </StatCardsGrid>
 
-        <ApplicationList>
-          {applications.length > 0 ? (
-            applications.map((application) => (
-              <ApplicationCard key={application.id} status={application.status}>
-                <ApplicationHeader>
-                  <UserInfo>
-                    <Avatar>
-                      {application.userName.charAt(0)}
-                    </Avatar>
-                    <UserDetails>
-                      <UserName status={application.status}>{application.userName}</UserName>
-                      <UserRole status={application.status}>{application.role}</UserRole>
-                    </UserDetails>
-                  </UserInfo>
-                  <StatusBadge status={application.status}>
-                    {getStatusText(application.status)}
-                  </StatusBadge>
-                </ApplicationHeader>
+        <MainGrid>
+          <Panel>
+            <PanelHeader>
+              <Edit3 size={24} color="#3b82f6" />
+              <PanelTitle>내가 작성한 공고</PanelTitle>
+            </PanelHeader>
+            <PostList>
+              {myPosts.map((post) => (
+                <PostItem
+                  key={post.id}
+                  onClick={() => setSelectedPostId(post.id)}
+                  isSelected={selectedPostId === post.id}
+                >
+                  {/* {post.hasNewApplications && (
+                    <NewApplicationBadge>NEW</NewApplicationBadge>
+                  )} */}
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                    }}
+                  >
+                    <Tag
+                      type="category"
+                      category={categoryLabelMap[post.category]}
+                    >
+                      {categoryLabelMap[post.category]}
+                    </Tag>
+                    <Tag
+                      type="status"
+                      status={
+                        post.postStatus === "RECRUITING"
+                          ? "모집 중"
+                          : "모집마감"
+                      }
+                    >
+                      {post.postStatus === "RECRUITING"
+                        ? "모집 중"
+                        : "모집마감"}
+                    </Tag>
+                  </div>
+                  <PostTitle>{post.title}</PostTitle>
+                  <PostInfo>
+                    <span>신청 {post.appliedPeople ?? 0}명</span>
+                    <span>정원 {post.maxPeople ?? 0}명</span>
+                  </PostInfo>
+                </PostItem>
+              ))}
+            </PostList>
+          </Panel>
 
-                <ApplicationContent>
-                  <ContactInfo>
-                    <ContactItem status={application.status}>
-                      <Mail size={16} />
-                      {application.userEmail}
-                    </ContactItem>
-                  </ContactInfo>
-
-                  <ApplicationDate status={application.status}>
-                    <Clock size={16} />
-                    지원일: {application.applicationDate}
-                  </ApplicationDate>
-
-                  <ApplicationText status={application.status}>
-                    <ApplicationLabel status={application.status}>지원 메시지</ApplicationLabel>
-                    <ApplicationMessage status={application.status}>
-                      {application.message}
-                    </ApplicationMessage>
-                  </ApplicationText>
-                </ApplicationContent>
-
-                <ActionButtons>
-                  <ActionButton className="view">
-                    <Eye size={16} />
-                    상세보기
-                  </ActionButton>
-                  
-                  {application.status === "pending" && (
-                    <>
-                      <ActionButton 
-                        className="approve"
-                        onClick={() => handleApprove(application.id)}
+          <div>
+            {selectedPost ? (
+              <>
+                <ControlsPanel>
+                  <ApplicationsHeader>
+                    <SearchInputContainer>
+                      <SearchIcon size={20} />
+                      <SearchInput
+                        type="text"
+                        placeholder="이름, 이메일로 검색..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                      />
+                    </SearchInputContainer>
+                    <FilterButtons>
+                      <FilterButton
+                        isActive={statusFilter === "all"}
+                        onClick={() => setStatusFilter("all")}
                       >
-                        <CheckCircle size={16} />
-                        승인하기
-                      </ActionButton>
-                      <ActionButton 
-                        className="reject"
-                        onClick={() => handleReject(application.id)}
+                        전체
+                      </FilterButton>
+                      <FilterButton
+                        isActive={statusFilter === "pending"}
+                        onClick={() => setStatusFilter("pending")}
                       >
-                        <XCircle size={16} />
-                        거절하기
-                      </ActionButton>
-                    </>
+                        대기 중
+                      </FilterButton>
+                      <FilterButton
+                        isActive={statusFilter === "approved"}
+                        onClick={() => setStatusFilter("approved")}
+                      >
+                        승인됨
+                      </FilterButton>
+                      <FilterButton
+                        isActive={statusFilter === "rejected"}
+                        onClick={() => setStatusFilter("rejected")}
+                      >
+                        거절됨
+                      </FilterButton>
+                    </FilterButtons>
+                  </ApplicationsHeader>
+                </ControlsPanel>
+
+                <Panel>
+                  <PanelHeader>
+                    <Users size={24} color="#3b82f6" />
+                    <PanelTitle>
+                      신청자 목록 ({filteredApplications.length}명)
+                    </PanelTitle>
+                  </PanelHeader>
+
+                  {filteredApplications.length > 0 ? (
+                    <ApplicationList>
+                      {filteredApplications.map((application) => (
+                        <ApplicationItem key={application.id}>
+                          <ApplicationHeader>
+                            <UserInfo>
+                              <Avatar status={application.status}>
+                                {application.userName}
+                              </Avatar>
+                              <UserDetails>
+                                <UserName>{application.userName}</UserName>
+                                <UserContactInfo>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "0.25rem",
+                                    }}
+                                  >
+                                    <Mail size={14} />
+                                    {application.userEmail}
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      gap: "0.25rem",
+                                    }}
+                                  >
+                                    <Clock size={14} />
+                                    {application.applicationDate}
+                                  </div>
+                                </UserContactInfo>
+                              </UserDetails>
+                            </UserInfo>
+                            <StatusTag status={application.status}>
+                              {getStatusText(application.status)}
+                            </StatusTag>
+                          </ApplicationHeader>
+                          <SkillsContainer>
+                            {application.skills.map((skill, index) => (
+                              <SkillBadge key={index}>{skill}</SkillBadge>
+                            ))}
+                          </SkillsContainer>
+                          <MessageBubble>
+                            <MessageText>{application.message}</MessageText>
+                          </MessageBubble>
+                          <ActionButtons>
+                            <ViewButton>
+                              <Eye size={16} />
+                              상세보기
+                            </ViewButton>
+                            {application.status === "pending" && (
+                              <>
+                                <RejectButton
+                                  onClick={() => handleReject(application.id)}
+                                >
+                                  <XCircle size={16} />
+                                  거절
+                                </RejectButton>
+                                <ApproveButton
+                                  onClick={() => handleApprove(application.id)}
+                                >
+                                  <CheckCircle size={16} />
+                                  승인
+                                </ApproveButton>
+                              </>
+                            )}
+                          </ActionButtons>
+                        </ApplicationItem>
+                      ))}
+                    </ApplicationList>
+                  ) : (
+                    <EmptyState>
+                      <EmptyIcon size={48} />
+                      <EmptyTitle>
+                        {searchTerm || statusFilter !== "all"
+                          ? "검색 결과가 없습니다"
+                          : "신청자가 없습니다"}
+                      </EmptyTitle>
+                      <EmptySubtitle>
+                        {searchTerm || statusFilter !== "all"
+                          ? "다른 검색어나 필터를 시도해보세요"
+                          : "아직 지원한 사용자가 없습니다"}
+                      </EmptySubtitle>
+                    </EmptyState>
                   )}
-                </ActionButtons>
-              </ApplicationCard>
-            ))
-          ) : (
-            <EmptyState>
-              <h3 style={{margin: 0}}>신청자가 없습니다</h3>
-            </EmptyState>
-          )}
-        </ApplicationList>
-      </ContentWrapper>
-    </Container>
+                </Panel>
+              </>
+            ) : (
+              <Panel>
+                <EmptyState>
+                  <EmptyIcon size={48} />
+                  <EmptyTitle>공고를 선택해주세요</EmptyTitle>
+                  <EmptySubtitle>
+                    왼쪽 목록에서 관리할 공고를 선택하면 신청자 목록을 볼 수
+                    있습니다.
+                  </EmptySubtitle>
+                </EmptyState>
+              </Panel>
+            )}
+          </div>
+        </MainGrid>
+      </ContentContainer>
+    </PageWrapper>
   );
 };
 

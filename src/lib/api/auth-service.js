@@ -56,4 +56,22 @@ export const authService = {
     });
     setAccessToken(null);
   },
+
+  // 닉네임 중복 검사 API
+  checkNicknameDuplicate: async (nickname) => {
+    const result = await defaultFetch("/checknick", {
+      method: "POST",
+      body: { nickname },
+    });
+    return result;
+  },
+
+  // 이메일 중복 검사 API
+  checkEmailDuplicate: async (email) => {
+    const result = await defaultFetch("/checkemail", {
+      method: "POST",
+      body: { email },
+    });
+    return result;
+  },
 };
