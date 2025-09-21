@@ -19,6 +19,7 @@ import CommunityDetail from "./pages/community/CommunityDetail";
 import PostsPage from "./pages/community/PostsPage";
 import { useAuth } from "./providers/AuthProvider";
 import EmailCodePage from "./pages/code/page";
+import ChatInterface from "./pages/chat/page";
 
 // 헤더 포함 레이아웃 설정
 function MainLayout({ children }) {
@@ -164,6 +165,16 @@ function AppRoutes() {
           </PrivateRoute>
         }
       />
+      <Route
+        path="/chat"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <ChatInterface />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
 
       {/* 잘못된 주소 → 커뮤니티 */}
       <Route path="*" element={<Navigate to="/community" replace />} />
@@ -194,8 +205,6 @@ const Content = styled.main`
   min-height: 100vh;
   position: relative;
   overflow: hidden;
-  padding: 1.5rem;
-
   padding-top: 4rem;
   color: #444;
   font-family: "Pretendard", sans-serif;

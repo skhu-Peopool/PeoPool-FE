@@ -919,6 +919,48 @@ const ProfileEditPage = () => {
             </TimelineItem>
           </Timeline>
         </ActivitySection>
+
+         <ActivitySection>
+          <ActivityHeader>
+            <ActivityIconWrapper>
+              <PenTool size={20} />
+            </ActivityIconWrapper>
+            <ActivityTitle>내가 쓴 글</ActivityTitle>
+          </ActivityHeader>
+
+          <Timeline>
+            <TimelineItem>
+              <TimelineDot>
+                <BookOpen size={12} />
+              </TimelineDot>
+              <TimelineContent>
+                <CompleteBadge>활동 종료</CompleteBadge>
+                <ActivityName>UX/UI Design — Basics 스터디</ActivityName>
+                <ActivityDate>
+                  <Calendar size={14} />
+                  22.03.07 ~ 25.04.06 동안 활동했어요.
+                </ActivityDate>
+                <ActivityHours>
+                  <Award size={14} />
+                  조회수 89회
+                </ActivityHours>
+              </TimelineContent>
+            </TimelineItem>
+
+            <TimelineItem>
+              <TimelineDot>
+                <PenTool size={12} />
+              </TimelineDot>
+              <TimelineContent>
+                <ActivityName>TypeScript 학습 팁 공유</ActivityName>
+                <TimeStamp>
+                  <Calendar size={14} />
+                  작성일 : 2023.12.05
+                </TimeStamp>
+              </TimelineContent>
+            </TimelineItem>
+          </Timeline>
+        </ActivitySection>
       </ContentWrapper>
     </Container>
   );

@@ -11,7 +11,6 @@ import {
   Search,
   Award,
 } from "lucide-react";
-import mockOrders from "../../lib/ordersData";
 import Header from "../../components/Header";
 import { postService } from "../../lib/api/post-service";
 import { categoryLabelMap } from "../../lib/labelMaps";
