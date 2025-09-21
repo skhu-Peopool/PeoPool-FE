@@ -263,6 +263,8 @@ const ContentWrapper = styled.div`
 const HeaderContainer = styled.header`
   padding: 2rem;
   animation: ${fadeIn} 0.8s ease-out;
+  position: relative;
+  z-index: 10;
 `;
 
 const HeaderContent = styled.div`
@@ -276,6 +278,7 @@ const HeaderContent = styled.div`
   justify-content: space-between;
   align-items: center;
   position: relative;
+  z-index: 11; 
   
   &::before {
     content: "";
@@ -287,6 +290,7 @@ const HeaderContent = styled.div`
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: xor;
     -webkit-mask-composite: xor;
+    z-index: -1; 
   }
 `;
 
@@ -294,7 +298,7 @@ const LogoContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 1rem;
-  z-index: 2;
+  z-index: 12;
 `;
 
 const Logo = styled.img`
@@ -316,7 +320,7 @@ const LogoText = styled.h1`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
-  z-index: 2;
+  z-index: 12; 
 `;
 
 const HeaderButton = styled.button`
@@ -334,6 +338,8 @@ const HeaderButton = styled.button`
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
+  z-index: 13; 
+  pointer-events: auto; 
 
   &::before {
     content: "";
@@ -344,6 +350,7 @@ const HeaderButton = styled.button`
       : 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)'};
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: -1;
   }
 
   &:hover {
@@ -372,6 +379,8 @@ const MainContent = styled.main`
   justify-content: center;
   padding: 2rem;
   gap: 3rem;
+  position: relative;
+  z-index: 2;
 `;
 
 const TitleSection = styled.div`
@@ -391,6 +400,7 @@ const TitleCard = styled.div`
   max-width: 850px;
   position: relative;
   overflow: hidden;
+  z-index: 1;
 
   &::before {
     content: "";
@@ -401,6 +411,7 @@ const TitleCard = styled.div`
     height: 2px;
     background: linear-gradient(90deg, transparent, rgba(96,165,250,0.8), rgba(168,85,247,0.8), transparent);
     animation: ${shimmer} 3s ease-in-out infinite;
+    z-index: -1;
   }
 `;
 
@@ -461,6 +472,7 @@ const MainCTAButton = styled.button`
     background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: -1;
   }
 
   &:hover {
@@ -566,6 +578,7 @@ const CardIcon = styled.div`
     border-radius: 1.2rem;
     opacity: 0;
     transition: opacity 0.3s ease;
+    z-index: -1;
   }
   
   ${FeatureCard}:hover & {
