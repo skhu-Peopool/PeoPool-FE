@@ -1,11 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Send, Users, MoreVertical, Smile, Paperclip, Search, Settings, Archive, Star, Bell, MessageCircle, UserPlus } from "lucide-react";
+import { Send, MoreVertical, Smile, Paperclip, Search, Archive, Star, MessageCircle } from "lucide-react";
 
 const ChatInterface = () => {
   const [message, setMessage] = useState("");
   const [selectedChat, setSelectedChat] = useState("자은우");
   const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("direct"); 
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -52,8 +51,7 @@ const ChatInterface = () => {
       online: true,
       unread: 0,
       tags: ["토익", "스터디"],
-      pinned: true,
-      type: "direct"
+      pinned: true
     },
     {
       id: 2,
@@ -65,8 +63,7 @@ const ChatInterface = () => {
       online: false,
       unread: 3,
       tags: ["프로젝트"],
-      pinned: false,
-      type: "direct"
+      pinned: false
     },
     {
       id: 3,
@@ -78,8 +75,7 @@ const ChatInterface = () => {
       online: true,
       unread: 1,
       tags: ["React", "개발"],
-      pinned: false,
-      type: "direct"
+      pinned: false
     },
     {
       id: 4,
@@ -91,99 +87,19 @@ const ChatInterface = () => {
       online: false,
       unread: 2,
       tags: ["디자인", "UI"],
-      pinned: false,
-      type: "direct"
-    }
-  ]);
-
-  const [teamChats, setTeamChats] = useState([
-    {
-      id: 101,
-      name: "토익 스터디팀",
-      role: "5명 · 스터디 그룹",
-      lastMessage: "다음 주 모의고사 일정 공지드립니다",
-      time: "오후 3:20",
-      avatar: "토",
-      online: true,
-      unread: 2,
-      tags: ["토익", "스터디"],
-      pinned: true,
-      type: "team",
-      memberCount: 5
-    },
-    {
-      id: 102,
-      name: "개발 프로젝트팀",
-      role: "8명 · 개발팀",
-      lastMessage: "김민지: API 연동 완료했습니다!",
-      time: "오후 1:45",
-      avatar: "개",
-      online: true,
-      unread: 12,
-      tags: ["개발", "프로젝트"],
-      pinned: false,
-      type: "team",
-      memberCount: 8
-    },
-    {
-      id: 103,
-      name: "디자인팀",
-      role: "4명 · 디자인팀",
-      lastMessage: "박서준: 새로운 컬러 팔레트 어떠세요?",
-      time: "오전 11:15",
-      avatar: "디",
-      online: false,
-      unread: 0,
-      tags: ["디자인", "UI"],
-      pinned: false,
-      type: "team",
-      memberCount: 4
-    },
-    {
-      id: 104,
-      name: "마케팅팀",
-      role: "6명 · 마케팅팀",
-      lastMessage: "이지혜: 이번 달 성과 보고서 공유합니다",
-      time: "어제",
-      avatar: "마",
-      online: true,
-      unread: 3,
-      tags: ["마케팅"],
-      pinned: false,
-      type: "team",
-      memberCount: 6
-    },
-    {
-      id: 105,
-      name: "전체팀",
-      role: "25명 · 전체 공지",
-      lastMessage: "관리자: 다음 주 정기 미팅 일정 안내",
-      time: "2일 전",
-      avatar: "전",
-      online: true,
-      unread: 0,
-      tags: ["공지"],
-      pinned: false,
-      type: "team",
-      memberCount: 25
+      pinned: false
     }
   ]);
   
   const messagesEndRef = useRef(null);
 
   // Pin 토글 함수
-  const togglePin = (chatId, chatType, e) => {
-    e.stopPropagation(); // 채팅 선택 이벤트와 충돌 방지
+  const togglePin = (chatId, e) => {
+    e.stopPropagation(); 
     
-    if (chatType === 'direct') {
-      setDirectChats(prev => prev.map(chat => 
-        chat.id === chatId ? { ...chat, pinned: !chat.pinned } : chat
-      ));
-    } else {
-      setTeamChats(prev => prev.map(chat => 
-        chat.id === chatId ? { ...chat, pinned: !chat.pinned } : chat
-      ));
-    }
+    setDirectChats(prev => prev.map(chat => 
+      chat.id === chatId ? { ...chat, pinned: !chat.pinned } : chat
+    ));
   };
 
   const scrollToBottom = () => {
@@ -250,8 +166,7 @@ const ChatInterface = () => {
     setSelectedChat(chatName);
   };
 
-  const currentChats = activeTab === 'direct' ? directChats : teamChats;
-  const filteredChats = currentChats
+  const filteredChats = directChats
     .filter(chat =>
       chat.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       chat.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
@@ -263,7 +178,7 @@ const ChatInterface = () => {
       return 0;
     });
 
-  const selectedChatInfo = [...directChats, ...teamChats].find(chat => chat.name === selectedChat) || directChats[0];
+  const selectedChatInfo = directChats.find(chat => chat.name === selectedChat) || directChats[0];
 
   return (
     <div className="h-[calc(100vh-4rem)] bg-gray-100 flex overflow-hidden">
@@ -279,33 +194,6 @@ const ChatInterface = () => {
           </div>
         </div>
 
-        <div className="px-4 pt-4 flex-shrink-0">
-          <div className="flex bg-gray-100 rounded-lg p-1">
-            <button
-              onClick={() => setActiveTab('direct')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                activeTab === 'direct' 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <MessageCircle size={16} />
-              개인 채팅
-            </button>
-            <button
-              onClick={() => setActiveTab('team')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-md text-sm font-medium transition-all ${
-                activeTab === 'team' 
-                  ? 'bg-white text-blue-600 shadow-sm' 
-                  : 'text-gray-600 hover:text-gray-900'
-              }`}
-            >
-              <Users size={16} />
-              팀 채팅
-            </button>
-          </div>
-        </div>
-
         <div className="p-4 space-y-3 border-b border-gray-100 flex-shrink-0">
           <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
@@ -313,13 +201,13 @@ const ChatInterface = () => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder={`${activeTab === 'direct' ? '사람' : '팀'} 검색...`}
+              placeholder="사람 검색..."
               className="w-full pl-9 pr-4 py-2 bg-gray-50 rounded-lg border border-gray-200 focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition-all text-sm"
             />
           </div>
           <button className="w-full flex items-center justify-center gap-2 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-medium text-sm">
-            {activeTab === 'direct' ? <MessageCircle size={16} /> : <UserPlus size={16} />}
-            {activeTab === 'direct' ? '새 채팅 시작' : '새 팀 만들기'}
+            <MessageCircle size={16} />
+            새 채팅 시작
           </button>
         </div>
 
@@ -336,7 +224,7 @@ const ChatInterface = () => {
             >
               {chat.pinned && (
                 <button 
-                  onClick={(e) => togglePin(chat.id, chat.type, e)}
+                  onClick={(e) => togglePin(chat.id, e)}
                   className="absolute top-1 right-1 p-0.5 hover:bg-gray-200 rounded-full transition-all opacity-100 z-10"
                 >
                   <Star size={10} className="text-yellow-500 fill-yellow-500" />
@@ -344,7 +232,7 @@ const ChatInterface = () => {
               )}
               {!chat.pinned && (
                 <button 
-                  onClick={(e) => togglePin(chat.id, chat.type, e)}
+                  onClick={(e) => togglePin(chat.id, e)}
                   className="absolute top-1 right-1 p-0.5 hover:bg-gray-200 rounded-full transition-all opacity-0 group-hover:opacity-100 z-10"
                 >
                   <Star size={10} className="text-gray-400 hover:text-yellow-500" />
@@ -353,16 +241,11 @@ const ChatInterface = () => {
               
               <div className="flex items-start gap-3">
                 <div className="relative flex-shrink-0">
-                  <div className={`w-11 h-11 ${chat.type === 'team' ? 'bg-purple-500' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm`}>
+                  <div className="w-11 h-11 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
                     {chat.avatar}
                   </div>
                   {chat.online && (
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-                  )}
-                  {chat.type === 'team' && (
-                    <div className="absolute -top-1 -right-1 w-5 h-5 bg-gray-700 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                      {chat.memberCount}
-                    </div>
                   )}
                 </div>
                 
@@ -386,7 +269,7 @@ const ChatInterface = () => {
                     {chat.tags.slice(0, 2).map((tag, tagIndex) => (
                       <span
                         key={tagIndex}
-                        className={`inline-block px-1.5 py-0.5 ${chat.type === 'team' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'} text-xs rounded font-medium`}
+                        className="inline-block px-1.5 py-0.5 bg-blue-100 text-blue-600 text-xs rounded font-medium"
                       >
                         #{tag}
                       </span>
@@ -425,16 +308,11 @@ const ChatInterface = () => {
         <div className="h-16 bg-white border-b border-gray-200 px-6 flex items-center justify-between flex-shrink-0">
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className={`w-10 h-10 ${selectedChatInfo.type === 'team' ? 'bg-purple-500' : 'bg-blue-500'} rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm`}>
+              <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm">
                 {selectedChatInfo.avatar}
               </div>
               {selectedChatInfo.online && (
                 <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
-              )}
-              {selectedChatInfo.type === 'team' && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-gray-700 text-white text-xs rounded-full flex items-center justify-center font-medium">
-                  {selectedChatInfo.memberCount}
-                </div>
               )}
             </div>
             
@@ -442,16 +320,13 @@ const ChatInterface = () => {
               <h2 className="font-bold text-gray-900">{selectedChat}</h2>
               <div className="flex items-center gap-3">
                 <p className={`text-sm font-medium ${selectedChatInfo.online ? 'text-green-600' : 'text-gray-500'}`}>
-                  {selectedChatInfo.type === 'team' ? 
-                    `${selectedChatInfo.memberCount}명 참여` : 
-                    (selectedChatInfo.online ? '온라인' : `마지막 접속: ${selectedChatInfo.time}`)
-                  }
+                  {selectedChatInfo.online ? '온라인' : `마지막 접속: ${selectedChatInfo.time}`}
                 </p>
                 <div className="flex gap-1">
                   {selectedChatInfo.tags.slice(0, 3).map((tag, index) => (
                     <span
                       key={index}
-                      className={`px-1.5 py-0.5 ${selectedChatInfo.type === 'team' ? 'bg-purple-100 text-purple-600' : 'bg-blue-100 text-blue-600'} text-xs rounded font-medium`}
+                      className="px-1.5 py-0.5 bg-blue-100 text-blue-600 text-xs rounded font-medium"
                     >
                       #{tag}
                     </span>
@@ -462,11 +337,6 @@ const ChatInterface = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            {selectedChatInfo.type === 'team' && (
-              <button className="p-2 hover:bg-gray-100 rounded-lg transition-all group">
-                <Users size={18} className="text-gray-600 group-hover:text-purple-600" />
-              </button>
-            )}
             <button className="p-2 hover:bg-gray-100 rounded-lg transition-all group">
               <Archive size={18} className="text-gray-600 group-hover:text-blue-600" />
             </button>
