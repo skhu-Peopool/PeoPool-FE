@@ -2,7 +2,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import ApplyModal from "../../components/modal/ApplyModal";
 import CompleteModal from "../../components/modal/CompleteModal";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Users, Calendar, FileText, Tag, Clock, Eye } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
 import { postService } from "../../lib/api/post-service";
@@ -225,16 +225,18 @@ const DetailContent = styled.div`
 
 const ImageWrapper = styled.div`
   display: flex;
-  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
 `;
 
 const ImagePreview = styled.img`
-  display: block;
-  width: auto;
-  max-width: 100%;
-  height: auto;
-  max-height: 300px;
-  margin: 1rem 0;
+  width: 100%;
+  max-width: 500px;
+  height: 100%;
+  max-height: 600px;
+  border-radius: 8px;
+  object-fit: cover;
 `;
 
 // const ProgressBar = styled.div`
@@ -359,9 +361,10 @@ export default function CommunityDetail() {
     queryFn: () => enrollmentService.getMyEnrollments(),
   });
 
-  const myEnrollment = myEnrollments?.find(
-    (enrollment) => enrollment.postId === post.id
-  );
+  const myEnrollment = useMemo(() => {
+    if (!post || !myEnrollments) return null;
+    return myEnrollments.find((e) => e.postId === post.id);
+  }, [post, myEnrollments]);
   const isApproved = myEnrollment?.status === "APPROVED";
   const isApplied = !!myEnrollment;
 
@@ -432,9 +435,14 @@ export default function CommunityDetail() {
           <DetailContent>{post.content}</DetailContent>
 
           <ImageWrapper>
-            {post.image && (
-              <ImagePreview src={post.image} alt="게시글 이미지" />
-            )}
+            {Array.isArray(post.image) &&
+              post.image.map((url, idx) => (
+                <ImagePreview
+                  key={idx}
+                  src={url}
+                  alt={`게시글 이미지 ${idx + 1}`}
+                />
+              ))}
           </ImageWrapper>
 
           <SectionDivider />

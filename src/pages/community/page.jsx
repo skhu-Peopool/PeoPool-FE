@@ -546,7 +546,7 @@ const CommunityPage = () => {
         <Header
           icon={<Users color="white" size={40} />}
           title={"Community"}
-          subTitle={`${totalCount}개의 모집 공고가 있습니다}`}
+          subTitle={`${totalCount}개의 모집 공고가 있습니다`}
         />
         <ControlsSection>
           <Controls>

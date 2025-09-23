@@ -42,7 +42,6 @@ export const postService = {
   }) => {
     const formData = new FormData();
 
-    // 유효한 날짜 문자열로 변환
     const formatDate = (dateString) =>
       dateString ? new Date(dateString).toISOString().split("T")[0] : null;
 
@@ -57,13 +56,16 @@ export const postService = {
     };
 
     formData.append("postAddReq", JSON.stringify(postAddReq));
-    formData.append("image", imageFile);
+
+    imageFile.forEach((file) => {
+      formData.append("image", file);
+    });
 
     const response = await tokenFetch("/post/add", null, {
       method: "POST",
       body: formData,
       headers: {
-        "Content-Type": undefined, // axios-client에서 application/json으로 공통 설정하여 여기는 별도 제거
+        "Content-Type": undefined,
       },
     });
 
@@ -115,8 +117,11 @@ export const postService = {
     };
 
     formData.append("postUpdateReq", JSON.stringify(postUpdateReq));
-    if (imageFile) {
-      formData.append("image", imageFile);
+
+    if (Array.isArray(imageFile)) {
+      imageFile.forEach((file) => {
+        formData.append("image", file);
+      });
     }
 
     const response = await tokenFetch(`/post/update/${postId}`, null, {

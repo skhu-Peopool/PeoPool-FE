@@ -292,13 +292,13 @@ const PreviewImage = styled.img`
 
 const CloseBtn = styled.button`
   position: absolute;
-  top: 0.5rem;
-  right: 0.5rem;
+  top: 1rem;
+  right: 1rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.25rem;
-  height: 2.3rem;
+  width: 1.6rem;
+  height: 1.6rem;
   border-radius: 100%;
   border: none;
   background: #f1f5f9;
@@ -404,8 +404,8 @@ const PostsPage = () => {
   const [activityStartDate, setActivityStartDate] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [imageFile, setImageFile] = useState(null);
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState([]);
+  const [imageUrl, setImageUrl] = useState([]);
 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
@@ -439,15 +439,21 @@ const PostsPage = () => {
   }, []);
 
   const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
 
-    setImageFile(file);
-    setImageUrl(URL.createObjectURL(file));
+    const newUrls = files.map((file) => URL.createObjectURL(file));
+    setImageFile((prev) => [...prev, ...files]);
+    setImageUrl((prev) => [...prev, ...newUrls]);
   };
 
   const handleSubmit = async () => {
     try {
+      const newFiles = imageFile.filter((file) => file instanceof File);
+      const existingImages = imageFile.filter(
+        (file) => typeof file === "string"
+      );
+
       if (isEditMode) {
         await postService.updatePost(postId, {
           title,
@@ -458,7 +464,8 @@ const PostsPage = () => {
           maxPeople: recruitNum,
           category: categoryReverseMap[category],
           postStatus: statusReverseMap[status],
-          imageFile,
+          existingImages,
+          imageFile: newFiles,
         });
         alert("게시글이 수정되었습니다.");
       } else {
@@ -470,7 +477,7 @@ const PostsPage = () => {
           activityStartDate,
           maxPeople: recruitNum,
           category: categoryReverseMap[category],
-          imageFile,
+          imageFile: newFiles,
         });
         alert("게시물이 등록되었습니다.");
       }
@@ -509,6 +516,7 @@ const PostsPage = () => {
         }
 
         setImageFile(data.image);
+        setImageUrl(data.image);
       } catch (err) {
         console.error("게시글 불러오기 실패", err);
         alert("게시글 정보를 불러오지 못했습니다.");
@@ -520,22 +528,6 @@ const PostsPage = () => {
       ignore = true;
     };
   }, [postId]);
-
-  useEffect(() => {
-    let previewUrl;
-    if (imageFile && typeof imageFile !== "string") {
-      previewUrl = URL.createObjectURL(imageFile);
-      setImageUrl(previewUrl);
-    } else if (typeof imageFile === "string") {
-      setImageUrl(imageFile);
-    }
-
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [imageFile]);
 
   return (
     <Container>
@@ -763,6 +755,7 @@ const PostsPage = () => {
                 type="file"
                 id="file-upload"
                 accept="image/*"
+                multiple
                 onChange={handleImageChange}
               />
               <label
@@ -773,7 +766,16 @@ const PostsPage = () => {
                   <Upload size={32} />
                   <div>
                     <p style={{ fontWeight: "600", marginBottom: "0.25rem" }}>
-                      {imageFile ? imageFile.name : "파일을 선택하세요"}
+                      {imageFile.length > 0
+                        ? imageFile.every((file) => typeof file === "string")
+                          ? "파일을 선택하세요"
+                          : imageFile
+                              .map((file) =>
+                                file instanceof File ? file.name : ""
+                              )
+                              .filter(Boolean)
+                              .join(", ")
+                        : "파일을 선택하세요"}
                     </p>
                     <p style={{ fontSize: "0.875rem", color: "#9ca3af" }}>
                       드래그하거나 클릭하여 업로드
@@ -783,20 +785,40 @@ const PostsPage = () => {
               </label>
             </FileUploadArea>
 
-            {imageUrl && (
-              <ImageWrapper style={{ marginTop: "1rem" }}>
-                <PreviewImage src={imageUrl} alt="현재 이미지" />
-                <CloseBtn
-                  onClick={() => {
-                    setImageFile(null);
-                    setImageUrl("");
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
-                    }
-                  }}
-                >
-                  <X size={18} />
-                </CloseBtn>
+            {imageUrl.length > 0 && (
+              <ImageWrapper>
+                {imageUrl.map((url, idx) => (
+                  <div
+                    key={idx}
+                    style={{ position: "relative", display: "inline-block" }}
+                  >
+                    <PreviewImage
+                      src={url}
+                      alt={`preview-${idx}`}
+                      style={{
+                        width: "100px",
+                        height: "100px",
+                        marginRight: "10px",
+                        marginTop: "10px",
+                      }}
+                    />
+                    <CloseBtn
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newImageFiles = [...imageFile];
+                        const newImageUrls = [...imageUrl];
+
+                        newImageFiles.splice(idx, 1);
+                        newImageUrls.splice(idx, 1);
+
+                        setImageFile(newImageFiles);
+                        setImageUrl(newImageUrls);
+                      }}
+                    >
+                      <X size={13} />
+                    </CloseBtn>
+                  </div>
+                ))}
               </ImageWrapper>
             )}
           </FormSection>
