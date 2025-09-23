@@ -1,9 +1,10 @@
-import { Calendar, UserSearch, Users, Menu, X } from "lucide-react";
+import { Calendar, UserSearch, Users, Menu, X, LogIn } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
 import { LogOutIcon } from "lucide-react";
+
 const slideDown = keyframes`
   from {
     opacity: 0;
@@ -226,7 +227,7 @@ const UserRole = styled.div`
 `;
 
 const AuthButton = styled.button`
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   border-radius: 0.75rem;
   font-size: 0.875rem;
   font-weight: 600;
@@ -235,6 +236,11 @@ const AuthButton = styled.button`
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
 
   ${(props) =>
     props.primary
@@ -245,7 +251,7 @@ const AuthButton = styled.button`
 
         &:hover {
           background: linear-gradient(135deg, #2563eb, #1d4ed8);
-          transform: translateY(-1px) scale(1.02);
+          transform: translateY(-1px) scale(1.05);
           box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
         }
       `
@@ -258,11 +264,12 @@ const AuthButton = styled.button`
           background: rgba(248, 250, 252, 0.8);
           color: #374151;
           border-color: rgba(203, 213, 225, 0.9);
+          transform: translateY(-1px) scale(1.05);
         }
       `}
 
   &:active {
-    transform: translateY(0) scale(0.98);
+    transform: translateY(0) scale(0.95);
   }
 `;
 
@@ -341,6 +348,51 @@ const MobileUserSection = styled.div`
   border-top: 1px solid rgba(229, 231, 235, 0.5);
   padding-top: 1rem;
   margin-top: 1rem;
+`;
+
+const MobileAuthButton = styled.button`
+  padding: 0.75rem 1rem;
+  border-radius: 0.75rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+
+  ${(props) =>
+    props.primary
+      ? `
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
+
+        &:hover {
+          background: linear-gradient(135deg, #2563eb, #1d4ed8);
+          transform: translateY(-1px) scale(1.02);
+          box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        }
+      `
+      : `
+        background: transparent;
+        color: #6b7280;
+        border: 1px solid rgba(229, 231, 235, 0.8);
+
+        &:hover {
+          background: rgba(248, 250, 252, 0.8);
+          color: #374151;
+          border-color: rgba(203, 213, 225, 0.9);
+        }
+      `}
+
+  &:active {
+    transform: translateY(0) scale(0.98);
+  }
 `;
 
 const ContentPadding = styled.div`
@@ -431,11 +483,13 @@ const HeaderSlide = () => {
                         <UserRole>회원</UserRole>
                       </UserInfo>
                     </UserProfile>
-                    <AuthButton onClick={handleLogout}><LogOutIcon size={18}/></AuthButton>
+                    <AuthButton onClick={handleLogout}>
+                      <LogOutIcon size={18}/>
+                    </AuthButton>
                   </>
                 ) : (
                   <AuthButton primary onClick={() => navigate("/signIn")}>
-                    로그인 하기
+                    <LogIn size={18} />
                   </AuthButton>
                 )}
               </DesktopUserSection>
@@ -478,21 +532,23 @@ const HeaderSlide = () => {
                       <UserRole>회원</UserRole>
                     </div>
                   </MobileNavItem>
-                  <AuthButton
+                  <MobileAuthButton
                     onClick={handleLogout}
                     style={{ width: "100%", marginTop: "0.5rem" }}
                   >
+                    <LogOutIcon size={18} />
                     로그아웃
-                  </AuthButton>
+                  </MobileAuthButton>
                 </>
               ) : (
-                <AuthButton
+                <MobileAuthButton
                   primary
                   onClick={() => handleNavigation("/signIn")}
                   style={{ width: "100%" }}
                 >
+                  <LogIn size={18} />
                   로그인 하기
-                </AuthButton>
+                </MobileAuthButton>
               )}
             </MobileUserSection>
           </MobileMenuContent>
