@@ -126,11 +126,28 @@ const Panel = styled.div`
 
 const PanelHeader = styled.div`
   display: flex;
-  // justify-content: space-between;
+  justify-content: space-between;
   align-items: center;
   gap: 0.75rem;
   padding: 1.5rem;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+`;
+
+const DividerWrapper = styled.div`
+  padding: 0 1.5rem;
+`;
+
+const SectionDivider = styled.hr`
+  border: none;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.05);
+  width: 100%;
+`;
+
+const PanelHeader1 = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1.5rem;
 `;
 
 const PanelTitle = styled.h3`
@@ -519,6 +536,7 @@ const ApplicationManagementPage = () => {
   const [allApplications, setAllApplications] = useState({});
 
   const [myPosts, setMyPosts] = useState([]);
+  const [totalPostCount, setTotalPostCount] = useState(0);
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -561,6 +579,7 @@ const ApplicationManagementPage = () => {
           // hasNewApplications: false, // 실제로는 별도 API 필요
         }));
         setMyPosts(formatted);
+        setTotalPostCount(response.totalCount);
         if (formatted.length > 0) setSelectedPostId(formatted[0].id);
       } catch (err) {
         console.error("Failed to fetch posts", err);
@@ -576,8 +595,8 @@ const ApplicationManagementPage = () => {
 
         const applicants = response.map((app, index) => ({
           id: app.enrollmentId,
-          userName: app.memberId,
-          userEmail: `user${index + 1}@example.com`,
+          userName: app.memberNickname,
+          userEmail: app.memberEmail,
           applicationDate: app.appliedAt.split("T")[0],
           message: app.comment,
           status: app.status.toLowerCase(),
@@ -699,9 +718,17 @@ const ApplicationManagementPage = () => {
         <MainGrid>
           <Panel>
             <PanelHeader>
-              <Edit3 size={24} color="#3b82f6" />
-              <PanelTitle>내가 작성한 공고</PanelTitle>
+              <div className="flex column gap-4">
+                <Edit3 size={24} color="#3b82f6" />
+                <PanelTitle>내가 작성한 공고</PanelTitle>
+              </div>
+              <PanelTitle>{totalPostCount}개</PanelTitle>
             </PanelHeader>
+
+            <DividerWrapper>
+              <SectionDivider />
+            </DividerWrapper>
+
             <PostList>
               {myPosts.map((post) => (
                 <PostItem
@@ -792,12 +819,16 @@ const ApplicationManagementPage = () => {
                 </ControlsPanel>
 
                 <Panel>
-                  <PanelHeader>
+                  <PanelHeader1>
                     <Users size={24} color="#3b82f6" />
                     <PanelTitle>
                       신청자 목록 ({filteredApplications.length}명)
                     </PanelTitle>
-                  </PanelHeader>
+                  </PanelHeader1>
+
+                  <DividerWrapper>
+                    <SectionDivider />
+                  </DividerWrapper>
 
                   {filteredApplications.length > 0 ? (
                     <ApplicationList>
@@ -806,7 +837,7 @@ const ApplicationManagementPage = () => {
                           <ApplicationHeader>
                             <UserInfo>
                               <Avatar status={application.status}>
-                                {application.userName}
+                                {application.userName.charAt(0)}
                               </Avatar>
                               <UserDetails>
                                 <UserName>{application.userName}</UserName>
