@@ -48,6 +48,7 @@ const CalendarWrapper = styled.div`
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   animation: ${fadeIn} 1s ease-out 0.2s both;
   border: 1px solid rgba(255, 255, 255, 0.3);
+  overflow: hidden;
 
   &::before {
     content: "";
