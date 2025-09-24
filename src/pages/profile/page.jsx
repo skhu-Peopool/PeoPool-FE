@@ -572,6 +572,69 @@ const TimeStamp = styled.div`
   gap: 0.5rem;
 `;
 
+const ToggleSwitchWrapper = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: rgba(239, 246, 255, 0.8);
+  border-radius: 1rem;
+  justify-content: space-between;
+  border: 1px solid rgba(255, 255, 255, 0.5);
+`;
+
+const ToggleLabel = styled.span`
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+`;
+
+const ToggleSwitchContainer = styled.label`
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+`;
+
+const ToggleSwitchInput = styled.input`
+  opacity: 0;
+  width: 0;
+  height: 0;
+
+  &:checked + span {
+    background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  }
+
+  &:checked + span:before {
+    transform: translateX(22px);
+  }
+`;
+
+const ToggleSwitchSlider = styled.span`
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 28px;
+
+  &:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.4s;
+    border-radius: 50%;
+  }
+`;
+
 const ProfileEditPage = () => {
   const DEFAULT_IMAGE_URL =
     "https://peopool-profile-image.s3.ap-northeast-2.amazonaws.com/default.png";
@@ -583,12 +646,15 @@ const ProfileEditPage = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
+  const [isProfileVisible, setIsProfileVisible] = useState(false);
+
   useEffect(() => {
     const fetchUserData = async () => {
       try {
         const data = await userService.getMe();
         setProfileData(data);
         setInitialProfileData(data);
+        setIsProfileVisible(data.visible === "VISIBLE");
       } catch (error) {
         console.error("사용자 정보를 불러오는데 실패했습니다.", error);
         alert("사용자 정보를 불러오는데 실패했습니다.");
@@ -628,6 +694,7 @@ const ProfileEditPage = () => {
     }
   };
 
+  // ✅ [수정] '저장하기' 버튼 눌렀을 때 모든 변경사항을 한번에 저장
   const handleSave = async () => {
     const memberProfileUpdateReq = {
       nickname: profileData.nickname,
@@ -638,7 +705,6 @@ const ProfileEditPage = () => {
     };
 
     const formData = new FormData();
-
     formData.append(
       "memberProfileUpdateReq",
       JSON.stringify(memberProfileUpdateReq)
@@ -649,7 +715,13 @@ const ProfileEditPage = () => {
     }
 
     try {
-      const updatedData = await userService.updateMe(formData);
+      // 프로필 정보 업데이트와 공개 여부 업데이트를 동시에 처리
+      await Promise.all([
+        userService.updateMe(formData),
+        userService.updateProfileVisibility(isProfileVisible),
+      ]);
+
+      const updatedData = await userService.getMe(); // 최신 데이터 다시 로드
       setInitialProfileData(updatedData);
       setProfileData(updatedData);
       setIsEditing(false);
@@ -662,12 +734,23 @@ const ProfileEditPage = () => {
     }
   };
 
+  // ✅ [수정] '취소하기' 눌렀을 때 공개 여부 상태도 원래대로 복구
   const handleCancel = () => {
     setProfileData(initialProfileData);
     setIsEditing(false);
     setImageFile(null);
     setImagePreview(null);
+    // isProfileVisible 상태도 원래 데이터(initialProfileData) 기준으로 복구
+    if (initialProfileData) {
+      setIsProfileVisible(initialProfileData.visible === "VISIBLE");
+    }
   };
+
+  // ✅ [수정] 토글 시 API 호출 없이 상태만 변경
+  const handleVisibilityChange = () => {
+    setIsProfileVisible((prev) => !prev);
+  };
+
   const getInitials = (name) => {
     if (!name) return "";
     return name
@@ -849,6 +932,21 @@ const ProfileEditPage = () => {
                 </>
               )}
             </Introduction>
+
+            {/* ✅ [수정] isEditing 상태일 때만 토글 스위치가 보이도록 수정 */}
+            {isEditing && (
+              <ToggleSwitchWrapper>
+                <ToggleLabel>프로필 공개 설정</ToggleLabel>
+                <ToggleSwitchContainer>
+                  <ToggleSwitchInput
+                    type="checkbox"
+                    checked={isProfileVisible}
+                    onChange={handleVisibilityChange}
+                  />
+                  <ToggleSwitchSlider />
+                </ToggleSwitchContainer>
+              </ToggleSwitchWrapper>
+            )}
           </ProfileInfo>
 
           <ProfileActions>
@@ -920,7 +1018,7 @@ const ProfileEditPage = () => {
           </Timeline>
         </ActivitySection>
 
-         <ActivitySection>
+        <ActivitySection>
           <ActivityHeader>
             <ActivityIconWrapper>
               <PenTool size={20} />
