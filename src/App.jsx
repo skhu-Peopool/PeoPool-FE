@@ -20,7 +20,7 @@ import PostsPage from "./pages/community/PostsPage";
 import { useAuth } from "./providers/AuthProvider";
 import EmailCodePage from "./pages/code/page";
 import ChatInterface from "./pages/chat/page";
-
+import Notification from './pages/Notification/page'
 // 헤더 포함 레이아웃 설정
 function MainLayout({ children }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -171,6 +171,16 @@ function AppRoutes() {
           <PrivateRoute>
             <MainLayout>
               <ChatInterface />
+            </MainLayout>
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/notification"
+        element={
+          <PrivateRoute>
+            <MainLayout>
+              <Notification />
             </MainLayout>
           </PrivateRoute>
         }
