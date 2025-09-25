@@ -406,6 +406,7 @@ const PostsPage = () => {
   const [content, setContent] = useState("");
   const [imageFile, setImageFile] = useState([]);
   const [imageUrl, setImageUrl] = useState([]);
+  const [deleteImgUrl, setDeleteImgUrl] = useState([]);
 
   const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
   const [isStatusDropdownOpen, setIsStatusDropdownOpen] = useState(false);
@@ -450,9 +451,6 @@ const PostsPage = () => {
   const handleSubmit = async () => {
     try {
       const newFiles = imageFile.filter((file) => file instanceof File);
-      const existingImages = imageFile.filter(
-        (file) => typeof file === "string"
-      );
 
       if (isEditMode) {
         await postService.updatePost(postId, {
@@ -464,8 +462,8 @@ const PostsPage = () => {
           maxPeople: recruitNum,
           category: categoryReverseMap[category],
           postStatus: statusReverseMap[status],
-          existingImages,
-          imageFile: newFiles,
+          imageFile: newFiles, // 새로 추가된 이미지
+          deleteImgUrl, // 삭제된 기존 이미지
         });
         alert("게시글이 수정되었습니다.");
       } else {
@@ -807,6 +805,12 @@ const PostsPage = () => {
                         e.stopPropagation();
                         const newImageFiles = [...imageFile];
                         const newImageUrls = [...imageUrl];
+
+                        const removedFile = newImageFiles[idx];
+
+                        if (typeof removedFile === "string") {
+                          setDeleteImgUrl((prev) => [...prev, removedFile]);
+                        }
 
                         newImageFiles.splice(idx, 1);
                         newImageUrls.splice(idx, 1);

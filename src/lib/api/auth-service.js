@@ -74,4 +74,12 @@ export const authService = {
     });
     return result;
   },
+
+  // 로그인 - 비밀번호 변경 API
+  changePassword: async (email, newPassword) => {
+    await defaultFetch("/forgotpwd", {
+      method: "PATCH",
+      body: { email, newPassword },
+    });
+  },
 };

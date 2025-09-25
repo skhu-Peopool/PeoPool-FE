@@ -1,7 +1,17 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import styled, { keyframes } from "styled-components";
-import { Calendar, ChevronLeft, ChevronRight, Plus, X, Clock, Edit3 } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Plus,
+  X,
+  Clock,
+  Edit3,
+  Check,
+} from "lucide-react";
 import Header from "../../components/Header";
+import Dropdown from "../../components/Dropdown";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -53,7 +63,9 @@ const CalendarWrapper = styled.div`
   &::before {
     content: "";
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 4px;
     background: linear-gradient(90deg, #60a5fa, #3b82f6, #93c5fd);
   }
@@ -75,7 +87,8 @@ const MonthNavigation = styled.div`
 `;
 
 const MonthControl = styled.button`
-  width: 3rem; height: 3rem;
+  width: 3rem;
+  height: 3rem;
   background: linear-gradient(135deg, #60a5fa, #3b82f6);
   border: none;
   border-radius: 50%;
@@ -85,11 +98,11 @@ const MonthControl = styled.button`
   align-items: center;
   justify-content: center;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(96,165,250,0.4);
+  box-shadow: 0 4px 20px rgba(96, 165, 250, 0.4);
 
   &:hover {
     transform: scale(1.1);
-    box-shadow: 0 6px 30px rgba(96,165,250,0.6);
+    box-shadow: 0 6px 30px rgba(96, 165, 250, 0.6);
   }
 `;
 
@@ -110,11 +123,11 @@ const TodayButton = styled.button`
   cursor: pointer;
   font-weight: 600;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 20px rgba(16,185,129,0.4);
+  box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4);
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(16,185,129,0.6);
+    box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
   }
 `;
 
@@ -123,8 +136,8 @@ const GridWrapper = styled.div`
   grid-template-columns: repeat(7, 1fr);
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-  border: 1px solid rgba(96,165,250,0.2);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(96, 165, 250, 0.2);
 `;
 
 const DayHeader = styled.div`
@@ -152,7 +165,7 @@ const DateCell = styled.div`
   transition: all 0.2s ease;
 
   &:hover {
-    background-color: rgba(96,165,250,0.05);
+    background-color: rgba(96, 165, 250, 0.05);
     transform: scale(1.02);
     z-index: 10;
   }
@@ -161,19 +174,19 @@ const DateCell = styled.div`
     background-color: #f8fafc;
     color: #94a3b8;
     cursor: default;
-    
+
     &:hover {
       transform: none;
     }
   }
 
   &.today {
-    background-color: rgba(96,165,250,0.1);
+    background-color: rgba(96, 165, 250, 0.1);
     color: #3b82f6;
     font-weight: 700;
-    
+
     &:hover {
-      background-color: rgba(96,165,250,0.2);
+      background-color: rgba(96, 165, 250, 0.2);
     }
   }
 `;
@@ -192,7 +205,8 @@ const EventsContainer = styled.div`
 `;
 
 const Event = styled.div`
-  background: ${props => props.color || 'linear-gradient(135deg, #8b5cf6, #7c3aed)'};
+  background: ${(props) =>
+    props.color || "linear-gradient(135deg, #8b5cf6, #7c3aed)"};
   color: white;
   padding: 2px 6px;
   border-radius: 4px;
@@ -209,7 +223,7 @@ const Event = styled.div`
 
   &:hover {
     transform: scale(1.05);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     position: relative;
     z-index: 20;
   }
@@ -240,7 +254,7 @@ const AddEventHint = styled.div`
 const ModalBackdrop = styled.div`
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.3);
+  background: rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(6px);
   display: flex;
   align-items: center;
@@ -255,7 +269,7 @@ const ModalContent = styled.div`
   border-radius: 1.5rem;
   width: 90%;
   max-width: 440px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   animation: ${fadeIn} 0.3s ease-out 0.1s both;
 `;
 
@@ -265,7 +279,7 @@ const ModalHeader = styled.div`
   align-items: center;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(96,165,250,0.1);
+  border-bottom: 2px solid rgba(96, 165, 250, 0.1);
 `;
 
 const ModalTitle = styled.h2`
@@ -278,7 +292,7 @@ const ModalTitle = styled.h2`
 const CloseButton = styled.button`
   width: 2rem;
   height: 2rem;
-  background: rgba(239,68,68,0.1);
+  background: rgba(239, 68, 68, 0.1);
   border: none;
   border-radius: 50%;
   color: #ef4444;
@@ -289,7 +303,7 @@ const CloseButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(239,68,68,0.2);
+    background: rgba(239, 68, 68, 0.2);
     transform: scale(1.1);
   }
 `;
@@ -314,10 +328,14 @@ const Input = styled.input`
   font-size: 0.9rem;
   box-sizing: border-box;
 
-  &:focus {
+  &:hover {
     outline: none;
     border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  }
+
+  &:focus {
+    outline: none;
   }
 `;
 
@@ -330,27 +348,47 @@ const Textarea = styled.textarea`
   font-size: 0.9rem;
   resize: vertical;
   box-sizing: border-box;
+  resize: none;
+
+  &:hover {
+    outline: none;
+    border-color: #60a5fa;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2);
+  }
 
   &:focus {
     outline: none;
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
   }
 `;
 
-const Select = styled.select`
-  width: 100%;
-  padding: 0.6rem 0.8rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 0.5rem;
-  font-size: 0.9rem;
-  background: white;
-  box-sizing: border-box;
+const ColorPalette = styled.div`
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+`;
 
-  &:focus {
-    outline: none;
-    border-color: #60a5fa;
-    box-shadow: 0 0 0 3px rgba(96,165,250,0.2);
+const ColorCircle = styled.button`
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: ${(props) =>
+    props.selected ? "2px solid #374151" : "2px solid transparent"};
+  background: ${(props) => props.color};
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+
+  svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    pointer-events: none;
   }
 `;
 
@@ -373,7 +411,7 @@ const ActionButton = styled.button`
   &.primary {
     background: linear-gradient(135deg, #60a5fa, #3b82f6);
     color: white;
-    box-shadow: 0 4px 20px rgba(96,165,250,0.4);
+    box-shadow: 0 4px 20px rgba(96, 165, 250, 0.4);
   }
 
   &.secondary {
@@ -400,7 +438,8 @@ const EventListContainer = styled.div`
 `;
 
 const EventListItem = styled.div`
-  background: ${props => props.color || 'linear-gradient(135deg, #8b5cf6, #7c3aed)'};
+  background: ${(props) =>
+    props.color || "linear-gradient(135deg, #8b5cf6, #7c3aed)"};
   color: white;
   padding: 0.75rem;
   border-radius: 0.5rem;
@@ -412,7 +451,7 @@ const EventListItem = styled.div`
 
   &:hover {
     transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   }
 `;
 
@@ -424,7 +463,7 @@ const EventInfo = styled.div`
 `;
 
 const EventEditButton = styled.button`
-  background: rgba(255,255,255,0.2);
+  background: rgba(255, 255, 255, 0.2);
   border: none;
   border-radius: 50%;
   width: 2rem;
@@ -436,7 +475,7 @@ const EventEditButton = styled.button`
   transition: all 0.2s ease;
 
   &:hover {
-    background: rgba(255,255,255,0.3);
+    background: rgba(255, 255, 255, 0.3);
     transform: scale(1.1);
   }
 `;
@@ -458,25 +497,53 @@ const CalendarPage = () => {
     type: null, // 'add', 'edit', 'view', 'delete'
     selectedDate: null,
     selectedEvent: null,
-    formData: null
+    formData: null,
   });
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  useEffect(() => {
+    try {
+      const savedEvents = localStorage.getItem("calendarEvents");
+      if (savedEvents) {
+        setEvents(JSON.parse(savedEvents));
+      }
+    } catch (e) {
+      console.error("로컬스토리지 불러오기 실패", e);
+    } finally {
+      setIsInitialized(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!isInitialized) return;
+    try {
+      localStorage.setItem("calendarEvents", JSON.stringify(events));
+      console.log("저장됨:", events);
+    } catch (e) {
+      console.error("로컬스토리지 저장 실패", e);
+    }
+  }, [events, isInitialized]);
 
   const getDateInfo = () => ({
     year: currentDate.getFullYear(),
     month: currentDate.getMonth(),
-    day: currentDate.getDate()
+    day: currentDate.getDate(),
   });
 
   const formatDateKey = (year, month, day) => {
-    return `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    return `${year}-${String(month + 1).padStart(2, "0")}-${String(
+      day
+    ).padStart(2, "0")}`;
   };
 
   const isToday = (day) => {
     const today = new Date();
     const { year, month } = getDateInfo();
-    return today.getFullYear() === year && 
-           today.getMonth() === month && 
-           today.getDate() === day;
+    return (
+      today.getFullYear() === year &&
+      today.getMonth() === month &&
+      today.getDate() === day
+    );
   };
 
   const getEventsForDate = (year, month, day) => {
@@ -500,87 +567,90 @@ const CalendarPage = () => {
       type: null,
       selectedDate: null,
       selectedEvent: null,
-      formData: null
+      formData: null,
     });
   };
 
   const openAddModal = (day) => {
     const { year, month } = getDateInfo();
     setModalState({
-      type: 'add',
+      type: "add",
       selectedDate: { year, month, day },
       selectedEvent: null,
       formData: {
         title: "",
         time: "",
         color: EVENT_COLORS[0].value,
-        memo: ""
-      }
+        memo: "",
+      },
     });
   };
 
   const openEditModal = (day, event) => {
     const { year, month } = getDateInfo();
     setModalState({
-      type: 'edit',
+      type: "edit",
       selectedDate: { year, month, day },
       selectedEvent: event,
-      formData: { ...event }
+      formData: { ...event },
     });
   };
 
   const openViewModal = (dateKey, dayEvents) => {
     setModalState({
-      type: 'view',
+      type: "view",
       selectedDate: null,
       selectedEvent: null,
-      formData: { dateKey, events: dayEvents }
+      formData: { dateKey, events: dayEvents },
     });
   };
 
   const openDeleteModal = (dateKey, eventId) => {
     setModalState({
-      type: 'delete',
+      type: "delete",
       selectedDate: null,
       selectedEvent: null,
-      formData: { dateKey, eventId }
+      formData: { dateKey, eventId },
     });
   };
 
   // 폼 데이터 업데이트
   const updateFormData = (field, value) => {
-    setModalState(prev => ({
+    setModalState((prev) => ({
       ...prev,
-      formData: { ...prev.formData, [field]: value }
+      formData: { ...prev.formData, [field]: value },
     }));
   };
 
   const saveEvent = () => {
     const { type, selectedDate, selectedEvent, formData } = modalState;
-    
     if (!formData.title.trim()) return;
 
-    const dateKey = formatDateKey(selectedDate.year, selectedDate.month, selectedDate.day);
+    const dateKey = formatDateKey(
+      selectedDate.year,
+      selectedDate.month,
+      selectedDate.day
+    );
 
-    setEvents(prev => {
+    setEvents((prev) => {
       const dayEvents = prev[dateKey] || [];
-      
-      if (type === 'add') {
+
+      if (type === "add") {
         const newEvent = {
           id: crypto.randomUUID(),
-          ...formData
+          ...formData,
         };
         return {
           ...prev,
-          [dateKey]: [...dayEvents, newEvent]
+          [dateKey]: [...dayEvents, newEvent],
         };
-      } else if (type === 'edit') {
-        const updatedEvents = dayEvents.map(event =>
-          event.id === selectedEvent.id ? formData : event
+      } else if (type === "edit") {
+        const updatedEvents = dayEvents.map((event) =>
+          event.id === selectedEvent.id ? { ...formData, id: event.id } : event
         );
         return {
           ...prev,
-          [dateKey]: updatedEvents
+          [dateKey]: updatedEvents,
         };
       }
     });
@@ -590,18 +660,18 @@ const CalendarPage = () => {
 
   const deleteEvent = () => {
     const { dateKey, eventId } = modalState.formData;
-    
-    setEvents(prev => {
+
+    setEvents((prev) => {
       const dayEvents = prev[dateKey] || [];
-      const filteredEvents = dayEvents.filter(event => event.id !== eventId);
-      
+      const filteredEvents = dayEvents.filter((event) => event.id !== eventId);
+
       const newEvents = { ...prev };
       if (filteredEvents.length > 0) {
         newEvents[dateKey] = filteredEvents;
       } else {
         delete newEvents[dateKey];
       }
-      
+
       return newEvents;
     });
 
@@ -625,22 +695,24 @@ const CalendarPage = () => {
         const cellDate = new Date(currentCellDate);
         const cellDay = cellDate.getDate();
         const isCurrentMonth = cellDate.getMonth() === month;
-        const dayEvents = isCurrentMonth ? getEventsForDate(year, month, cellDay) : [];
-        
+        const dayEvents = isCurrentMonth
+          ? getEventsForDate(year, month, cellDay)
+          : [];
+
         cells.push(
           <DateCell
             key={`${cellDate.getTime()}`}
             className={`
-              ${!isCurrentMonth ? 'dimmed' : ''}
-              ${isCurrentMonth && isToday(cellDay) ? 'today' : ''}
+              ${!isCurrentMonth ? "dimmed" : ""}
+              ${isCurrentMonth && isToday(cellDay) ? "today" : ""}
             `}
             onClick={() => isCurrentMonth && openAddModal(cellDay)}
           >
             <DayNumber>{cellDay}</DayNumber>
-            
+
             {isCurrentMonth && (
               <EventsContainer>
-                {dayEvents.slice(0, 3).map(event => (
+                {dayEvents.slice(0, 3).map((event) => (
                   <Event
                     key={event.id}
                     color={event.color}
@@ -648,18 +720,22 @@ const CalendarPage = () => {
                       e.stopPropagation();
                       openEditModal(cellDay, event);
                     }}
-                    title={`${event.title}${event.time ? ` (${event.time})` : ""}${event.memo ? ` - ${event.memo}` : ""}`}
+                    title={`${event.title}${
+                      event.time ? ` (${event.time})` : ""
+                    }${event.memo ? ` - ${event.memo}` : ""}`}
                   >
                     {event.time && (
                       <>
                         <Clock size={12} style={{ marginRight: 4 }} />
-                        <span style={{ fontWeight: 600, marginRight: 6 }}>{event.time}</span>
+                        <span style={{ fontWeight: 600, marginRight: 6 }}>
+                          {event.time}
+                        </span>
                       </>
                     )}
                     {event.title}
                   </Event>
                 ))}
-                
+
                 {dayEvents.length > 3 && (
                   <Event
                     color="linear-gradient(135deg, #6b7280, #4b5563)"
@@ -674,7 +750,7 @@ const CalendarPage = () => {
                 )}
               </EventsContainer>
             )}
-            
+
             {isCurrentMonth && (
               <AddEventHint>
                 <Plus size={16} color="white" />
@@ -699,7 +775,7 @@ const CalendarPage = () => {
     return (
       <ModalBackdrop onClick={closeModal}>
         <ModalContent onClick={(e) => e.stopPropagation()}>
-          {type === 'add' && (
+          {type === "add" && (
             <>
               <ModalHeader>
                 <ModalTitle>
@@ -715,7 +791,7 @@ const CalendarPage = () => {
                 <Input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => updateFormData('title', e.target.value)}
+                  onChange={(e) => updateFormData("title", e.target.value)}
                   placeholder="일정 제목을 입력하세요"
                   autoFocus
                 />
@@ -726,29 +802,31 @@ const CalendarPage = () => {
                 <Input
                   type="time"
                   value={formData.time}
-                  onChange={(e) => updateFormData('time', e.target.value)}
+                  onChange={(e) => updateFormData("time", e.target.value)}
                 />
               </FormGroup>
 
               <FormGroup>
                 <Label>색상</Label>
-                <Select
-                  value={formData.color}
-                  onChange={(e) => updateFormData('color', e.target.value)}
-                >
-                  {EVENT_COLORS.map(color => (
-                    <option key={color.name} value={color.value}>
-                      {color.name}
-                    </option>
+                <ColorPalette>
+                  {EVENT_COLORS.map((color) => (
+                    <ColorCircle
+                      key={color.name}
+                      color={color.value}
+                      selected={formData.color === color.value}
+                      onClick={() => updateFormData("color", color.value)}
+                    >
+                      {formData.color === color.value && <Check size={18} />}
+                    </ColorCircle>
                   ))}
-                </Select>
+                </ColorPalette>
               </FormGroup>
 
               <FormGroup>
                 <Label>메모</Label>
                 <Textarea
                   value={formData.memo}
-                  onChange={(e) => updateFormData('memo', e.target.value)}
+                  onChange={(e) => updateFormData("memo", e.target.value)}
                   placeholder="메모나 추가 설명을 입력하세요"
                 />
               </FormGroup>
@@ -764,7 +842,7 @@ const CalendarPage = () => {
             </>
           )}
 
-          {type === 'edit' && (
+          {type === "edit" && (
             <>
               <ModalHeader>
                 <ModalTitle>
@@ -780,7 +858,7 @@ const CalendarPage = () => {
                 <Input
                   type="text"
                   value={formData.title}
-                  onChange={(e) => updateFormData('title', e.target.value)}
+                  onChange={(e) => updateFormData("title", e.target.value)}
                   placeholder="일정 제목을 입력하세요"
                 />
               </FormGroup>
@@ -790,38 +868,45 @@ const CalendarPage = () => {
                 <Input
                   type="time"
                   value={formData.time || ""}
-                  onChange={(e) => updateFormData('time', e.target.value)}
+                  onChange={(e) => updateFormData("time", e.target.value)}
                 />
               </FormGroup>
 
               <FormGroup>
                 <Label>색상</Label>
-                <Select
-                  value={formData.color}
-                  onChange={(e) => updateFormData('color', e.target.value)}
-                >
-                  {EVENT_COLORS.map(color => (
-                    <option key={color.name} value={color.value}>
-                      {color.name}
-                    </option>
-                  ))}
-                </Select>
+                <Dropdown
+                  options={EVENT_COLORS.map((c) => c.name)}
+                  selected={
+                    EVENT_COLORS.find((c) => c.value === formData.color)
+                      ?.name || "색상 선택"
+                  }
+                  setSelected={(name) => {
+                    const selectedColor = EVENT_COLORS.find(
+                      (c) => c.name === name
+                    );
+                    updateFormData("color", selectedColor.value);
+                  }}
+                />
               </FormGroup>
 
               <FormGroup>
                 <Label>메모</Label>
                 <Textarea
                   value={formData.memo || ""}
-                  onChange={(e) => updateFormData('memo', e.target.value)}
+                  onChange={(e) => updateFormData("memo", e.target.value)}
                   placeholder="메모나 추가 설명을 입력하세요"
                 />
               </FormGroup>
 
               <ModalActions>
-                <ActionButton 
-                  className="danger" 
+                <ActionButton
+                  className="danger"
                   onClick={() => {
-                    const dateKey = formatDateKey(selectedDate.year, selectedDate.month, selectedDate.day);
+                    const dateKey = formatDateKey(
+                      selectedDate.year,
+                      selectedDate.month,
+                      selectedDate.day
+                    );
                     openDeleteModal(dateKey, modalState.selectedEvent.id);
                   }}
                 >
@@ -834,7 +919,7 @@ const CalendarPage = () => {
             </>
           )}
 
-          {type === 'view' && (
+          {type === "view" && (
             <>
               <ModalHeader>
                 <ModalTitle>{formData.dateKey} 전체 일정</ModalTitle>
@@ -844,9 +929,11 @@ const CalendarPage = () => {
               </ModalHeader>
 
               <EventListContainer>
-                {formData.events.map(event => {
-                  const [year, month, day] = formData.dateKey.split("-").map(n => parseInt(n, 10));
-                  
+                {formData.events.map((event) => {
+                  const [year, month, day] = formData.dateKey
+                    .split("-")
+                    .map((n) => parseInt(n, 10));
+
                   return (
                     <EventListItem
                       key={event.id}
@@ -857,7 +944,9 @@ const CalendarPage = () => {
                         {event.time && (
                           <>
                             <Clock size={14} />
-                            <span style={{ fontWeight: 600 }}>{event.time}</span>
+                            <span style={{ fontWeight: 600 }}>
+                              {event.time}
+                            </span>
                           </>
                         )}
                         <span>{event.title}</span>
@@ -882,7 +971,7 @@ const CalendarPage = () => {
             </>
           )}
 
-          {type === 'delete' && (
+          {type === "delete" && (
             <>
               <ModalHeader>
                 <ModalTitle>일정 삭제</ModalTitle>
@@ -890,11 +979,11 @@ const CalendarPage = () => {
                   <X size={16} />
                 </CloseButton>
               </ModalHeader>
-              
+
               <p style={{ margin: "1.5rem 0", color: "#374151" }}>
                 이 일정을 정말로 삭제하시겠습니까?
               </p>
-              
+
               <ModalActions>
                 <ActionButton className="secondary" onClick={closeModal}>
                   취소
@@ -920,7 +1009,7 @@ const CalendarPage = () => {
           title="달력/시간표"
           subTitle="팀의 일정을 한눈에 확인하고 관리해보세요"
         />
-        
+
         <CalendarWrapper>
           <CalendarHeader>
             <MonthNavigation>
@@ -934,13 +1023,11 @@ const CalendarPage = () => {
                 <ChevronRight size={20} />
               </MonthControl>
             </MonthNavigation>
-            <TodayButton onClick={goToToday}>
-              오늘
-            </TodayButton>
+            <TodayButton onClick={goToToday}>오늘</TodayButton>
           </CalendarHeader>
 
           <GridWrapper>
-            {DAYS_OF_WEEK.map(day => (
+            {DAYS_OF_WEEK.map((day) => (
               <DayHeader key={day}>{day}</DayHeader>
             ))}
             {renderCalendarGrid()}

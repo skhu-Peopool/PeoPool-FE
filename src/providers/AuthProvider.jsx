@@ -109,6 +109,15 @@ export default function AuthProvider({ children }) {
     }
   };
 
+  const changePassword = async (email, newPassword) => {
+    try {
+      await authService.changePassword(email, newPassword);
+    } catch (err) {
+      console.error("비밀번호 변경 실패:", err);
+      throw err;
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -117,6 +126,7 @@ export default function AuthProvider({ children }) {
         logout,
         register,
         updateUser,
+        changePassword,
         isLoading,
         isAuthReady,
       }}
