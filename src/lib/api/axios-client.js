@@ -1,6 +1,18 @@
 import axios from "axios";
 
-const baseURL = import.meta.env.VITE_API_URL; // Vite 환경변수
+const baseURL = import.meta.env.VITE_API_URL || "http://localhost:8080"; // 기본값 추가
+
+// 환경변수 확인 로그 (개발 중에만)
+if (import.meta.env.DEV) {
+  console.log("🌐 API Base URL:", baseURL);
+  console.log("🔧 Environment:", import.meta.env.MODE);
+}
+
+// baseURL이 올바르지 않은 경우 경고
+if (!baseURL || baseURL.includes("localhost:5173")) {
+  console.error("❌ 잘못된 API URL입니다. .env 파일의 VITE_API_URL을 확인하세요.");
+  console.error("현재 baseURL:", baseURL);
+}
 
 // 전역 accessToken 저장
 let accessToken = null;
@@ -10,12 +22,18 @@ export const getAccessToken = () => accessToken;
 
 // accessToken 설정
 export const setAccessToken = (token) => {
+  if (token === null) {
+    accessToken = null;
+    console.log("accessToken 제거됨");
+    return;
+  }
+  
   if (typeof token !== "string") {
     console.warn("Invalid accessToken:", token);
     return;
   }
   accessToken = token;
-  console.log("setAccessToken:", token);
+  console.log("setAccessToken:", token?.substring(0, 20) + "...");
 };
 
 // axios 인스턴스 생성
@@ -25,13 +43,50 @@ const axiosClient = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  timeout: 10000, // 10초 타임아웃 추가
 });
+
+// 요청 인터셉터 (디버깅용)
+axiosClient.interceptors.request.use(
+  (config) => {
+    if (import.meta.env.DEV) {
+      console.log(` ${config.method?.toUpperCase()} ${config.url}`, config.data || config.params);
+    }
+    return config;
+  },
+  (error) => {
+    console.error("요청 인터셉터 에러:", error);
+    return Promise.reject(error);
+  }
+);
 
 // 응답 인터셉터 (토큰 자동 갱신 포함)
 axiosClient.interceptors.response.use(
-  (res) => res,
+  (res) => {
+    if (import.meta.env.DEV) {
+      console.log(`✅ ${res.config.method?.toUpperCase()} ${res.config.url}:`, res.data);
+    }
+    return res;
+  },
   async (err) => {
     const originalConfig = err.config;
+
+    // 네트워크 에러 처리
+    if (!err.response) {
+      console.error("네트워크 에러 또는 서버에 연결할 수 없습니다:");
+      console.error("- baseURL:", baseURL);
+      console.error("- 요청 URL:", originalConfig?.url);
+      console.error("- 에러:", err.message);
+      
+      const networkError = new Error("서버에 연결할 수 없습니다.");
+      networkError.status = 0;
+      return Promise.reject(networkError);
+    }
+
+    if (import.meta.env.DEV) {
+      console.error(`${err.response.status} ${originalConfig?.method?.toUpperCase()} ${originalConfig?.url}:`, 
+        err.response.data);
+    }
 
     // accessToken 만료 시 401 발생
     if (err.response?.status === 401 && !originalConfig._retry) {
@@ -50,14 +105,25 @@ axiosClient.interceptors.response.use(
 
         return axiosClient(originalConfig); // 원래 요청 재시도
       } catch (refreshErr) {
-        console.warn("토큰 재발급 실패");
-        return Promise.reject(refreshErr);
+        console.warn("토큰 재발급 실패:", refreshErr);
+        setAccessToken(null); // 토큰 제거
+        
+        const authError = new Error("인증이 만료되었습니다. 다시 로그인해주세요.");
+        authError.status = 401;
+        return Promise.reject(authError);
       }
     }
 
-    const message =
-      err?.response?.data?.message || `API error: ${err?.response?.status}`;
-    return Promise.reject(new Error(message));
+    // 에러 객체 생성
+    const apiError = new Error(
+      err?.response?.data?.message || 
+      err?.response?.data?.error ||
+      `API 에러: ${err?.response?.status}`
+    );
+    apiError.status = err?.response?.status;
+    apiError.response = err?.response;
+    
+    return Promise.reject(apiError);
   }
 );
 
@@ -74,20 +140,22 @@ export const defaultFetch = async (url, options = {}) => {
     headers: options.headers,
   };
 
-  const res = await axiosClient(config);
-
-  return res.data;
+  try {
+    const res = await axiosClient(config);
+    return res.data;
+  } catch (error) {
+    console.error(`defaultFetch 에러 - ${method} ${url}:`, error);
+    throw error;
+  }
 };
 
-// 인증 요청 함수
-export const tokenFetch = async (url, tokenOverride = null, options = {}) => {
-  if (tokenOverride && typeof tokenOverride === "string") {
-    setAccessToken(tokenOverride);
-  }
-
+// 인증 요청 함수 수정
+export const tokenFetch = async (url, options = {}) => {
   const token = accessToken;
   if (!token) {
-    throw new Error("accessToken이 없습니다.");
+    const authError = new Error("로그인이 필요합니다.");
+    authError.status = 401;
+    throw authError;
   }
 
   const method = options.method || "GET";
@@ -107,6 +175,11 @@ export const tokenFetch = async (url, tokenOverride = null, options = {}) => {
     config.data = options.data || options.body;
   }
 
-  const res = await axiosClient(config);
-  return res.data;
+  try {
+    const res = await axiosClient(config);
+    return res.data;
+  } catch (error) {
+    console.error(`tokenFetch 에러 - ${method} ${url}:`, error);
+    throw error;
+  }
 };

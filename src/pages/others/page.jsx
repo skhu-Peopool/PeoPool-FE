@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { Users, MessageCircle, Star, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import styled, { keyframes } from "styled-components";
 import Header from "../../components/Header";
 import { userService } from "../../lib/api/user-service";
+import { chatService } from "../../lib/api/chat-service";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -120,6 +122,12 @@ const ContactButton = styled.button`
   &:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 30px rgba(96, 165, 250, 0.6);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: scale(0.95);
   }
 `;
 
@@ -246,8 +254,24 @@ const EmptyState = styled.div`
   color: rgba(255, 255, 255, 0.8);
 `;
 
+const LoadingSpinner = styled.div`
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top: 2px solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+`;
+
 const TeamFinder = () => {
   const [members, setMembers] = useState([]);
+  const [startingChat, setStartingChat] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchMembers() {
@@ -273,10 +297,53 @@ const TeamFinder = () => {
     fetchMembers();
   }, []);
 
-  const PersonCard = ({ member, onContact }) => (
-    <Card onClick={() => onContact(member)}>
-      <ContactButton>
-        <MessageCircle size={18} />
+  const handleStartChat = async (member, e) => {
+      e.stopPropagation();
+      
+      if (startingChat === member.id) return;
+      
+      try {
+        setStartingChat(member.id);
+        
+        console.log("채팅 시작 시도:", { memberId: member.id, memberName: member.name });
+        
+        // 메시지 전송
+        await chatService.startChatWithMessage(
+          member.id, 
+          "안녕하세요! 팀원 찾기에서 연락드립니다. 😊"
+        );
+        
+        console.log("채팅 시작 성공");
+        setTimeout(() => {
+          navigate('/chat', { 
+            state: { 
+              targetMemberId: member.id,
+              targetMemberName: member.name,
+              justCreated: true
+            } 
+          });
+        }, 100);
+        
+      } catch (error) {
+        console.error("채팅 시작 실패:", error);
+        alert(error.message || "채팅을 시작하는데 실패했습니다. 다시 시도해주세요.");
+      } finally {
+        setStartingChat(null);
+      }
+    };
+
+  const PersonCard = ({ member }) => (
+    <Card>
+      <ContactButton 
+        onClick={(e) => handleStartChat(member, e)}
+        disabled={startingChat === member.id}
+        title={`${member.name}님과 채팅하기`}
+      >
+        {startingChat === member.id ? (
+          <LoadingSpinner />
+        ) : (
+          <MessageCircle size={18} />
+        )}
       </ContactButton>
 
       <ProfileHeader>
