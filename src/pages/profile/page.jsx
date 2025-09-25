@@ -5,7 +5,6 @@ import {
   Lock,
   Calendar,
   Mail,
-  Phone,
   MessageCircle,
   Award,
   BookOpen,
@@ -694,7 +693,6 @@ const ProfileEditPage = () => {
     }
   };
 
-  // ✅ [수정] '저장하기' 버튼 눌렀을 때 모든 변경사항을 한번에 저장
   const handleSave = async () => {
     const memberProfileUpdateReq = {
       nickname: profileData.nickname,
@@ -715,13 +713,12 @@ const ProfileEditPage = () => {
     }
 
     try {
-      // 프로필 정보 업데이트와 공개 여부 업데이트를 동시에 처리
       await Promise.all([
         userService.updateMe(formData),
         userService.updateProfileVisibility(isProfileVisible),
       ]);
 
-      const updatedData = await userService.getMe(); // 최신 데이터 다시 로드
+      const updatedData = await userService.getMe();
       setInitialProfileData(updatedData);
       setProfileData(updatedData);
       setIsEditing(false);
@@ -734,19 +731,16 @@ const ProfileEditPage = () => {
     }
   };
 
-  // ✅ [수정] '취소하기' 눌렀을 때 공개 여부 상태도 원래대로 복구
   const handleCancel = () => {
     setProfileData(initialProfileData);
     setIsEditing(false);
     setImageFile(null);
     setImagePreview(null);
-    // isProfileVisible 상태도 원래 데이터(initialProfileData) 기준으로 복구
     if (initialProfileData) {
       setIsProfileVisible(initialProfileData.visible === "VISIBLE");
     }
   };
 
-  // ✅ [수정] 토글 시 API 호출 없이 상태만 변경
   const handleVisibilityChange = () => {
     setIsProfileVisible((prev) => !prev);
   };
@@ -843,16 +837,6 @@ const ProfileEditPage = () => {
 
               <InfoItem>
                 <InfoIcon>
-                  <Phone size={16} />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>핸드폰</InfoLabel>
-                  <InfoValue>정보 없음</InfoValue>
-                </InfoContent>
-              </InfoItem>
-
-              <InfoItem>
-                <InfoIcon>
                   <MessageCircle size={16} />
                 </InfoIcon>
                 <InfoContent>
@@ -933,7 +917,6 @@ const ProfileEditPage = () => {
               )}
             </Introduction>
 
-            {/* ✅ [수정] isEditing 상태일 때만 토글 스위치가 보이도록 수정 */}
             {isEditing && (
               <ToggleSwitchWrapper>
                 <ToggleLabel>프로필 공개 설정</ToggleLabel>

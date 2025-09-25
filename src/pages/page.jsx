@@ -50,7 +50,6 @@ const shimmer = keyframes`
   }
 `;
 
-
 export default function HomePage() {
   const { isLoading } = useAuth();
   const [step, setStep] = useState(0);
@@ -71,7 +70,7 @@ export default function HomePage() {
         <GradientOrb3 />
         <ParticleBackground />
       </Background>
-      
+
       <ContentWrapper>
         <HeaderContainer>
           <HeaderContent>
@@ -210,7 +209,12 @@ const GradientOrb1 = styled.div`
   left: -5%;
   width: 40vw;
   height: 40vw;
-  background: radial-gradient(circle, rgba(96, 165, 250, 0.3) 0%, rgba(59, 130, 246, 0.1) 50%, transparent 100%);
+  background: radial-gradient(
+    circle,
+    rgba(96, 165, 250, 0.3) 0%,
+    rgba(59, 130, 246, 0.1) 50%,
+    transparent 100%
+  );
   border-radius: 50%;
   animation: ${float} 6s ease-in-out infinite;
   filter: blur(1px);
@@ -222,7 +226,12 @@ const GradientOrb2 = styled.div`
   right: -10%;
   width: 35vw;
   height: 35vw;
-  background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(139, 92, 246, 0.1) 50%, transparent 100%);
+  background: radial-gradient(
+    circle,
+    rgba(168, 85, 247, 0.2) 0%,
+    rgba(139, 92, 246, 0.1) 50%,
+    transparent 100%
+  );
   border-radius: 50%;
   animation: ${float} 8s ease-in-out infinite reverse;
   filter: blur(1px);
@@ -234,7 +243,12 @@ const GradientOrb3 = styled.div`
   left: 20%;
   width: 30vw;
   height: 30vw;
-  background: radial-gradient(circle, rgba(34, 197, 94, 0.2) 0%, rgba(16, 185, 129, 0.1) 50%, transparent 100%);
+  background: radial-gradient(
+    circle,
+    rgba(34, 197, 94, 0.2) 0%,
+    rgba(16, 185, 129, 0.1) 50%,
+    transparent 100%
+  );
   border-radius: 50%;
   animation: ${float} 7s ease-in-out infinite;
   filter: blur(1px);
@@ -278,19 +292,24 @@ const HeaderContent = styled.div`
   justify-content: space-between;
   align-items: center;
   position: relative;
-  z-index: 11; 
-  
+  z-index: 11;
+
   &::before {
     content: "";
     position: absolute;
     inset: 0;
     border-radius: 2rem;
     padding: 1px;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(96,165,250,0.2), rgba(168,85,247,0.2));
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.2),
+      rgba(96, 165, 250, 0.2),
+      rgba(168, 85, 247, 0.2)
+    );
     mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
     mask-composite: xor;
     -webkit-mask-composite: xor;
-    z-index: -1; 
+    z-index: -1;
   }
 `;
 
@@ -320,16 +339,18 @@ const LogoText = styled.h1`
 const ButtonGroup = styled.div`
   display: flex;
   gap: 1rem;
-  z-index: 12; 
+  z-index: 12;
 `;
 
 const HeaderButton = styled.button`
   padding: 0.75rem 1.5rem;
-  background: ${props => props.primary 
-    ? 'linear-gradient(135deg, #ffffff, #f1f5f9)' 
-    : 'rgba(255, 255, 255, 0.15)'};
-  color: ${props => props.primary ? '#475569' : 'white'};
-  border: ${props => props.primary ? 'none' : '1px solid rgba(255, 255, 255, 0.2)'};
+  background: ${(props) =>
+    props.primary
+      ? "linear-gradient(135deg, #ffffff, #f1f5f9)"
+      : "rgba(255, 255, 255, 0.15)"};
+  color: ${(props) => (props.primary ? "#475569" : "white")};
+  border: ${(props) =>
+    props.primary ? "none" : "1px solid rgba(255, 255, 255, 0.2)"};
   border-radius: 1rem;
   font-weight: 600;
   font-size: 0.875rem;
@@ -338,16 +359,17 @@ const HeaderButton = styled.button`
   backdrop-filter: blur(10px);
   position: relative;
   overflow: hidden;
-  z-index: 13; 
-  pointer-events: auto; 
+  z-index: 13;
+  pointer-events: auto;
 
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: ${props => props.primary 
-      ? 'linear-gradient(135deg, rgba(255,255,255,0.2), transparent)' 
-      : 'linear-gradient(135deg, rgba(255,255,255,0.1), transparent)'};
+    background: ${(props) =>
+      props.primary
+        ? "linear-gradient(135deg, rgba(255,255,255,0.2), transparent)"
+        : "linear-gradient(135deg, rgba(255,255,255,0.1), transparent)"};
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: -1;
@@ -355,13 +377,15 @@ const HeaderButton = styled.button`
 
   &:hover {
     transform: translateY(-2px) scale(1.02);
-    background: ${props => props.primary 
-      ? 'linear-gradient(135deg, #f1f5f9, #e2e8f0)' 
-      : 'rgba(255, 255, 255, 0.25)'};
-    box-shadow: ${props => props.primary 
-      ? '0 8px 30px rgba(255, 255, 255, 0.4)' 
-      : '0 8px 25px rgba(255, 255, 255, 0.2)'};
-    
+    background: ${(props) =>
+      props.primary
+        ? "linear-gradient(135deg, #f1f5f9, #e2e8f0)"
+        : "rgba(255, 255, 255, 0.25)"};
+    box-shadow: ${(props) =>
+      props.primary
+        ? "0 8px 30px rgba(255, 255, 255, 0.4)"
+        : "0 8px 25px rgba(255, 255, 255, 0.2)"};
+
     &::before {
       opacity: 1;
     }
@@ -409,7 +433,13 @@ const TitleCard = styled.div`
     left: -100%;
     width: 100%;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(96,165,250,0.8), rgba(168,85,247,0.8), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(96, 165, 250, 0.8),
+      rgba(168, 85, 247, 0.8),
+      transparent
+    );
     animation: ${shimmer} 3s ease-in-out infinite;
     z-index: -1;
   }
@@ -469,7 +499,7 @@ const MainCTAButton = styled.button`
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: -1;
@@ -479,7 +509,7 @@ const MainCTAButton = styled.button`
     transform: translateY(-4px) scale(1.02);
     box-shadow: 0 20px 60px rgba(59, 130, 246, 0.4);
     animation-duration: 1.5s;
-    
+
     &::before {
       opacity: 1;
     }
@@ -514,7 +544,7 @@ const FeatureCard = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.12);
   box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15);
   transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-  animation: ${fadeInUp} 0.8s ease-out ${props => props.delay} both;
+  animation: ${fadeInUp} 0.8s ease-out ${(props) => props.delay} both;
   position: relative;
   overflow: hidden;
 
@@ -546,12 +576,16 @@ const FeatureCard = styled.div`
 const CardGlow = styled.div`
   position: absolute;
   inset: -1px;
-  background: linear-gradient(135deg, rgba(96,165,250,0.2), rgba(168,85,247,0.2));
+  background: linear-gradient(
+    135deg,
+    rgba(96, 165, 250, 0.2),
+    rgba(168, 85, 247, 0.2)
+  );
   border-radius: 2rem;
   opacity: 0;
   transition: opacity 0.3s ease;
   z-index: -1;
-  
+
   ${FeatureCard}:hover & {
     opacity: 1;
   }
@@ -569,18 +603,18 @@ const CardIcon = styled.div`
   margin-bottom: 1.5rem;
   box-shadow: 0 8px 25px rgba(96, 165, 250, 0.3);
   position: relative;
-  
+
   &::before {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), transparent);
     border-radius: 1.2rem;
     opacity: 0;
     transition: opacity 0.3s ease;
     z-index: -1;
   }
-  
+
   ${FeatureCard}:hover & {
     &::before {
       opacity: 1;
@@ -608,7 +642,7 @@ const FloatingImageContainer = styled.div`
   right: -2%;
   z-index: 2;
   animation: ${float} 6s ease-in-out infinite;
-  
+
   @media (max-width: 1024px) {
     display: none;
   }
