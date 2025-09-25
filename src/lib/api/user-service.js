@@ -29,4 +29,10 @@ export const userService = {
       },
     });
   },
+
+  // 사람찾기 페이지 api
+  getVisibleProfiles: () =>
+    tokenFetch("/others", undefined, {
+      method: "GET",
+    }),
 };

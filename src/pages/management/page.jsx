@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styled, { css, keyframes } from "styled-components";
 import {
   Users,
@@ -9,7 +9,6 @@ import {
   Mail,
   Edit3,
   Search,
-  Award,
 } from "lucide-react";
 import Header from "../../components/Header";
 import { postService } from "../../lib/api/post-service";
@@ -448,12 +447,19 @@ const SkillsContainer = styled.div`
   gap: 0.5rem;
 `;
 
-const SkillBadge = styled.span`
-  padding: 0.25rem 0.75rem;
-  background-color: #f3f4f6;
-  color: #4b5563;
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
+const SkillTag = styled.span`
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #1e40af;
+  padding: 0.3rem 0.8rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(135deg, #bfdbfe, #93c5fd);
+    transform: scale(1.05);
+  }
 `;
 
 const MessageBubble = styled.div`
@@ -600,7 +606,7 @@ const ApplicationManagementPage = () => {
           applicationDate: app.appliedAt.split("T")[0],
           message: app.comment,
           status: app.status.toLowerCase(),
-          skills: ["React", "Node.js"],
+          skills: app.memberTags,
         }));
 
         setAllApplications((prev) => ({
@@ -870,9 +876,13 @@ const ApplicationManagementPage = () => {
                             </StatusTag>
                           </ApplicationHeader>
                           <SkillsContainer>
-                            {application.skills.map((skill, index) => (
-                              <SkillBadge key={index}>{skill}</SkillBadge>
-                            ))}
+                            {(application.skills || "")
+                              .split(",") // 문자열 → 배열
+                              .map((tag) => tag.trim()) // 공백 제거
+                              .filter(Boolean) // 빈 값 제거
+                              .map((tag, idx) => (
+                                <SkillTag key={idx}>#{tag}</SkillTag>
+                              ))}
                           </SkillsContainer>
                           <MessageBubble>
                             <MessageText>{application.message}</MessageText>
