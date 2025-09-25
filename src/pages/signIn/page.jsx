@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import styled, { keyframes } from "styled-components";
 import { Eye, EyeOff, Mail, Lock, Users } from "lucide-react";
 import { useAuth } from "../../providers/AuthProvider";
 import { useNavigate } from "react-router-dom";
+import PasswordChangeModal from "../../components/modal/PasswordChangeModal";
+
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(40px) scale(0.95); }
   to { opacity: 1; transform: translateY(0) scale(1); }
@@ -21,7 +23,9 @@ export default function SignInPage() {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  const { login } = useAuth();
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+
+  const { login, changePassword } = useAuth();
   const navigate = useNavigate();
 
   const validateFields = () => {
@@ -110,20 +114,33 @@ export default function SignInPage() {
             <CheckboxLabel htmlFor="remember">로그인 상태 유지</CheckboxLabel>
           </CheckboxContainer>
 
-          <LoginButton 
-            onClick={handleSubmit}
-            disabled={loading}
-          >
+          <LoginButton onClick={handleSubmit} disabled={loading}>
             {loading ? "로그인 중..." : "로그인"}
           </LoginButton>
 
           <LinkContainer>
-            <Link onClick={() => navigate("/signup")}>
-              회원가입하기
+            <Link onClick={() => navigate("/signup")}>회원가입하기</Link>
+            <Link type="button" onClick={() => setShowPasswordModal(true)}>
+              비밀번호 변경
             </Link>
           </LinkContainer>
         </Form>
       </LoginCard>
+
+      {showPasswordModal && (
+        <PasswordChangeModal
+          onClose={() => setShowPasswordModal(false)}
+          onChangePassword={async ({ email, newPassword }) => {
+            try {
+              await changePassword(email, newPassword);
+              alert("비밀번호가 변경되었습니다.");
+              setShowPasswordModal(false);
+            } catch (err) {
+              alert("비밀번호 변경 실패: " + err.message);
+            }
+          }}
+        />
+      )}
     </Container>
   );
 }
@@ -163,11 +180,11 @@ const LoginCard = styled.div`
 `;
 
 const Header = styled.div`
-  padding: 3rem 2rem 2rem 2rem;
+  padding: 3rem 2rem 1rem 2rem;
   text-align: center;
   background: rgba(248, 250, 252, 0.8);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
+  // border-bottom: 1px solid rgba(229, 231, 235, 0.3);
 `;
 
 const Logo = styled.div`
@@ -211,10 +228,10 @@ const SubText = styled.p`
   color: #94a3b8;
   margin: 0;
   font-weight: 400;
-`
+`;
 
 const Form = styled.div`
-  padding: 2.5rem;
+  padding: 1.5rem 2.5rem;
 `;
 
 const InputGroup = styled.div`
@@ -235,7 +252,8 @@ const InputIcon = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 1rem 1.2rem 1rem 3.5rem;
-  border: 2px solid ${({ $error }) => ($error ? "#ef4444" : "rgba(148, 163, 184, 0.3)")};
+  border: 2px solid
+    ${({ $error }) => ($error ? "#ef4444" : "rgba(148, 163, 184, 0.3)")};
   border-radius: 0.75rem;
   font-size: 1rem;
   color: #1f2937;
@@ -252,8 +270,9 @@ const Input = styled.input`
     outline: none;
     border-color: ${({ $error }) => ($error ? "#ef4444" : "#60a5fa")};
     background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 0 4px ${({ $error }) => 
-      $error ? "rgba(239, 68, 68, 0.1)" : "rgba(96, 165, 250, 0.15)"};
+    box-shadow: 0 0 0 4px
+      ${({ $error }) =>
+        $error ? "rgba(239, 68, 68, 0.1)" : "rgba(96, 165, 250, 0.15)"};
     transform: translateY(-1px);
   }
 
@@ -338,8 +357,8 @@ const LinkContainer = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 1.5rem;
-  padding-top: 1.5rem;
+  gap: 4rem;
+  padding-top: 1rem;
   border-top: 1px solid rgba(229, 231, 235, 0.5);
 `;
 
@@ -359,7 +378,6 @@ const Link = styled.button`
     background: rgba(96, 165, 250, 0.05);
   }
 `;
-
 
 const ErrorText = styled.div`
   font-size: 0.875rem;

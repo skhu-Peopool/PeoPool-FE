@@ -97,7 +97,8 @@ export const postService = {
       maxPeople,
       category,
       postStatus,
-      imageFile,
+      imageFile = [],
+      deleteImgUrl = [],
     }
   ) => {
     const formData = new FormData();
@@ -114,11 +115,12 @@ export const postService = {
       maxPeople: Number(maxPeople),
       category: category.toUpperCase(),
       postStatus: postStatus?.toUpperCase(),
+      deleteImgUrl,
     };
 
     formData.append("postUpdateReq", JSON.stringify(postUpdateReq));
 
-    if (Array.isArray(imageFile)) {
+    if (Array.isArray(imageFile) && imageFile.length > 0) {
       imageFile.forEach((file) => {
         formData.append("image", file);
       });

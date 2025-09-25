@@ -161,7 +161,9 @@ export default function SignUpPage() {
             >
               {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </PasswordToggle>
-            {errors.confirmPassword && <ErrorText>{errors.confirmPassword}</ErrorText>}
+            {errors.confirmPassword && (
+              <ErrorText>{errors.confirmPassword}</ErrorText>
+            )}
           </InputGroup>
 
           <CheckboxContainer>
@@ -176,10 +178,7 @@ export default function SignUpPage() {
             </CheckboxLabel>
           </CheckboxContainer>
 
-          <SignUpButton 
-            onClick={handleSubmit}
-            disabled={loading}
-          >
+          <SignUpButton onClick={handleSubmit} disabled={loading}>
             {loading ? "가입 중..." : "회원가입"}
           </SignUpButton>
 
@@ -229,11 +228,10 @@ const SignUpCard = styled.div`
 `;
 
 const Header = styled.div`
-  padding: 3rem 2rem 2rem 2rem;
+  padding: 3rem 2rem 0 2rem;
   text-align: center;
   background: rgba(248, 250, 252, 0.8);
   backdrop-filter: blur(10px);
-  border-bottom: 1px solid rgba(229, 231, 235, 0.3);
 `;
 
 const Logo = styled.div`
@@ -241,7 +239,7 @@ const Logo = styled.div`
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 `;
 
 const LogoIcon = styled.div`
@@ -281,7 +279,7 @@ const SubText = styled.p`
 `;
 
 const Form = styled.div`
-  padding: 2.5rem;
+  padding: 1.5rem 2.5rem;
 `;
 
 const InputGroup = styled.div`
@@ -302,7 +300,8 @@ const InputIcon = styled.div`
 const Input = styled.input`
   width: 100%;
   padding: 1rem 1.2rem 1rem 3.5rem;
-  border: 2px solid ${({ $error }) => ($error ? "#ef4444" : "rgba(148, 163, 184, 0.3)")};
+  border: 2px solid
+    ${({ $error }) => ($error ? "#ef4444" : "rgba(148, 163, 184, 0.3)")};
   border-radius: 0.75rem;
   font-size: 1rem;
   color: #1f2937;
@@ -319,8 +318,9 @@ const Input = styled.input`
     outline: none;
     border-color: ${({ $error }) => ($error ? "#ef4444" : "#60a5fa")};
     background: rgba(255, 255, 255, 0.95);
-    box-shadow: 0 0 0 4px ${({ $error }) => 
-      $error ? "rgba(239, 68, 68, 0.1)" : "rgba(96, 165, 250, 0.15)"};
+    box-shadow: 0 0 0 4px
+      ${({ $error }) =>
+        $error ? "rgba(239, 68, 68, 0.1)" : "rgba(96, 165, 250, 0.15)"};
     transform: translateY(-1px);
   }
 
@@ -420,7 +420,7 @@ const Link = styled.button`
   color: #6b7280;
   cursor: pointer;
   transition: all 0.2s ease;
-  padding: 0.5rem;
+  padding: 0.2rem 0.5rem 0.5rem 0.5rem;
   border-radius: 0.5rem;
   font-weight: 500;
 
