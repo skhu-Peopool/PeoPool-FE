@@ -331,7 +331,6 @@ const RecruitInfo = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
 `;
 
 const RecruitProgress = styled.div`
@@ -340,7 +339,7 @@ const RecruitProgress = styled.div`
 `;
 
 const ProgressText = styled.div`
-  font-size: 0.875rem;
+  font-size: 0.9rem;
   font-weight: 600;
   color: #374151;
   margin-bottom: 0.5rem;
@@ -641,9 +640,9 @@ const CommunityPage = () => {
                       <ProgressText>
                         모집현황: {post.appliedPeople ?? 0} / {post.maxPeople}명
                       </ProgressText>
-                      <ProgressBar>
+                      {/* <ProgressBar>
                         <ProgressFill percentage={progressPercentage} />
-                      </ProgressBar>
+                      </ProgressBar> */}
                     </RecruitProgress>
 
                     {user?.id !== post.writerId && (

@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Users, MessageCircle, Star, Clock } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import Header from "../../components/Header";
+import { userService } from "../../lib/api/user-service";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -50,7 +51,7 @@ const SearchResults = styled.div`
 const Grid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  gap: 2rem;
+  gap: 4rem;
   animation: ${fadeIn} 1s ease-out 0.2s both;
 `;
 
@@ -65,6 +66,9 @@ const Card = styled.div`
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+
+  min-height: 250px;
+  min-width: 360px;
 
   &::before {
     content: "";
@@ -163,18 +167,6 @@ const Avatar = styled.div`
   }
 `;
 
-const OnlineIndicator = styled.div`
-  position: absolute;
-  bottom: 0;
-  right: 0;
-  width: 1rem;
-  height: 1rem;
-  background: #10b981;
-  border: 2px solid white;
-  border-radius: 50%;
-  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.4);
-`;
-
 const ProfileInfo = styled.div`
   flex: 1;
 `;
@@ -184,6 +176,7 @@ const Name = styled.h3`
   font-weight: 700;
   color: #1f2937;
   margin: 0 0 0.25rem 0;
+  white-space: nowrap;
 `;
 
 const Role = styled.div`
@@ -193,6 +186,7 @@ const Role = styled.div`
   font-size: 0.875rem;
   color: #6b7280;
   margin-bottom: 0.5rem;
+  white-space: nowrap;
 `;
 
 const MetaInfo = styled.div`
@@ -201,6 +195,7 @@ const MetaInfo = styled.div`
   gap: 1rem;
   font-size: 0.75rem;
   color: #9ca3af;
+  white-space: nowrap;
 `;
 
 const MetaItem = styled.div`
@@ -225,6 +220,7 @@ const TagsContainer = styled.div`
   flex-wrap: wrap;
   gap: 0.5rem;
   margin-top: auto;
+  white-space: nowrap;
 `;
 
 const Tag = styled.span`
@@ -251,45 +247,31 @@ const EmptyState = styled.div`
 `;
 
 const TeamFinder = () => {
-  const [members, setMembers] = useState([
-    {
-      id: 1,
-      name: "자은우",
-      role: "대학 3년차",
-      description:
-        "모든 준비하고 있습니다. 토익준비, 디자인, 패션 등 함께 공부하실 분들 환영해요. 새로운 사람들과 함께 성장하며 배워나가고 싶어요.",
-      hashtags: ["토익", "디자인", "패션"],
-      avatar: "자",
-      lastSeen: "5분 전",
-      rating: 4.8,
-    },
-    {
-      id: 2,
-      name: "Grute",
-      role: "I'm Grute",
-      description:
-        "다양한 프로젝트에 관심이 많습니다. 함께 창의적인 아이디어를 나누고 실현해보아요!",
-      hashtags: ["프로젝트", "창의"],
-      avatar: "G",
-      lastSeen: "1시간 전",
-      rating: 4.9,
-    },
-    {
-      id: 3,
-      name: "김민지",
-      role: "프론트엔드 개발자",
-      description:
-        "React, TypeScript를 주로 사용하는 개발자입니다. 사이드 프로젝트나 스터디 함께 하실 분 찾아요.",
-      hashtags: ["React", "TypeScript", "개발"],
-      avatar: "김",
-      lastSeen: "30분 전",
-      rating: 4.7,
-    },
-  ]);
+  const [members, setMembers] = useState([]);
 
-  const handleContact = (person) => {
-    alert(`${person.name}님에게 연락하기`);
-  };
+  useEffect(() => {
+    async function fetchMembers() {
+      try {
+        const response = await userService.getVisibleProfiles();
+        const mapped = response.userList.map((user) => ({
+          id: user.id,
+          name: user.nickname,
+          role: user.subIntroduction || "역할 정보 없음",
+          description: user.mainIntroduction || "",
+          hashtags: user.hashtag
+            ? user.hashtag.split(",").map((tag) => tag.trim())
+            : [],
+          avatar: user.nickname ? user.nickname.charAt(0) : "?",
+          lastSeen: user.email,
+          rating: user.kakaoId || "N/A",
+        }));
+        setMembers(mapped);
+      } catch (err) {
+        console.error("팀원 데이터 불러오기 실패", err);
+      }
+    }
+    fetchMembers();
+  }, []);
 
   const PersonCard = ({ member, onContact }) => (
     <Card onClick={() => onContact(member)}>
@@ -300,7 +282,6 @@ const TeamFinder = () => {
       <ProfileHeader>
         <AvatarWrapper>
           <Avatar>{member.avatar}</Avatar>
-          <OnlineIndicator />
         </AvatarWrapper>
         <ProfileInfo>
           <Name>{member.name}</Name>
@@ -312,10 +293,6 @@ const TeamFinder = () => {
             <MetaItem>
               <Clock size={12} />
               {member.lastSeen}
-            </MetaItem>
-            <MetaItem>
-              <Star size={12} fill="currentColor" />
-              {member.rating}
             </MetaItem>
           </MetaInfo>
         </ProfileInfo>
@@ -344,11 +321,7 @@ const TeamFinder = () => {
         <Grid>
           {members.length > 0 ? (
             members.map((member) => (
-              <PersonCard
-                key={member.id}
-                member={member}
-                onContact={handleContact}
-              />
+              <PersonCard key={member.id} member={member} />
             ))
           ) : (
             <EmptyState>
