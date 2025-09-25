@@ -116,53 +116,6 @@ const WriteButton = styled.button`
   }
 `;
 
-const ManagementButton = styled.button`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem;
-  background: white;
-  color: #475569;
-  border: none;
-  border-radius: 1rem;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 20px rgba(139, 92, 246, 0.3);
-  position: relative;
-
-  &:hover {
-    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
-    transform: translateY(-2px) scale(1.02);
-    box-shadow: 0 8px 30px rgba(255, 255, 255, 0.4);
-  }
-
-  &:active {
-    transform: translateY(0) scale(0.98);
-  }
-
-  &::after {
-    content: "신청자 관리";
-    position: absolute;
-    top: -2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 0.25rem 0.5rem;
-    border-radius: 0.25rem;
-    font-size: 0.75rem;
-    font-weight: 500;
-    white-space: nowrap;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
-  }
-
-  &:hover::after {
-    opacity: 1;
-  }
-`;
 
 const Filters = styled.div`
   display: flex;
@@ -557,9 +510,6 @@ const CommunityPage = () => {
             </SearchContainer>
 
             <ButtonGroup>
-              <ManagementButton onClick={handleManagementClick}>
-                <Settings size={18} />
-              </ManagementButton>
 
               <WriteButton onClick={handleWriteClick}>
                 <Edit3 size={18} />

@@ -10,7 +10,6 @@ import {
   Edit3,
   Search,
 } from "lucide-react";
-import Header from "../../components/Header";
 import { postService } from "../../lib/api/post-service";
 import { categoryLabelMap } from "../../lib/labelMaps";
 import { enrollmentService } from "../../lib/api/enrollment-service";
@@ -20,34 +19,16 @@ const fadeIn = keyframes`
   to { opacity: 1; transform: translateY(0); }
 `;
 
-const float = keyframes`
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-`;
-
 const slideUp = keyframes`
   from { opacity: 0; transform: translateY(30px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
 `;
 
-// --- Base Layout ---
 const PageWrapper = styled.div`
   min-height: 100vh;
-  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
   padding: 2rem;
   position: relative;
   overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="20" r="2" fill="rgba(255,255,255,0.1)"/><circle cx="80" cy="40" r="1" fill="rgba(255,255,255,0.1)"/><circle cx="40" cy="80" r="1.5" fill="rgba(255,255,255,0.1)"/></svg>');
-    animation: ${float} 6s ease-in-out infinite;
-  }
 `;
 
 const ContentContainer = styled.div`
@@ -599,7 +580,7 @@ const ApplicationManagementPage = () => {
       try {
         const response = await enrollmentService.getApplicantsByPostId(postId);
 
-        const applicants = response.map((app, index) => ({
+        const applicants = response.map((app) => ({
           id: app.enrollmentId,
           userName: app.memberNickname,
           userEmail: app.memberEmail,
@@ -669,11 +650,6 @@ const ApplicationManagementPage = () => {
   return (
     <PageWrapper>
       <ContentContainer>
-        <Header
-          icon={<Users color="white" size={32} />}
-          title={"신청자 관리"}
-          subTitle={"지원자들의 신청서를 검토하고 관리하세요"}
-        />
         <StatCardsGrid>
           <StatCard>
             <div>
