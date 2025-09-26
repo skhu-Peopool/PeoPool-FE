@@ -46,9 +46,14 @@ const axiosClient = axios.create({
   timeout: 10000, // 10초 타임아웃 추가
 });
 
-// 요청 인터셉터 (디버깅용)
+// 요청 인터셉터 (Authorization 헤더 자동 추가)
 axiosClient.interceptors.request.use(
   (config) => {
+    // accessToken이 있으면 자동으로 Authorization 헤더 추가
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    
     if (import.meta.env.DEV) {
       console.log(` ${config.method?.toUpperCase()} ${config.url}`, config.data || config.params);
     }
@@ -126,6 +131,9 @@ axiosClient.interceptors.response.use(
     return Promise.reject(apiError);
   }
 );
+
+// axiosClient를 기본으로 내보냄 (기존 userService가 이를 사용)
+export default axiosClient;
 
 // 공통 fetch 함수 (비인증 요청 가능)
 export const defaultFetch = async (url, options = {}) => {

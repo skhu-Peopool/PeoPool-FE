@@ -4,26 +4,26 @@ export const userService = {
   getMe: () => tokenFetch("/user"),
 
   updateMe: (userData) =>
-    tokenFetch("/update/profile", undefined, {
+    tokenFetch("/update/profile", {
       method: "PATCH",
-      body: userData,
+      data: userData,
       headers: {
-        "Content-Type": null,
+        "Content-Type": "multipart/form-data",
       },
     }),
 
   // 비밀번호 변경
   changePassword: ({ email, newPassword }) =>
-    tokenFetch("/forgotpwd", undefined, {
+    tokenFetch("/forgotpwd", {
       method: "PATCH",
-      body: { email, newPassword },
+      data: { email, newPassword },
     }),
 
   updateProfileVisibility: (visible) => {
     const visibilityStatus = visible ? "VISIBLE" : "INVISIBLE";
-    return tokenFetch("/update/profilevisible", undefined, {
+    return tokenFetch("/update/profilevisible", {
       method: "PATCH",
-      body: JSON.stringify({ visible: visibilityStatus }),
+      data: { visible: visibilityStatus },
       headers: {
         "Content-Type": "application/json",
       },
@@ -32,7 +32,7 @@ export const userService = {
 
   // 사람찾기 페이지 api
   getVisibleProfiles: () =>
-    tokenFetch("/others", undefined, {
+    tokenFetch("/others", {
       method: "GET",
     }),
 };
