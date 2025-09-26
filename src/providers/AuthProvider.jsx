@@ -11,6 +11,7 @@ const AuthContext = createContext({
   register: () => {},
   updateUser: () => {},
   user: null,
+  accessToken: null, // ✅ 추가
   isLoading: true,
   isAuthReady: false,
 });
@@ -25,13 +26,19 @@ export const useAuth = () => {
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [accessToken, setAccessToken] = useState(null); // ✅ Context state
   const [isLoading, setIsLoading] = useState(true);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
+  const setBothTokens = (token) => {
+    setGlobalAccessToken(token); // axios-client 전역
+    setAccessToken(token); // Context state
+  };
+
   const login = async (email, password) => {
     try {
-      const accessToken = await authService.login(email, password);
-      setGlobalAccessToken(accessToken);
+      const newToken = await authService.login(email, password);
+      setBothTokens(newToken);
       await getUser();
     } catch (err) {
       console.error("로그인 실패:", err);
@@ -41,8 +48,8 @@ export default function AuthProvider({ children }) {
 
   const register = async (password, nickname, email) => {
     try {
-      const accessToken = await authService.register(password, nickname, email);
-      setGlobalAccessToken(accessToken);
+      const newToken = await authService.register(password, nickname, email);
+      setBothTokens(newToken);
       await getUser();
     } catch (err) {
       console.error("회원가입 실패:", err);
@@ -56,7 +63,7 @@ export default function AuthProvider({ children }) {
     } catch (err) {
       console.warn("서버 로그아웃 실패:", err);
     } finally {
-      setGlobalAccessToken(null);
+      setBothTokens(null);
       setUser(null);
     }
   };
@@ -90,7 +97,7 @@ export default function AuthProvider({ children }) {
     (async () => {
       const newAccessToken = await refreshAccessToken();
       if (newAccessToken) {
-        setGlobalAccessToken(newAccessToken);
+        setBothTokens(newAccessToken);
         await getUser();
       } else {
         console.warn("[Auth] No token received from refresh.");
@@ -122,6 +129,7 @@ export default function AuthProvider({ children }) {
     <AuthContext.Provider
       value={{
         user,
+        accessToken, // ✅ 이제 NotificationProvider에서 접근 가능
         login,
         logout,
         register,

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../providers/AuthProvider";
 import { LogOutIcon } from "lucide-react";
+import NotificationBell from "../NotificationBell";
 
 const slideDown = keyframes`
   from {
@@ -42,7 +43,7 @@ const Container = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   padding: 0 1.5rem;
-  
+
   @media (max-width: 640px) {
     padding: 0 1rem;
   }
@@ -122,10 +123,8 @@ const NavItem = styled.button`
   overflow: hidden;
 
   background: ${(props) =>
-    props.active
-      ? "linear-gradient(135deg, #eff6ff, #dbeafe)"
-      : "transparent"};
-  
+    props.active ? "linear-gradient(135deg, #eff6ff, #dbeafe)" : "transparent"};
+
   color: ${(props) => (props.active ? "#2563eb" : "#6b7280")};
 
   &::before {
@@ -474,6 +473,8 @@ const HeaderSlide = () => {
               <DesktopUserSection>
                 {user ? (
                   <>
+                    <NotificationBell />
+
                     <UserProfile onClick={() => navigate("/profile")}>
                       <UserAvatar>
                         {user.nickname ? user.nickname[0] : "U"}
@@ -484,7 +485,7 @@ const HeaderSlide = () => {
                       </UserInfo>
                     </UserProfile>
                     <AuthButton onClick={handleLogout}>
-                      <LogOutIcon size={18}/>
+                      <LogOutIcon size={18} />
                     </AuthButton>
                   </>
                 ) : (
