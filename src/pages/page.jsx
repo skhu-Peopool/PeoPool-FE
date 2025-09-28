@@ -421,7 +421,7 @@ const TitleCard = styled.div`
   display: flex;
   flex-direction: column;
   gap: 2rem;
-  max-width: 900px;
+  max-width: 901px;
   position: relative;
   overflow: hidden;
   z-index: 1;
