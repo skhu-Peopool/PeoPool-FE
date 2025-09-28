@@ -7,6 +7,7 @@ import {
   Users,
   Clock,
   Eye,
+  Edit3,
 } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { postService } from "../lib/api/post-service";
@@ -125,7 +126,7 @@ const TimelineContent = styled.div`
   border-left: 3px solid #60a5fa;
   position: relative;
   transition: all 0.3s ease;
-  
+
   &:hover {
     background: rgba(96, 165, 250, 0.1);
     transform: translateX(4px);
@@ -168,7 +169,7 @@ const MetaItem = styled.div`
 `;
 
 const CategoryBadge = styled.span`
-  background: ${props => {
+  background: ${(props) => {
     switch (props.category) {
       case "동아리":
         return "linear-gradient(135deg, #e9d5ff, #ddd6fe)";
@@ -182,7 +183,7 @@ const CategoryBadge = styled.span`
         return "linear-gradient(135deg, #f3f4f6, #e5e7eb)";
     }
   }};
-  color: ${props => {
+  color: ${(props) => {
     switch (props.category) {
       case "동아리":
         return "#7c3aed";
@@ -207,7 +208,7 @@ const StatusBadge = styled.span`
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: ${props => {
+  background: ${(props) => {
     switch (props.status) {
       case "RECRUITING":
         return "linear-gradient(135deg, #dcfce7, #bbf7d0)";
@@ -219,7 +220,7 @@ const StatusBadge = styled.span`
         return "linear-gradient(135deg, #f3f4f6, #e5e7eb)";
     }
   }};
-  color: ${props => {
+  color: ${(props) => {
     switch (props.status) {
       case "RECRUITING":
         return "#065f46";
@@ -262,14 +263,14 @@ const EmptySubtitle = styled.p`
 
 const Activity = () => {
   const [myPosts, setMyPosts] = useState([]);
-  const [myApplications, setMyApplications] = useState([]);
+  const [myApprovedEnrollments, setMyApprovedEnrollments] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
-        
+
         // 내가 작성한 글 가져오기
         const postsResponse = await postService.getMyPost();
         const formattedPosts = postsResponse.posts.map((post) => ({
@@ -284,9 +285,19 @@ const Activity = () => {
         }));
         setMyPosts(formattedPosts);
 
-        const applicationsResponse = await enrollmentService.getMyApplications();
-        setMyApplications(applicationsResponse);
-        
+        const approvedResponse =
+          await enrollmentService.getMyApprovedEnrollments();
+        const formattedApproved = approvedResponse.map((enrollment) => ({
+          id: enrollment.enrollmentId,
+          title: enrollment.postTitle,
+          category:
+            categoryLabelMap[enrollment.postCategory] ||
+            enrollment.postCategory,
+          status: enrollment.status,
+          appliedAt: enrollment.appliedAt,
+          comment: enrollment.comment,
+        }));
+        setMyApprovedEnrollments(formattedApproved);
       } catch (error) {
         console.error("데이터 불러오기 실패:", error);
       } finally {
@@ -301,10 +312,14 @@ const Activity = () => {
     switch (status) {
       case "RECRUITING":
         return "모집 중";
-      case "CLOSED":
-        return "모집 마감";
-      case "COMPLETED":
-        return "활동 종료";
+      case "RECRUITED":
+        return "모집완료";
+      case "UPCOMING":
+        return "모집예정";
+      case "UNDER_REVIEW":
+        return "검토 중";
+      case "APPROVED":
+        return "승인됨";
       default:
         return "상태 미상";
     }
@@ -313,11 +328,14 @@ const Activity = () => {
   const formatDate = (dateString) => {
     if (!dateString) return "";
     const date = new Date(dateString);
-    return date.toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-    }).replace(/\. /g, '.').replace(/\.$/, '');
+    return date
+      .toLocaleDateString("ko-KR", {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+      })
+      .replace(/\. /g, ".")
+      .replace(/\.$/, "");
   };
 
   if (loading) {
@@ -386,7 +404,9 @@ const Activity = () => {
               <PenTool size={48} />
             </EmptyIcon>
             <EmptyTitle>작성한 글이 없습니다</EmptyTitle>
-            <EmptySubtitle>새로운 활동을 만들어 사람들과 함께해보세요!</EmptySubtitle>
+            <EmptySubtitle>
+              새로운 활동을 만들어 사람들과 함께해보세요!
+            </EmptySubtitle>
           </EmptyState>
         )}
       </ActivitySection>
@@ -400,32 +420,32 @@ const Activity = () => {
             </ActivityIconWrapper>
             <ActivityTitle>내 참여 활동</ActivityTitle>
           </HeaderLeft>
-          <ActivityCount>{myApplications.length}개</ActivityCount>
+          <ActivityCount>{myApprovedEnrollments.length}개</ActivityCount>
         </ActivityHeader>
 
-        {myApplications.length > 0 ? (
+        {myApprovedEnrollments.length > 0 ? (
           <Timeline>
-            {myApplications.map((application) => (
-              <TimelineItem key={application.id}>
+            {myApprovedEnrollments.map((activity) => (
+              <TimelineItem key={activity.id}>
                 <TimelineDot>
                   <Users size={12} />
                 </TimelineDot>
                 <TimelineContent>
-                  <StatusBadge status={application.status}>
-                    {application.statusText}
+                  <StatusBadge status={activity.status}>
+                    {getStatusText(activity.status)}
                   </StatusBadge>
-                  <CategoryBadge category={application.category}>
-                    {application.category}
+                  <CategoryBadge category={activity.category}>
+                    {activity.category}
                   </CategoryBadge>
-                  <ActivityName>{application.title}</ActivityName>
+                  <ActivityName>{activity.title}</ActivityName>
                   <ActivityDate>
                     <Calendar size={14} />
-                    신청일: {formatDate(application.appliedAt)}
+                    신청일: {formatDate(activity.appliedAt)}
                   </ActivityDate>
                   <ActivityMeta>
                     <MetaItem>
-                      <Clock size={14} />
-                      상태: {application.statusText}
+                      <Edit3 size={14} />
+                      코멘트: {activity.comment}
                     </MetaItem>
                   </ActivityMeta>
                 </TimelineContent>

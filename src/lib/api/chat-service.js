@@ -15,7 +15,7 @@ export const chatService = {
       console.error("에러 상세:", {
         status: error.status,
         message: error.message,
-        response: error.response
+        response: error.response,
       });
       throw error;
     }
@@ -40,7 +40,7 @@ export const chatService = {
   sendMessage: async (receiverId, message) => {
     console.log("sendMessage 호출:", { receiverId, message });
     try {
-      const result = await tokenFetch("/chat/send", {
+      const result = await tokenFetch("/chat/send", null, {
         method: "POST",
         body: {
           receiverId,
@@ -58,25 +58,24 @@ export const chatService = {
   startChatWithMessage: async (receiverId, message = "안녕하세요! 👋") => {
     try {
       console.log("startChatWithMessage 호출:", { receiverId, message });
-      
+
       const numericReceiverId = parseInt(receiverId);
       if (isNaN(numericReceiverId)) {
         throw new Error("잘못된 사용자 ID입니다.");
       }
-      const response = await tokenFetch("/chat/send", {
+      const response = await tokenFetch("/chat/send", null, {
         method: "POST",
         body: {
           receiverId: numericReceiverId,
           message: message,
         },
       });
-      
+
       console.log("메시지 전송 성공:", response);
       return response;
-      
     } catch (error) {
       console.error("startChatWithMessage 에러:", error);
-      
+
       // 상세한 에러 메시지 제공
       if (error.status === 401 || error.status === 403) {
         throw new Error("로그인이 필요합니다. 다시 로그인해주세요.");
@@ -87,7 +86,7 @@ export const chatService = {
       if (error.status === 404) {
         throw new Error("상대방을 찾을 수 없습니다.");
       }
-      
+
       throw error;
     }
   },
@@ -95,7 +94,7 @@ export const chatService = {
   // 메시지 읽음 처리
   markMessageAsRead: async (messageId) => {
     try {
-      const result = await tokenFetch(`/chat/read/${messageId}`, {
+      const result = await tokenFetch(`/chat/read/${messageId}`, null, {
         method: "PATCH",
       });
       return result;
@@ -108,7 +107,7 @@ export const chatService = {
   // 채팅방의 모든 메시지 읽음 처리
   markRoomAsRead: async (roomId) => {
     try {
-      const result = await tokenFetch(`/chat/room/${roomId}/read`, {
+      const result = await tokenFetch(`/chat/chatroom/${roomId}`, {
         method: "PATCH",
       });
       return result;
@@ -134,7 +133,7 @@ export const chatService = {
   // 채팅방 나가기
   leaveChatRoom: async (roomId) => {
     try {
-      const result = await tokenFetch(`/chat/room/${roomId}/leave`, {
+      const result = await tokenFetch(`/chat/room/${roomId}/leave`, null, {
         method: "DELETE",
       });
       return result;

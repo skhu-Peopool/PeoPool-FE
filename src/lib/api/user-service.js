@@ -4,7 +4,7 @@ export const userService = {
   getMe: () => tokenFetch("/user"),
 
   updateMe: (userData) =>
-    tokenFetch("/update/profile", {
+    tokenFetch("/update/profile", undefined, {
       method: "PATCH",
       data: userData,
       headers: {
@@ -21,7 +21,7 @@ export const userService = {
 
   updateProfileVisibility: (visible) => {
     const visibilityStatus = visible ? "VISIBLE" : "INVISIBLE";
-    return tokenFetch("/update/profilevisible", {
+    return tokenFetch("/update/profilevisible", undefined, {
       method: "PATCH",
       data: { visible: visibilityStatus },
       headers: {

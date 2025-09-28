@@ -5,6 +5,7 @@ import styled, { keyframes } from "styled-components";
 import Header from "../../components/Header";
 import { userService } from "../../lib/api/user-service";
 import { chatService } from "../../lib/api/chat-service";
+import { useAuth } from "../../providers/AuthProvider";
 
 const fadeIn = keyframes`
   from { opacity: 0; transform: translateY(20px); }
@@ -263,8 +264,12 @@ const LoadingSpinner = styled.div`
   animation: spin 1s linear infinite;
 
   @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 
@@ -272,69 +277,86 @@ const TeamFinder = () => {
   const [members, setMembers] = useState([]);
   const [startingChat, setStartingChat] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     async function fetchMembers() {
       try {
         const response = await userService.getVisibleProfiles();
-        const mapped = response.userList.map((user) => ({
-          id: user.id,
-          name: user.nickname,
-          role: user.subIntroduction || "역할 정보 없음",
-          description: user.mainIntroduction || "",
-          hashtags: user.hashtag
-            ? user.hashtag.split(",").map((tag) => tag.trim())
-            : [],
-          avatar: user.nickname ? user.nickname.charAt(0) : "?",
-          lastSeen: user.email,
-          rating: user.kakaoId || "N/A",
-        }));
+        const mapped = response.userList
+          // 본인 제외
+          .filter((u) => u.id !== user?.id)
+          .map((user) => ({
+            id: user.id,
+            name: user.nickname,
+            role: user.subIntroduction || "역할 정보 없음",
+            description: user.mainIntroduction || "",
+            hashtags: user.hashtag
+              ? user.hashtag.split(",").map((tag) => tag.trim())
+              : [],
+            avatar: user.nickname ? user.nickname.charAt(0) : "?",
+            lastSeen: user.email,
+            rating: user.kakaoId || "N/A",
+          }));
         setMembers(mapped);
       } catch (err) {
         console.error("팀원 데이터 불러오기 실패", err);
       }
     }
     fetchMembers();
-  }, []);
+  }, [user]);
 
   const handleStartChat = async (member, e) => {
-      e.stopPropagation();
-      
-      if (startingChat === member.id) return;
-      
-      try {
-        setStartingChat(member.id);
-        
-        console.log("채팅 시작 시도:", { memberId: member.id, memberName: member.name });
-        
-        // 메시지 전송
+    e.stopPropagation();
+    if (startingChat === member.id) return;
+
+    try {
+      setStartingChat(member.id);
+
+      // 내 채팅방 목록 가져오기
+      const { chatRoomList } = await chatService.getChatRooms();
+
+      // 상대방과의 채팅방 존재 여부 확인
+      const existingRoom = chatRoomList.find(
+        (room) => Number(room.opponentId) === Number(member.id)
+      );
+
+      if (existingRoom) {
+        console.log("이미 존재하는 채팅방 → 이동");
+        // ✅ roomId를 URL 쿼리에 포함시켜 이동
+        navigate(`/chat?roomId=${existingRoom.roomId}&to=${member.id}`);
+      } else {
+        console.log("새로운 채팅방 생성 → 첫 인사 전송");
         await chatService.startChatWithMessage(
-          member.id, 
+          member.id,
           "안녕하세요! 팀원 찾기에서 연락드립니다. 😊"
         );
-        
-        console.log("채팅 시작 성공");
-        setTimeout(() => {
-          navigate('/chat', { 
-            state: { 
-              targetMemberId: member.id,
-              targetMemberName: member.name,
-              justCreated: true
-            } 
-          });
-        }, 100);
-        
-      } catch (error) {
-        console.error("채팅 시작 실패:", error);
-        alert(error.message || "채팅을 시작하는데 실패했습니다. 다시 시도해주세요.");
-      } finally {
-        setStartingChat(null);
+
+        // 다시 getChatRooms 호출해서 방 id 찾기
+        const { chatRoomList: updatedList } = await chatService.getChatRooms();
+        const newRoom = updatedList.find(
+          (room) => Number(room.opponentId) === Number(member.id)
+        );
+
+        if (!newRoom)
+          throw new Error("채팅방 생성 후 roomId를 찾을 수 없습니다.");
+
+        // ✅ 새로 생성된 roomId를 URL에 포함시켜 이동
+        navigate(`/chat?roomId=${newRoom.roomId}&to=${member.id}`);
       }
-    };
+    } catch (error) {
+      console.error("채팅 시작 실패:", error);
+      alert(
+        error.message || "채팅을 시작하는데 실패했습니다. 다시 시도해주세요."
+      );
+    } finally {
+      setStartingChat(null);
+    }
+  };
 
   const PersonCard = ({ member }) => (
     <Card>
-      <ContactButton 
+      <ContactButton
         onClick={(e) => handleStartChat(member, e)}
         disabled={startingChat === member.id}
         title={`${member.name}님과 채팅하기`}

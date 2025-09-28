@@ -19,6 +19,14 @@ export const enrollmentService = {
     return response.enrollmentApplyingList || [];
   },
 
+  // 해당 유저가 승인받은 모집글 목록 조회
+  getMyApprovedEnrollments: async () => {
+    const response = await tokenFetch("/enrollment/member/approved", {
+      method: "GET",
+    });
+    return response.enrollmentApplyingList || [];
+  },
+
   // 신청 내역 취소
   cancelEnrollment: async (postId) => {
     const response = await tokenFetch(`/enrollment/cancel/${postId}`, null, {

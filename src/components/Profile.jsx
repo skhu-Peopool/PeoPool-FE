@@ -327,6 +327,7 @@ const IntroTextArea = styled.textarea`
   min-height: 4rem;
   margin-bottom: 0.75rem;
   transition: all 0.3s ease;
+  resize: none;
 
   &:focus {
     outline: none;
@@ -556,6 +557,7 @@ const Profile = () => {
       const updatedData = await userService.getMe();
       setInitialProfileData(updatedData);
       setProfileData(updatedData);
+      setIsProfileVisible(updatedData.visible === "VISIBLE");
       setIsEditing(false);
       setImageFile(null);
       setImagePreview(null);
@@ -594,195 +596,193 @@ const Profile = () => {
 
   return (
     <>
-         <ProfileCard>
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            accept="image/*"
-            style={{ display: "none" }}
-          />
-          <ProfileImageWrapper
-            onClick={handleImageClick}
-            style={{ cursor: isEditing ? "pointer" : "default" }}>
-            {imagePreview ? (
-              <ProfileImageDisplay src={imagePreview} alt="Profile Preview" />
-            ) : profileData.profileImage &&
-              profileData.profileImage !== DEFAULT_IMAGE_URL ? (
-              <ProfileImageDisplay
-                src={profileData.profileImage}
-                alt="Profile"
-              />
-            ) : (
-              <ProfileImage>{getInitials(profileData.nickname)}</ProfileImage>
-            )}
-            {isEditing && (
-              <ProfileImageHover>
-                <Edit3 size={24} />
-              </ProfileImageHover>
-            )}
-            <OnlineIndicator />
-          </ProfileImageWrapper>
+      <ProfileCard>
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageChange}
+          accept="image/*"
+          style={{ display: "none" }}
+        />
+        <ProfileImageWrapper
+          onClick={handleImageClick}
+          style={{ cursor: isEditing ? "pointer" : "default" }}
+        >
+          {imagePreview ? (
+            <ProfileImageDisplay src={imagePreview} alt="Profile Preview" />
+          ) : profileData.profileImage &&
+            profileData.profileImage !== DEFAULT_IMAGE_URL ? (
+            <ProfileImageDisplay src={profileData.profileImage} alt="Profile" />
+          ) : (
+            <ProfileImage>{getInitials(profileData.nickname)}</ProfileImage>
+          )}
+          {isEditing && (
+            <ProfileImageHover>
+              <Edit3 size={24} />
+            </ProfileImageHover>
+          )}
+          <OnlineIndicator />
+        </ProfileImageWrapper>
 
-          <ProfileInfo>
-            {isEditing ? (
-              <EditInput
-                type="text"
-                value={profileData.nickname}
-                onChange={(e) => handleInputChange("nickname", e.target.value)}
-                placeholder="이름을 입력하세요"
-              />
-            ) : (
-              <ProfileName>{profileData.nickname}</ProfileName>
-            )}
+        <ProfileInfo>
+          {isEditing ? (
+            <EditInput
+              type="text"
+              value={profileData.nickname}
+              onChange={(e) => handleInputChange("nickname", e.target.value)}
+              placeholder="이름을 입력하세요"
+            />
+          ) : (
+            <ProfileName>{profileData.nickname}</ProfileName>
+          )}
 
-            <InfoGrid>
-              <InfoItem>
-                <InfoIcon>
-                  <Calendar size={16} />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>가입일</InfoLabel>
-                  <InfoValue>
-                    {new Date(profileData.createdAt).toLocaleDateString()}
-                  </InfoValue>
-                </InfoContent>
-              </InfoItem>
+          <InfoGrid>
+            <InfoItem>
+              <InfoIcon>
+                <Calendar size={16} />
+              </InfoIcon>
+              <InfoContent>
+                <InfoLabel>가입일</InfoLabel>
+                <InfoValue>
+                  {new Date(profileData.createdAt).toLocaleDateString()}
+                </InfoValue>
+              </InfoContent>
+            </InfoItem>
 
-              <InfoItem>
-                <InfoIcon>
-                  <Mail size={16} />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>Email</InfoLabel>
-                  <InfoValue>{profileData.email}</InfoValue>
-                </InfoContent>
-              </InfoItem>
+            <InfoItem>
+              <InfoIcon>
+                <Mail size={16} />
+              </InfoIcon>
+              <InfoContent>
+                <InfoLabel>Email</InfoLabel>
+                <InfoValue>{profileData.email}</InfoValue>
+              </InfoContent>
+            </InfoItem>
 
-              <InfoItem>
-                <InfoIcon>
-                  <MessageCircle size={16} />
-                </InfoIcon>
-                <InfoContent>
-                  <InfoLabel>카카오 ID</InfoLabel>
-                  {isEditing ? (
-                    <InfoInput
-                      type="text"
-                      value={profileData.kakaoId || ""}
-                      onChange={(e) =>
-                        handleInputChange("kakaoId", e.target.value)
-                      }
-                    />
-                  ) : (
-                    <InfoValue>{profileData.kakaoId || "정보 없음"}</InfoValue>
-                  )}
-                </InfoContent>
-              </InfoItem>
-            </InfoGrid>
-
-            <TagsContainer>
-              <InfoLabel style={{ marginBottom: "0.75rem", display: "block" }}>
-                관심 분야
-              </InfoLabel>
-              {isEditing ? (
-                <TagInput
-                  type="text"
-                  value={profileData.hashtag || ""}
-                  onChange={(e) => handleInputChange("hashtag", e.target.value)}
-                  placeholder="예: 풀스텍, 디자이너 (쉼표로 구분)"
-                />
-              ) : (
-                <TagsGrid>
-                  {(profileData.hashtag || "")
-                    .split(",")
-                    .map((tag, index) =>
-                      tag.trim() ? <Tag key={index}>#{tag.trim()}</Tag> : null
-                    )}
-                </TagsGrid>
-              )}
-            </TagsContainer>
-
-            <Introduction>
-              {isEditing ? (
-                <>
-                  <InfoLabel style={{ marginBottom: "0.5rem" }}>
-                    한 줄 소개
-                  </InfoLabel>
+            <InfoItem>
+              <InfoIcon>
+                <MessageCircle size={16} />
+              </InfoIcon>
+              <InfoContent>
+                <InfoLabel>카카오 ID</InfoLabel>
+                {isEditing ? (
                   <InfoInput
                     type="text"
-                    value={profileData.subIntroduction || ""}
+                    value={profileData.kakaoId || ""}
                     onChange={(e) =>
-                      handleInputChange("subIntroduction", e.target.value)
+                      handleInputChange("kakaoId", e.target.value)
                     }
-                    placeholder="나를 한 줄로 표현해보세요."
-                    style={{ marginBottom: "1rem" }}
                   />
-                  <InfoLabel style={{ marginBottom: "0.5rem" }}>
-                    자기소개
-                  </InfoLabel>
-                  <IntroTextArea
-                    value={profileData.mainIntroduction || ""}
-                    onChange={(e) =>
-                      handleInputChange("mainIntroduction", e.target.value)
-                    }
-                    rows="4"
-                    placeholder="자기소개를 입력하세요."
-                  />
-                </>
-              ) : (
-                <>
-                  <IntroTitle>
-                    {profileData.subIntroduction || "한 줄 소개가 없습니다."}
-                  </IntroTitle>
-                  <IntroText>
-                    {profileData.mainIntroduction || "자기소개가 없습니다."}
-                  </IntroText>
-                </>
-              )}
-            </Introduction>
+                ) : (
+                  <InfoValue>{profileData.kakaoId || "정보 없음"}</InfoValue>
+                )}
+              </InfoContent>
+            </InfoItem>
+          </InfoGrid>
 
-            {isEditing && (
-              <ToggleSwitchWrapper>
-                <ToggleLabel>프로필 공개 설정</ToggleLabel>
-                <ToggleSwitchContainer>
-                  <ToggleSwitchInput
-                    type="checkbox"
-                    checked={isProfileVisible}
-                    onChange={handleVisibilityChange}
-                  />
-                  <ToggleSwitchSlider />
-                </ToggleSwitchContainer>
-              </ToggleSwitchWrapper>
+          <TagsContainer>
+            <InfoLabel style={{ marginBottom: "0.75rem", display: "block" }}>
+              관심 분야
+            </InfoLabel>
+            {isEditing ? (
+              <TagInput
+                type="text"
+                value={profileData.hashtag || ""}
+                onChange={(e) => handleInputChange("hashtag", e.target.value)}
+                placeholder="예: 풀스텍, 디자이너 (쉼표로 구분)"
+              />
+            ) : (
+              <TagsGrid>
+                {(profileData.hashtag || "")
+                  .split(",")
+                  .map((tag, index) =>
+                    tag.trim() ? <Tag key={index}>#{tag.trim()}</Tag> : null
+                  )}
+              </TagsGrid>
             )}
-          </ProfileInfo>
+          </TagsContainer>
 
-          <ProfileActions>
+          <Introduction>
             {isEditing ? (
               <>
-                <ProfileButton className="save" onClick={handleSave}>
-                  저장하기
-                </ProfileButton>
-                <ProfileButton className="cancel" onClick={handleCancel}>
-                  취소하기
-                </ProfileButton>
+                <InfoLabel style={{ marginBottom: "0.5rem" }}>
+                  한 줄 소개
+                </InfoLabel>
+                <InfoInput
+                  type="text"
+                  value={profileData.subIntroduction || ""}
+                  onChange={(e) =>
+                    handleInputChange("subIntroduction", e.target.value)
+                  }
+                  placeholder="나를 한 줄로 표현해보세요."
+                  style={{ marginBottom: "1rem" }}
+                />
+                <InfoLabel style={{ marginBottom: "0.5rem" }}>
+                  자기소개
+                </InfoLabel>
+                <IntroTextArea
+                  value={profileData.mainIntroduction || ""}
+                  onChange={(e) =>
+                    handleInputChange("mainIntroduction", e.target.value)
+                  }
+                  rows="4"
+                  placeholder="자기소개를 입력하세요."
+                />
               </>
             ) : (
               <>
-                <ProfileButton
-                  className="edit"
-                  onClick={() => setIsEditing(true)}>
-                  <Edit3 size={16} />
-                  프로필 수정
-                </ProfileButton>
-                <ProfileButton className="password">
-                  <Lock size={16} />
-                  비밀번호 변경
-                </ProfileButton>
+                <IntroTitle>
+                  {profileData.subIntroduction || "한 줄 소개가 없습니다."}
+                </IntroTitle>
+                <IntroText>
+                  {profileData.mainIntroduction || "자기소개가 없습니다."}
+                </IntroText>
               </>
             )}
-          </ProfileActions>
-        </ProfileCard>
+          </Introduction>
 
+          {isEditing && (
+            <ToggleSwitchWrapper>
+              <ToggleLabel>프로필 공개 설정</ToggleLabel>
+              <ToggleSwitchContainer>
+                <ToggleSwitchInput
+                  type="checkbox"
+                  checked={isProfileVisible}
+                  onChange={handleVisibilityChange}
+                />
+                <ToggleSwitchSlider />
+              </ToggleSwitchContainer>
+            </ToggleSwitchWrapper>
+          )}
+        </ProfileInfo>
+
+        <ProfileActions>
+          {isEditing ? (
+            <>
+              <ProfileButton className="save" onClick={handleSave}>
+                저장하기
+              </ProfileButton>
+              <ProfileButton className="cancel" onClick={handleCancel}>
+                취소하기
+              </ProfileButton>
+            </>
+          ) : (
+            <>
+              <ProfileButton
+                className="edit"
+                onClick={() => setIsEditing(true)}
+              >
+                <Edit3 size={16} />
+                프로필 수정
+              </ProfileButton>
+              <ProfileButton className="password">
+                <Lock size={16} />
+                비밀번호 변경
+              </ProfileButton>
+            </>
+          )}
+        </ProfileActions>
+      </ProfileCard>
     </>
   );
 };
