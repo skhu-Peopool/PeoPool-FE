@@ -1,4 +1,4 @@
-import { Calendar, UserSearch, Users, Menu, X, LogIn } from "lucide-react";
+import { Calendar, UserSearch, Users, Menu, X, LogIn, MessageCircle } from "lucide-react";
 import styled, { keyframes } from "styled-components";
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -431,6 +431,11 @@ const HeaderSlide = () => {
       path: "/calendar",
       icon: Calendar,
       text: "달력/시간표",
+    },
+     {
+      path: "/chat",
+      icon: MessageCircle,
+      text: "채팅하기",
     },
   ];
 

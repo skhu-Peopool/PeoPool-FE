@@ -328,6 +328,7 @@ const ApplyButton = styled.button`
 
    &:disabled {
     background: #acafb7ff;
+   }
 `;
 
 // 남은 일수 계산 함수
