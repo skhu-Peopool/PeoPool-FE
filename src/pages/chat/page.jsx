@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import {
   Send,
   MoreVertical,
@@ -13,6 +13,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { chatService } from "../../lib/api/chat-service";
+import EmojiPickerButton from "../../components/EmojiPickerButton";
 
 const ChatInterface = () => {
   const [message, setMessage] = useState("");
@@ -25,6 +26,8 @@ const ChatInterface = () => {
   const [error, setError] = useState(null);
 
   const messagesEndRef = useRef(null);
+
+  const inputRef = useRef(null);
 
   const [searchParams] = useSearchParams();
   const roomIdFromUrl = searchParams.get("roomId");
@@ -61,46 +64,6 @@ const ChatInterface = () => {
   useEffect(() => {
     loadChatRooms();
   }, [roomIdFromUrl]);
-
-  // // TeamFinder에서 전달받은 state 처리
-  // useEffect(() => {
-  //   const locationState = location?.state;
-  //   if (locationState?.justCreated && locationState?.targetMemberId) {
-  //     console.log("새로 생성된 채팅방 정보:", locationState);
-
-  //     const selectNewChat = async () => {
-  //       try {
-  //         await loadChatRooms();
-
-  //         setTimeout(() => {
-  //           setDirectChats((prevChats) => {
-  //             const targetChat = prevChats.find(
-  //               (chat) =>
-  //                 chat.receiverId === locationState.targetMemberId ||
-  //                 chat.name === locationState.targetMemberName
-  //             );
-
-  //             if (targetChat) {
-  //               console.log("타겟 채팅방 찾음:", targetChat);
-  //               setSelectedChat(targetChat);
-  //             } else {
-  //               console.log(
-  //                 "타겟 채팅방을 찾을 수 없음. 사용 가능한 채팅방:",
-  //                 prevChats
-  //               );
-  //             }
-
-  //             return prevChats;
-  //           });
-  //         }, 500);
-  //       } catch (error) {
-  //         console.error("새 채팅방 선택 중 오류:", error);
-  //       }
-  //     };
-
-  //     selectNewChat();
-  //   }
-  // }, [location?.state]);
 
   // 선택된 채팅방 메시지 로드
   useEffect(() => {
@@ -299,6 +262,9 @@ const ChatInterface = () => {
       setMessages((prev) => [...prev, tempMessage]);
       setMessage("");
 
+      // 버튼 클릭으로 포커스가 이동하지 않도록 즉시 되돌림
+      requestAnimationFrame(() => inputRef.current?.focus());
+
       console.log("메시지 전송 시작:", {
         receiverId: selectedChat.receiverId,
         receiverName: selectedChat.name,
@@ -352,25 +318,6 @@ const ChatInterface = () => {
       console.error("메시지 전송 실패:", error);
       setError("메시지 전송 실패: " + (error.message || "알 수 없는 오류"));
 
-      // let errorMessage = "메시지 전송에 실패했습니다.";
-
-      // if (!selectedChat.receiverId) {
-      //   errorMessage =
-      //     "수신자 정보가 없습니다. 페이지를 새로고침하고 다시 시도해주세요.";
-      // } else if (error.status === 500) {
-      //   errorMessage = "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
-      // } else if (error.status === 401 || error.status === 403) {
-      //   errorMessage = "인증이 만료되었습니다. 다시 로그인해주세요.";
-      // } else if (error.status === 404) {
-      //   errorMessage = "채팅 상대를 찾을 수 없습니다.";
-      // } else if (error.status === 400) {
-      //   errorMessage = "잘못된 요청입니다. 메시지를 확인해주세요.";
-      // } else if (error.message && error.message !== "Internal Server Error") {
-      //   errorMessage = error.message;
-      // }
-
-      // setError(errorMessage);
-
       if (tempMessage) {
         setMessages((prev) => prev.filter((msg) => msg.id !== tempMessage.id));
       }
@@ -382,6 +329,8 @@ const ChatInterface = () => {
       }, 5000);
     } finally {
       setSendingMessage(false);
+      // readOnly 해제된 이후 한 틱 뒤에 다시 포커스
+      setTimeout(() => inputRef.current?.focus(), 0);
     }
   };
 
@@ -664,93 +613,119 @@ const ChatInterface = () => {
                   </div>
                 </div>
               ) : (
-                messages.map((msg) => (
-                  <div
-                    key={msg.id}
-                    className={`flex ${
-                      msg.isMe ? "justify-end" : "justify-start"
-                    }`}
-                  >
+                messages.map((msg) => {
+                  // 단독 이모지 감지 (간단 버전)
+                  const isSingleEmoji =
+                    msg.text &&
+                    msg.text.length <= 3 &&
+                    /\p{Extended_Pictographic}/u.test(msg.text);
+
+                  return (
                     <div
-                      className={`flex gap-3 max-w-2xl ${
-                        msg.isMe ? "flex-row-reverse" : "flex-row"
+                      key={msg.id}
+                      className={`flex ${
+                        msg.isMe ? "justify-end" : "justify-start"
                       }`}
                     >
-                      {!msg.isMe && (
-                        <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                          {msg.avatar}
-                        </div>
-                      )}
+                      <div
+                        className={`flex gap-2 max-w-2xl items-end ${
+                          msg.isMe ? "flex-row-reverse" : "flex-row"
+                        }`}
+                      >
+                        {/* 아바타 (상대방일 때만 표시) */}
+                        {!msg.isMe && (
+                          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                            {msg.avatar}
+                          </div>
+                        )}
 
-                      <div className="flex flex-col">
-                        <div
-                          className={`
-                            px-4 py-3 rounded-2xl shadow-sm border transition-all hover:shadow-md
-                            ${
-                              msg.isMe
-                                ? "bg-blue-500 text-white rounded-br-md border-blue-500"
-                                : "bg-gray-100 text-gray-800 rounded-bl-md border-gray-200"
-                            }
-                            ${msg.sending ? "opacity-70" : ""}
-                          `}
-                        >
-                          <p className="leading-relaxed">{msg.text}</p>
-                          {msg.sending && (
-                            <div className="flex items-center gap-1 mt-1">
-                              <div className="w-2 h-2 bg-white opacity-60 rounded-full animate-pulse"></div>
-                              <span className="text-xs opacity-60">
-                                전송 중...
-                              </span>
+                        {/* 메시지 영역 */}
+                        <div className="flex flex-col">
+                          {isSingleEmoji ? (
+                            // 이모티콘 단독 메시지: 말풍선 제거 + 크게 표시
+                            <p className="text-4xl sm:text-5xl leading-relaxed">
+                              {msg.text}
+                            </p>
+                          ) : (
+                            // 일반 메시지: 기존 말풍선 유지
+                            <div
+                              className={`
+                                inline-flex items-center 
+                                px-4 py-3 rounded-2xl shadow-sm border transition-all hover:shadow-md
+                                ${
+                                  msg.isMe
+                                    ? "bg-blue-500 text-white rounded-br-md border-blue-500"
+                                    : "bg-gray-100 text-gray-800 rounded-bl-md border-gray-200"
+                                }
+                                ${msg.sending ? "opacity-70" : ""}
+                              `}
+                            >
+                              <p className="leading-relaxed">{msg.text}</p>
                             </div>
                           )}
+
+                          {/* 시간 + 전송 중 아이콘 */}
+                          <span
+                            className={`text-xs text-gray-500 mt-1.5 flex items-center gap-1 ${
+                              msg.isMe ? "justify-end" : "justify-start"
+                            }`}
+                          >
+                            {msg.time}
+
+                            {msg.isMe && msg.sending && (
+                              <Send
+                                size={12}
+                                className="text-blue-500 opacity-70 animate-pulse"
+                              />
+                            )}
+                          </span>
                         </div>
-                        <span
-                          className={`text-xs text-gray-500 mt-1.5 ${
-                            msg.isMe ? "text-right" : "text-left"
-                          }`}
-                        >
-                          {msg.time}
-                        </span>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
               <div ref={messagesEndRef} />
             </div>
 
             <div className="bg-white border-t border-gray-200 px-6 py-4 flex-shrink-0">
-              <div className="flex items-end gap-3">
-                <button className="p-2.5 hover:bg-gray-100 rounded-lg transition-all group flex-shrink-0">
+              <div className="flex items-center gap-3">
+                {/* 채팅 기능에서 첨부파일 보내는 거 추가 안할경우 빼겠음 */}
+                {/* <button className="p-2.5 hover:bg-gray-100 rounded-lg transition-all group flex-shrink-0">
                   <Paperclip
                     size={18}
                     className="text-gray-500 group-hover:text-blue-600"
                   />
-                </button>
+                </button> */}
 
                 <div className="flex-1 bg-gray-50 rounded-xl border border-gray-200 flex items-center px-4 py-2.5 focus-within:ring-2 focus-within:ring-blue-500 focus-within:border-blue-500 transition-all">
                   <textarea
+                    ref={inputRef}
+                    autoFocus
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     onKeyPress={handleKeyPress}
                     placeholder="메시지를 입력하세요..."
-                    className="flex-1 bg-transparent border-none outline-none resize-none max-h-24 min-h-[1.5rem] leading-relaxed"
+                    className="pl-1 flex-1 bg-transparent border-none outline-none resize-none max-h-24 min-h-[1.5rem] leading-relaxed"
                     rows="1"
-                    disabled={sendingMessage}
+                    readOnly={sendingMessage}
                   />
-                  <button className="p-1.5 hover:bg-gray-200 rounded-lg transition-all ml-2 group">
-                    <Smile
-                      size={16}
-                      className="text-gray-500 group-hover:text-blue-600"
-                    />
-                  </button>
+
+                  {/* 이모지 버튼 */}
+                  <EmojiPickerButton
+                    onSelect={(emoji) => {
+                      setMessage((prev) => prev + emoji);
+                      requestAnimationFrame(() => inputRef.current?.focus());
+                    }}
+                  />
                 </div>
 
                 <button
+                  onMouseDown={(e) => e.preventDefault()}
                   onClick={sendMessage}
                   disabled={!message.trim() || sendingMessage}
                   className={`
-                    p-3 rounded-xl transition-all transform hover:scale-105 flex-shrink-0 shadow-sm
+                    p-4 rounded-xl transition-all transform hover:scale-105 flex-shrink-0 shadow-sm
                     ${
                       message.trim() && !sendingMessage
                         ? "bg-blue-600 text-white hover:shadow-md hover:bg-blue-700"
