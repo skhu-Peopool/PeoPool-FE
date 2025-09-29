@@ -489,7 +489,7 @@ const Profile = () => {
         const data = await userService.getMe();
         setProfileData(data);
         setInitialProfileData(data);
-        setIsProfileVisible(data.visible === "VISIBLE");
+        setIsProfileVisible(data.profileVisible === "VISIBLE");
       } catch (error) {
         console.error("사용자 정보를 불러오는데 실패했습니다.", error);
         alert("사용자 정보를 불러오는데 실패했습니다.");
@@ -551,13 +551,15 @@ const Profile = () => {
     try {
       await Promise.all([
         userService.updateMe(formData),
-        userService.updateProfileVisibility(isProfileVisible),
+        userService.updateProfileVisibility(
+          isProfileVisible ? "VISIBLE" : "INVISIBLE"
+        ),
       ]);
 
       const updatedData = await userService.getMe();
       setInitialProfileData(updatedData);
       setProfileData(updatedData);
-      setIsProfileVisible(updatedData.visible === "VISIBLE");
+      setIsProfileVisible(updatedData.profileVisible === "VISIBLE");
       setIsEditing(false);
       setImageFile(null);
       setImagePreview(null);
@@ -574,7 +576,7 @@ const Profile = () => {
     setImageFile(null);
     setImagePreview(null);
     if (initialProfileData) {
-      setIsProfileVisible(initialProfileData.visible === "VISIBLE");
+      setIsProfileVisible(initialProfileData.profileVisible === "VISIBLE");
     }
   };
 
